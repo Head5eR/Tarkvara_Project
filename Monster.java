@@ -21,136 +21,57 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class Monster {
-	private static String strength;
-	private static String dexterity;
-	private static String stamina;
-	private static String wrath;
+	private String name;
+	private String strength;
+	private String dexterity;
+	private String stamina;
+	private String wrath;
+	private Modificator mod;
+	private static String expression = "//monster[@name]";
 	
-	
-    public String getStrength() {
-		return strength;
-	}
-	public static void setStrength(String newStrength) {
-		strength = newStrength;
-	}
-	public String getDexterity() {
-		return dexterity;
-	}
-	public static void setDexterity(String newDexterity) {
-		dexterity = newDexterity;
-	}
-	public String getStamina() {
-		return stamina;
-	}
-	public static void setStamina(String newStamina) {
-		stamina = newStamina;
-	}
-	public String getWrath() {
-		return wrath;
-	}
-	public static void setWrath(String newWrath) {
-		wrath = newWrath;
+	public Monster (int id) {
+		this.mod = new Modificator();
+		this.name = name;
+		
+		this.strength = strength;
+		this.dexterity = dexterity;
+		this.stamina = stamina;
+		this.wrath = wrath;
 	}
 	
-	public Monster (String randomName, String randomLevel, String strength, String dexterity, String stamina, String wrath) {
-		Monster.strength = strength;
-		Monster.dexterity = dexterity;
-		Monster.stamina = stamina;
-		Monster.wrath = wrath;
-	}
-	
-	public static void main(String[] args) {
-      try {
-    	 File inputFile1 = new File("monsters.xml");
-         File inputFile2 = new File("stats.xml");
+	private String readFromXML() {
+		try {
+    	 File inputFile = new File("monsters.xml");
+		    
          DocumentBuilderFactory dbFactory 
             = DocumentBuilderFactory.newInstance();
          DocumentBuilder dBuilder;
 
          dBuilder = dbFactory.newDocumentBuilder();
 
-         Document doc1 = dBuilder.parse(inputFile1);
-         Document doc2 = dBuilder.parse(inputFile2);
-         doc1.getDocumentElement().normalize();
-         doc2.getDocumentElement().normalize();
-
+         Document doc = dBuilder.parse(inputFile);
+        
+         doc.getDocumentElement().normalize();
+         
          XPath xPath =  XPathFactory.newInstance().newXPath();
-
-         String expression1 = "//monster[@name]";
-         String expression2 = "//difficulty[@level]";	        
-         NodeList nodeList1 = (NodeList) xPath.compile(expression1).evaluate(doc1, XPathConstants.NODESET);
-         NodeList nodeList2 = (NodeList) xPath.compile(expression2).evaluate(doc2, XPathConstants.NODESET);
-         List<String> myList1 = new ArrayList<String>();
-         for (int i = 0; i < nodeList1.getLength(); i++) {
-            Node nNode1 = nodeList1.item(i);
+        
+         NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+         
+         List<String> monsterList = new ArrayList<String>();
+         for (int i = 0; i < nodeList.getLength(); i++) {
+            Node nNode = nodeList.item(i);
             System.out.println("\nCurrent Element : " 
-               + nNode1.getNodeName());
-            if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
-               Element eElement1 = (Element) nNode1;
-               myList1.add(eElement1.getAttribute("name"));
+               + nNode.getNodeName());
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+               Element eElement = (Element) nNode1;
+               monsterList.add(eElement.getAttribute("name"));
                System.out.println("Monster name : " 
-                       + eElement1.getAttribute("name"));               
+                       + eElement.getAttribute("name"));               
             }
-         }              
-         
-         List<String> myList2 = new ArrayList<String>();
-         for (int i = 0; i < nodeList2.getLength(); i++) {
-             Node nNode2 = nodeList2.item(i);
-             System.out.println("\nCurrent Element : " 
-                + nNode2.getNodeName());
-             if (nNode2.getNodeType() == Node.ELEMENT_NODE) {
-                Element eElement2 = (Element) nNode2;
-                myList2.add(eElement2.getAttribute("level"));
-               System.out.println("Difficulty : " 
-                  + eElement2.getAttribute("level"));
-               System.out.println("Strength : " 
-                  + eElement2
-                     .getElementsByTagName("strength")
-                     .item(0)
-                     .getTextContent());
-               System.out.println("Dexterity : " 
-                  + eElement2
-                     .getElementsByTagName("dexterity")
-                     .item(0)
-                     .getTextContent());
-               System.out.println("Stamina : " 
-                  + eElement2
-                     .getElementsByTagName("stamina")
-                     .item(0)
-                     .getTextContent());
-               System.out.println("Wrath : " 
-                  + eElement2
-                     .getElementsByTagName("wrath")
-                     .item(0)
-                     .getTextContent());
-            }
-         }
-         
-         int x = new Random().nextInt(myList1.size());
-         int y = new Random().nextInt(myList2.size());
-         
-         String randomName = myList1.get(x);
-         System.out.println(randomName);
-         
-         String randomLevel = myList2.get(y);
-         System.out.println(randomLevel);
-         
-         Element levels = (Element) nodeList2;
-         
-         NodeList strength = levels.getElementsByTagName("strength");
-         NodeList dexterity = levels.getElementsByTagName("dexterity");
-         NodeList stamina = levels.getElementsByTagName("stamina");
-         NodeList wrath = levels.getElementsByTagName("wrath");
-         
-         
-         setStrength(strength.item(y).getFirstChild().getTextContent());
-         setDexterity(dexterity.item(y).getFirstChild().getTextContent());
-         setStamina(stamina.item(y).getFirstChild().getTextContent());
-         setWrath(wrath.item(y).getFirstChild().getTextContent());        	 
-         
-         
-         
-      } catch (ParserConfigurationException e) {
+         } 
+			String monsterName = monsterList.get(new Random().nextInt(monsterList.size()));
+			return monsterName;
+		} catch (ParserConfigurationException e) {
          e.printStackTrace();
       } catch (SAXException e) {
          e.printStackTrace();
@@ -159,7 +80,33 @@ public class Monster {
       } catch (XPathExpressionException e) {
          e.printStackTrace();
       }
-      Monster m = new Monster(null, null, null, null, null, null);
-      System.out.println(m);
-   }	
-}
+		return null;
+	}
+	
+	
+    public String getStrength() {
+		return strength + mod.getStrength;
+	}
+	public void setStrength(String newStrength) {
+		strength = newStrength;
+	}
+	public String getDexterity() {
+		return dexterity + mod.getDexterity;
+	}
+	public void setDexterity(String newDexterity) {
+		dexterity = newDexterity;
+	}
+	public String getStamina() {
+		return stamina + mod.getStamina;
+	}
+	public void setStamina(String newStamina) {
+		stamina = newStamina;
+	}
+	public String getWrath() {
+		return wrath + mod.getWrath;
+	}
+	public void setWrath(String newWrath) {
+		wrath = newWrath;
+	}
+	
+}	
