@@ -1,9 +1,9 @@
 # Aruanne aka changelog
 1.iteratsioon
-Kaarti random-generaator (Alustame lihtsast versioonist) (Gleb)
+Kaarti random-generaator
    - lihtne labirintide genraator on tehtud (praegu töötan parandatud versiooniga, kasutades libgdx-i built-in funktsionaalsust)
    - graafiline vaade
-Monstrite random-generaator (Kasutame kaks või rohkem sõnastiku, kus on kirjas modifikaatorid omadussõnadena) (Robert)
+Monstrite random-generaator
    - xml failidega põhiloogika on kirjutatud, aga vajab parandamist
    - Objectide loomine tuleb asap
 Hero stats + status (Denis)
