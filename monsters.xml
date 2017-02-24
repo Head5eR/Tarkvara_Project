@@ -1,9 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <monsters>
-	<monster name ="Skeleton"></monster>
-	<monster name ="Goblin"></monster>
-	<monster name ="Zombie"></monster>
-	<monster name ="Vampire"></monster>
-	<monster name ="Orc"></monster>
+	<monster name ="Skeleton">
+		<strength>1</strength>
+		<dexterity>1</dexterity>
+		<stamina>1</stamina>
+		<wrath>1</wrath>
+	</monster>
+	<monster name ="Goblin">
+		<strength>2</strength>
+		<dexterity>1</dexterity>
+		<stamina>2</stamina>
+		<wrath>2</wrath>
+	</monster>
+	<monster name ="Spider">
+		<strength>3</strength>
+		<dexterity>7</dexterity>
+		<stamina>3</stamina>
+		<wrath>1</wrath>
+	</monster>
+	<monster name ="Zombie">
+		<strength>3</strength>
+		<dexterity>2</dexterity>
+		<stamina>5</stamina>
+		<wrath>2</wrath>
+	</monster>
+	<monster name ="Vampire">
+		<strength>5</strength>
+		<dexterity>5</dexterity>
+		<stamina>5</stamina>
+		<wrath>3</wrath>
+	</monster>
+	<monster name ="Orc">
+		<strength>7</strength>
+		<dexterity>4</dexterity>
+		<stamina>7</stamina>
+		<wrath>5</wrath>
+	</monster>
 </monsters>
 	

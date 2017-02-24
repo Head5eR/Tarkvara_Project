@@ -1,4 +1,4 @@
-package com.mygdx.game;
+package tarkvaraproject;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,9 +69,10 @@ public class Modificator {
 				System.out.println("node: " + listOfAttributes.item(0).getTextContent());
 
 				for(int i=0; i<listOfAttributes.getLength(); i++) {
-					statList.add(listOfAttributes.item(i).getTextContent());
-					System.out.println(statList.toString());
+					statList.add(listOfAttributes.item(i).getTextContent());					
 				}
+				
+				System.out.println(statList.toString());
 			   
 				return statList;
 			}
@@ -117,6 +118,6 @@ public class Modificator {
 	
 	@Override
 	public String toString() {
-		return name + " " + strength + " " + dexterity + " " + wrath + " " + stamina;
+		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath;
 	}
 }
