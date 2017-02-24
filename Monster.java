@@ -1,4 +1,4 @@
-package tarkvaraproject;
+package com.mygdx.game;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,16 +26,18 @@ public class Monster {
 	private String dexterity;
 	private String stamina;
 	private String wrath;
+	private int id;
 	private Modificator mod;
 	private static String expression = "//monster[@name]";
 	
 	public Monster (int id) {
-		this.mod = new Modificator(strength, dexterity, stamina, wrath);
-		this.name = name;		
-		this.strength = strength;
-		this.dexterity = dexterity;
-		this.stamina = stamina;
-		this.wrath = wrath;
+		this.mod = new Modificator();
+		this.setId(id);
+		this.name = readFromXML();		
+		this.strength = mod.getStrength(); // should be changed to monsterStat + modificator in future!
+		this.dexterity = mod.getDexterity();
+		this.stamina = mod.getStamina();
+		this.wrath = mod.getWrath();
 	}
 	
 	private String readFromXML() {
@@ -58,14 +60,14 @@ public class Monster {
          
          List<String> monsterList = new ArrayList<String>();
          for (int i = 0; i < nodeList.getLength(); i++) {
-            Node nNode = nodeList.item(i);
+            Node monsterNode = nodeList.item(i);
             System.out.println("\nCurrent Element : " 
-               + nNode.getNodeName());
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-               Element eElement = (Element) nNode;
-               monsterList.add(eElement.getAttribute("name"));
+               + monsterNode.getNodeName());
+            if (monsterNode.getNodeType() == Node.ELEMENT_NODE) {
+               Element monsterXMLElement = (Element) monsterNode;
+               monsterList.add(monsterXMLElement.getAttribute("name"));
                System.out.println("Monster name : " 
-                       + eElement.getAttribute("name"));               
+                       + monsterXMLElement.getAttribute("name"));               
             }
          } 
 			String monsterName = monsterList.get(new Random().nextInt(monsterList.size()));
@@ -86,26 +88,43 @@ public class Monster {
     public String getStrength() {
 		return strength + mod.getStrength();
 	}
-	public void setStrength(String newStrength) {
-		strength = newStrength;
+	public void setStrength(String strength) {
+		this.strength = strength;
 	}
 	public String getDexterity() {
 		return dexterity + mod.getDexterity();
 	}
-	public void setDexterity(String newDexterity) {
-		dexterity = newDexterity;
+	public void setDexterity(String dexterity) {
+		this.dexterity = dexterity;
 	}
 	public String getStamina() {
 		return stamina + mod.getStamina();
 	}
-	public void setStamina(String newStamina) {
-		stamina = newStamina;
+	public void setStamina(String stamina) {
+		this.stamina = stamina;
 	}
 	public String getWrath() {
 		return wrath + mod.getWrath();
 	}
-	public void setWrath(String newWrath) {
-		wrath = newWrath;
+	public void setWrath(String wrath) {
+		this.wrath = wrath;
 	}
+
+	public int getId() {
+		return id;
+	}
+	
+	public Modificator getMod() {
+		return mod;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	@Override
+	public String toString() {
+		return name + " " + strength + " " + dexterity + " " + wrath + " " + stamina;
+	} 
 	
 }	

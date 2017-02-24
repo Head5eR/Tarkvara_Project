@@ -1,4 +1,4 @@
-package tarkvaraproject;
+package com.mygdx.game;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,13 +22,13 @@ import org.xml.sax.SAXException;
 
 public class Modificator {
 	private String name;
-	private static String strength;
-	private static String dexterity;
-	private static String stamina;
-	private static String wrath;
-	private static String expression = "//difficulty[@level]";	        
+	private String strength;
+	private String dexterity;
+	private String stamina;
+	private  String wrath;
+	private String expression = "//difficulty[@level]";	        
 	
-	public Modificator(String st, String dex, String stam, String wrath) {
+	public Modificator() {
 		List<String> stats = readFromXML();
 		
 		this.name = stats.get(0);
@@ -57,54 +57,22 @@ public class Modificator {
 			 
 			 List<String> statList = new ArrayList<String>();
 			 
-			 int y = new Random().nextInt(nodeList.getLength());
-			 
-			
-			 
-			 Node nNode = nodeList.item(y);
-			 System.out.println("\nCurrent Element : " 
-				+ nNode.getNodeName());
-			 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-				Element eElement = (Element) nNode;
-				statList.add(eElement.getAttribute("level"));
-			   System.out.println("Difficulty : " 
-				  + eElement.getAttribute("level"));
-			   System.out.println("Strength : " 
-				  + eElement
-					 .getElementsByTagName("strength")
-					 .item(0)
-					 .getTextContent());
-					 statList.add(eElement
-					 .getElementsByTagName("strength")
-					 .item(0)
-					 .getTextContent());
-			   System.out.println("Dexterity : " 
-				  + eElement
-					 .getElementsByTagName("dexterity")
-					 .item(0)
-					 .getTextContent());
-					 statList.add(eElement
-					 .getElementsByTagName("dexterity")
-					 .item(0)
-					 .getTextContent());
-			   System.out.println("Stamina : " 
-				  + eElement
-					 .getElementsByTagName("stamina")
-					 .item(0)
-					 .getTextContent());
-					 statList.add(eElement
-					 .getElementsByTagName("stamina")
-					 .item(0)
-					 .getTextContent());
-			   System.out.println("Wrath : " 
-				  + eElement
-					 .getElementsByTagName("wrath")
-					 .item(0)
-					 .getTextContent());
-					 statList.add(eElement
-					 .getElementsByTagName("wrath")
-					 .item(0)
-					 .getTextContent());
+			 int randomDifficultyNumber = new Random().nextInt(nodeList.getLength());
+
+			 Node difficultyNode = nodeList.item(randomDifficultyNumber);
+
+			 if (difficultyNode.getNodeType() == Node.ELEMENT_NODE) {
+				Element difficultyElement = (Element) difficultyNode; //casting node to element
+				statList.add(difficultyElement.getAttribute("level"));
+				NodeList listOfAttributes = difficultyElement.getElementsByTagName("*");
+
+				System.out.println("node: " + listOfAttributes.item(0).getTextContent());
+
+				for(int i=0; i<listOfAttributes.getLength(); i++) {
+					statList.add(listOfAttributes.item(i).getTextContent());
+					System.out.println(statList.toString());
+				}
+			   
 				return statList;
 			}
 			return null;
@@ -125,25 +93,30 @@ public class Modificator {
 	public String getStrength() {
 		return strength;
 	}
-	public static void setStrength(String newStrength) {
-		strength = newStrength;
+	public void setStrength(String strength) {
+		this.strength = strength;
 	}
 	public String getDexterity() {
 		return dexterity;
 	}
-	public static void setDexterity(String newDexterity) {
-		dexterity = newDexterity;
+	public void setDexterity(String dexterity) {
+		this.dexterity = dexterity;
 	}
 	public String getStamina() {
 		return stamina;
 	}
-	public static void setStamina(String newStamina) {
-		stamina = newStamina;
+	public void setStamina(String stamina) {
+		this.stamina = stamina;
 	}
 	public String getWrath() {
 		return wrath;
 	}
-	public static void setWrath(String newWrath) {
-		wrath = newWrath;
+	public void setWrath(String wrath) {
+		this.wrath = wrath;
+	}
+	
+	@Override
+	public String toString() {
+		return name + " " + strength + " " + dexterity + " " + wrath + " " + stamina;
 	}
 }
