@@ -1,19 +1,41 @@
+package tarkvaraproject;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
 public class Modificator {
 	private String name;
-	private String strength;
-	private String dexterity;
-	private String stamina;
-	private String wrath;
+	private static String strength;
+	private static String dexterity;
+	private static String stamina;
+	private static String wrath;
 	private static String expression = "//difficulty[@level]";	        
 	
 	public Modificator(String st, String dex, String stam, String wrath) {
 		List<String> stats = readFromXML();
 		
-		this.name = stats[0];
-		this.strength = stats[1];
-		this.dexterity = stats[2];
-		this.stamina = stats[3];
-		this.wrath = stats[4];
+		this.name = stats.get(0);
+		this.strength = stats.get(1);
+		this.dexterity = stats.get(2);
+		this.stamina = stats.get(3);
+		this.wrath = stats.get(4);
 	}
 	
 	private List<String> readFromXML() {
@@ -55,7 +77,7 @@ public class Modificator {
 					 statList.add(eElement
 					 .getElementsByTagName("strength")
 					 .item(0)
-					 .getTextContent())
+					 .getTextContent());
 			   System.out.println("Dexterity : " 
 				  + eElement
 					 .getElementsByTagName("dexterity")
@@ -64,7 +86,7 @@ public class Modificator {
 					 statList.add(eElement
 					 .getElementsByTagName("dexterity")
 					 .item(0)
-					 .getTextContent())
+					 .getTextContent());
 			   System.out.println("Stamina : " 
 				  + eElement
 					 .getElementsByTagName("stamina")
@@ -73,7 +95,7 @@ public class Modificator {
 					 statList.add(eElement
 					 .getElementsByTagName("stamina")
 					 .item(0)
-					 .getTextContent())
+					 .getTextContent());
 			   System.out.println("Wrath : " 
 				  + eElement
 					 .getElementsByTagName("wrath")
@@ -82,7 +104,7 @@ public class Modificator {
 					 statList.add(eElement
 					 .getElementsByTagName("wrath")
 					 .item(0)
-					 .getTextContent())
+					 .getTextContent());
 				return statList;
 			}
 			return null;

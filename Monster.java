@@ -30,9 +30,8 @@ public class Monster {
 	private static String expression = "//monster[@name]";
 	
 	public Monster (int id) {
-		this.mod = new Modificator();
-		this.name = name;
-		
+		this.mod = new Modificator(strength, dexterity, stamina, wrath);
+		this.name = name;		
 		this.strength = strength;
 		this.dexterity = dexterity;
 		this.stamina = stamina;
@@ -63,7 +62,7 @@ public class Monster {
             System.out.println("\nCurrent Element : " 
                + nNode.getNodeName());
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-               Element eElement = (Element) nNode1;
+               Element eElement = (Element) nNode;
                monsterList.add(eElement.getAttribute("name"));
                System.out.println("Monster name : " 
                        + eElement.getAttribute("name"));               
@@ -85,25 +84,25 @@ public class Monster {
 	
 	
     public String getStrength() {
-		return strength + mod.getStrength;
+		return strength + mod.getStrength();
 	}
 	public void setStrength(String newStrength) {
 		strength = newStrength;
 	}
 	public String getDexterity() {
-		return dexterity + mod.getDexterity;
+		return dexterity + mod.getDexterity();
 	}
 	public void setDexterity(String newDexterity) {
 		dexterity = newDexterity;
 	}
 	public String getStamina() {
-		return stamina + mod.getStamina;
+		return stamina + mod.getStamina();
 	}
 	public void setStamina(String newStamina) {
 		stamina = newStamina;
 	}
 	public String getWrath() {
-		return wrath + mod.getWrath;
+		return wrath + mod.getWrath();
 	}
 	public void setWrath(String newWrath) {
 		wrath = newWrath;
