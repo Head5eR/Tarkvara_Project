@@ -33,3 +33,5 @@ Baas kangelase liikumis-süsteem
   - equipment system for player (inventory + equiped items like armor or weapon)
   - better texture for hero
   - better camera movement without flickering
+  
+  ![Screenshot](/screenshot 26 02.PNG?raw=true)
