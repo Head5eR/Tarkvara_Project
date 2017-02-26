@@ -35,44 +35,34 @@ public class LabyrinthGenerator {
 	}
 	
 	public void generateMap() {
-		MatrixPrinter printer = new MatrixPrinter();
-		//printer.printMapImproved(map);
+		//MatrixPrinter printer = new MatrixPrinter();
 		while(move());
-		//move();
-		//System.out.println(map.getCell(0, 0));
-		//System.out.println(map.getCell(0, 1));
 		
-		printer.printMap(map);
+		//printer.printMap(map, true);
 		//printer.printMapImproved(map);
 	}
 	
-	public void addStep(Location newLoc, int direction) {
+	private void addStep(Location newLoc, int direction) {
 		if (newLoc.equals(endPos)) { return; }
 		route.add(newLoc);
 		//markAsVisited(route.get(currentStep));
 		markAsVisited(newLoc);
 	}
 	
-	public void markAsVisited(Location loc) {
+	private void markAsVisited(Location loc) {
 		map.setCell(loc, map.getCell(loc)+VISITED);
 	}
 	
 	
 	
-	public boolean move() {
-		//System.out.println("moving");
+	private boolean move() {
 		if(route.size() == 0){ return false;}
-		//System.out.println("moving2");
 		Location currentLoc = route.get(currentStep);
-		//System.out.println("currentLoc is: " + currentLoc);
 		wayExists = (canMove(MOVELEFT, currentLoc) || canMove(MOVEUP, currentLoc) || canMove(MOVERIGHT, currentLoc) || canMove(MOVEDOWN, currentLoc));
-		//System.out.println(wayExists);
 		if(wayExists) {
 			int direction = (int) Math.floor(Math.random() * 4);
-			//System.out.println("decided to move " + direction);
 			switch(direction) {
 			case 0: if (canMove(MOVELEFT, currentLoc)) {
-				//System.out.println("moving left");
 				Location newLoc = new Location(currentLoc.getX()-1, currentLoc.getY());
 				addStep(newLoc, direction);
 				map.minusInt(currentLoc, MOVELEFT);
@@ -80,21 +70,18 @@ public class LabyrinthGenerator {
 			}	break;
 			
 			case 1: if (canMove(MOVEUP, currentLoc)) {
-				//System.out.println("moving up");
 				Location newLoc = new Location(currentLoc.getX(), currentLoc.getY()-1);
 				addStep(newLoc, direction);
 				map.minusInt(currentLoc, MOVEUP);
 				map.minusInt(newLoc, MOVEDOWN);	
 			} break;
 			case 2: if (canMove(MOVERIGHT, currentLoc)) {
-				//System.out.println("moving right");
 				Location newLoc = new Location(currentLoc.getX()+1, currentLoc.getY());
 				addStep(newLoc, direction);
 				map.minusInt(currentLoc, MOVERIGHT);
 				map.minusInt(newLoc, MOVELEFT);
 			} break;
 			case 3: if (canMove(MOVEDOWN, currentLoc)) {
-				//System.out.println("moving down");
 				Location newLoc = new Location(currentLoc.getX(), currentLoc.getY()+1);
 				addStep(newLoc, direction);
 				map.minusInt(currentLoc, MOVEDOWN);
@@ -114,7 +101,6 @@ public class LabyrinthGenerator {
 	}
 	
 	private boolean canMove(int direction, Location loc) {
-		//System.out.println("checking if i can move from " + loc + " to " + direction);
 		switch(direction){
 			case MOVELEFT: return((loc.getX() > 0) && (map.getCell(loc.getX()-1, loc.getY()) < VISITED));
 			case MOVEUP: return(loc.getY() > 0 && (map.getCell(loc.getX(), loc.getY()-1) < VISITED));

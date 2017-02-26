@@ -3,17 +3,31 @@ package com.mygdx.game;
 import java.util.ArrayList;
 
 public class Matrix {
+	private int length;
 	private int width;
-	private int height;
 	private ArrayList<ArrayList> columns = new ArrayList<>();
 	
-	public Matrix(int width, int height) {
+	public Matrix(int length, int width, int cellValues) {
+		this.setLength(length);
 		this.setWidth(width);
-		this.setHeight(height);
 		
-		for(int i=0; i<width; i++) {
+		for(int i=0; i<length; i++) {
 			columns.add(new ArrayList<>());
-			for(int j=0; j<height; j++) {
+			for(int j=0; j<width; j++) {
+				 (columns.get(i)).add(cellValues);
+				
+			}
+		}
+		//System.out.println(columns.toString());
+	}
+	
+	public Matrix(int length, int width) {
+		this.setLength(length);
+		this.setWidth(width);
+		
+		for(int i=0; i<length; i++) {
+			columns.add(new ArrayList<>());
+			for(int j=0; j<width; j++) {
 				 (columns.get(i)).add(15); // 15 means 1 + 2 + 4 + 8 => first 4 bits, each of them is value of the wall => 01111, 5th bit is for "visited" flag
 				
 			}
@@ -44,19 +58,19 @@ public class Matrix {
 		//System.out.println("New value: " + (getCell(loc) - value));
 	}
 
+	public int getLength() {
+		return length;
+	}
+
+	public void setLength(int length) {
+		this.length = length;
+	}
+
 	public int getWidth() {
 		return width;
 	}
 
 	public void setWidth(int width) {
 		this.width = width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
 	}
 }

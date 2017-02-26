@@ -4,11 +4,12 @@ package com.mygdx.game;
 import java.util.ArrayList;
 
 public class MatrixPrinter {
-	public void printMap(Matrix m) {
-		System.out.println("received matrix");
+	
+	public void printMap(Matrix m, boolean labyrinthVersion) {
+		//System.out.println("received matrix");
 		ArrayList<ArrayList> matrix = m.getMatrix();
-		for(int i=0; i<matrix.size(); i++) {
-			for(int j=0; j<matrix.get(0).size(); j++) {
+		for(int i=0; i<matrix.get(0).size(); i++) {
+			for(int j=0; j<matrix.size(); j++) {
 				if((int) matrix.get(j).get(i)>128) {
 					System.out.print((int) matrix.get(j).get(i)-128 + "|");
 				} else { 

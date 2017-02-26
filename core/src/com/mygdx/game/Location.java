@@ -23,7 +23,24 @@ public class Location {
 		this.y = y;
 	}
 	
+	@Override
 	public String toString(){
-		return x + ", " + y;
+		return x + "," + y;
+	}
+	
+	public Location goLeft(int tiles) {
+		return new Location(this.x-tiles, this.y);
+	}
+	
+	public Location goRight(int tiles) {
+		return new Location(this.x+tiles, this.y);
+	}
+	
+	public Location goUp(int tiles) {
+		return new Location(this.x, this.y-tiles);
+	}
+	
+	public Location goDown(int tiles) {
+		return new Location(this.x, this.y+tiles);
 	}
 }
