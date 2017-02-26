@@ -33,5 +33,8 @@ Baas kangelase liikumis-süsteem
   - equipment system for player (inventory + equiped items like armor or weapon)
   - better texture for hero
   - better camera movement without flickering
+  - "1. märts kl 10:00-ks vahearuanne grupi tegevuste kohta oma grupi Wikisse (2 punkti)"
+  - "sõnastage oma Wikisse vähemalt viis lean põhimõtet, mida oma grupitöös järgima hakkate"
+  - "Kiire vahetest (5 min, 5 punkti) praktikumis"
   
   ![Screenshot](/screenshot 26 02.PNG?raw=true)
