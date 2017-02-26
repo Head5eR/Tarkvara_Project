@@ -2,19 +2,18 @@
 1.iteratsioon
 Kaarti random-generaator
    - improved version is done!
-   - lihtne labirintide genraator on tehtud (praegu töötan parandatud versiooniga, kasutades libgdx-i built-in funktsionaalsust)
-   - graafiline vaade
+   - basic version is done
+   - graphics is done
    
 Monstrite random-generaator
    - done
-   - xml failidega põhiloogika on kirjutatud, aga vajab parandamist
-   - Objectide loomine tuleb asap
    
 Hero stats + status
    - done
-   - probably needs small rework and discussion of stats
+   - probably needs small rework and discussion about stats
    
 Equipment-system (Denis + Robert)
+ - CURRENTLY WORKING ON
 
 Baas kangelase liikumis-süsteem
  - done!
