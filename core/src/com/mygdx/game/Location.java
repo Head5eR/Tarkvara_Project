@@ -43,4 +43,20 @@ public class Location {
 	public Location goDown(int tiles) {
 		return new Location(this.x, this.y+tiles);
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		
+		if (!(o instanceof Location)) {
+			return false;
+		}
+		
+		System.out.println("equals " + o);
+		Location l = (Location) o;
+		
+		return ((x == l.getX()) && (y == l.getY()));
+	}
 }
