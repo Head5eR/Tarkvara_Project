@@ -1,4 +1,5 @@
 # Aruanne aka changelog
+![Plan](/tasks.png/?raw=true)
 1.iteratsioon
 Kaarti random-generaator
    - improved version is done!
