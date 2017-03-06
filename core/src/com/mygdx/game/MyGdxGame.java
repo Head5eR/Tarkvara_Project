@@ -2,28 +2,19 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 
-import com.badlogic.gdx.ApplicationAdapter;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 
-
-public class MyGdxGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	Texture tile0;
-	ArrayList<Texture> textures = new ArrayList<Texture>();
-	ArrayList<Texture> textures2 = new ArrayList<Texture>();
-	Music backgroundMusic;
+public class MyGdxGame implements Screen {
+	private final GameLauncher game;
+	private ArrayList<Texture> textures2 = new ArrayList<Texture>();
 	private OrthographicCamera camera;
-	private InputProcessor inputProc;
 	private Rectangle tile;
 	private Matrix map;
 	private int winWidth = 800;
@@ -32,46 +23,26 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Location startPos;
 	private Hero hero;
 	private Rectangle heroSprite;
+	private MapGenerator mapgen;
 	
-	@Override
-	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+	public MyGdxGame (final GameLauncher game) {
+		this.game = game;
 
-		for(int i=0; i<15; i++) {
-			String path = "tile texture_" + i + ".png";
-			textures.add(new Texture(path));
-		}
-		
 		textures2.add(new Texture("tile texture_0.png"));
 		textures2.add(new Texture("wall texture.png"));
 		textures2.add(new Texture("start.png"));
 		textures2.add(new Texture("exit.png"));
 		textures2.add(new Texture("stick.png"));
 		
-		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("C:\\Users\\FireFox\\GameProjectJava\\core\\assets\\PINK_GUY_STFU.mp3"));
-		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 800);
 
-		Monster monster = new Monster(707);
-		System.out.println(monster);
-		System.out.println(monster.getMod());
-		
-//		LabyrinthGenerator gen = new LabyrinthGenerator(12,10);
-//		gen.generateMap();
-//		map = gen.getMap();
-	
-		MapGenerator mapgen = new MapGenerator(20,20);
+		mapgen = new MapGenerator(10,14, true, true);
 		mapgen.generateMap();
 		map = mapgen.getMap();
 		endPos = mapgen.getEndPos();
 		startPos = mapgen.getStartPos();
 		hero = new Hero(1,1,1,startPos);
-		
-//		backgroundMusic.setVolume(0.2f);
-//		backgroundMusic.setLooping(true);
-//		backgroundMusic.play();
 		
 		tile = new Rectangle();
 		tile.width = 64;
@@ -83,17 +54,15 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 
 	@Override
-	public void render () {
+	public void render (float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
-//		System.out.println(camera.position.x + " " + camera.position.y);
-		
+
 		handleInput();
 		movementUpdate();
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		batch.begin();
+
+		game.batch.setProjectionMatrix(camera.combined);
+		game.batch.begin();
 		
 		tile.setX(0);
 		tile.setY(winHeight);
@@ -103,66 +72,58 @@ public class MyGdxGame extends ApplicationAdapter {
 			tile.setY(tile.y-tile.getHeight());
 			
 			for(int x=0; x<map.getLength(); x++) {
-//				// it's for old map generator version 
-//				int value = map.getCell(x, y)-128;
-//				batch.draw(textures.get(value), tile.x, tile.y);
 				int value = map.getCell(x, y);
-				batch.draw(textures2.get(value), tile.x, tile.y);
+				game.batch.draw(textures2.get(value), tile.x, tile.y);
 				if(startPos.getX() == x && startPos.getY() == y) {
-					batch.draw(textures2.get(2), tile.x, tile.y);
+					game.batch.draw(textures2.get(2), tile.x, tile.y);
 				}
 				if(endPos.getX() == x && endPos.getY() == y) {
-					batch.draw(textures2.get(3), tile.x, tile.y);
+					game.batch.draw(textures2.get(3), tile.x, tile.y);
 				}
 				
 				if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
 					heroSprite.x = tile.x;
 					heroSprite.y = tile.y;
-					batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
+					game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
 				}
 				tile.setX(tile.x + tile.getWidth());
 			}
 		}
 		
-		batch.end();
+		game.batch.end();
 	}
 	
 	@Override
 	public void dispose () {
-		batch.dispose();
-		img.dispose();
+		game.batch.dispose();
 	}
 	
 	@Override
 	public void resize(int width, int height) {
 		camera.viewportHeight = height;
 		camera.viewportWidth = width;
+		camera.update();
 	}
 	
 	private void movementUpdate() {
 		
 		if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
-			System.out.println("key w is pressed");
 	    	hero.move(map,2);
-	    	camera.position.set(heroSprite.x, heroSprite.y, 0);
-			camera.update();
+	    	System.out.println(new Monster());
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-	    	System.out.println("key a is pressed");
 	    	hero.move(map,1);
-	    	camera.position.set(heroSprite.x, heroSprite.y, 0);
-			camera.update();
+	    	System.out.println(new Monster());
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
 	    	hero.move(map,8);
-	    	camera.position.set(heroSprite.x, heroSprite.y, 0);
-			camera.update();
+	    	System.out.println(new Monster());
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
 	    	hero.move(map,4);
-	    	camera.position.set(heroSprite.x, heroSprite.y, 0);
-			camera.update();
+	    	System.out.println(new Monster());
 	    }
+	    camera.update();
 	}
 
 	private void handleInput() {
@@ -179,17 +140,59 @@ public class MyGdxGame extends ApplicationAdapter {
 	    if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
 	    	camera.translate(0, 10, 0);
 	    }
+	    
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+	    	System.out.println(hero.getAllEquiped());
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+	    	System.out.println(hero.getInventory());
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+	    	 mapgen = new MapGenerator(10,14, true, true);
+	 		 mapgen.generateMap();
+	 		 map = mapgen.getMap();
+	 		 endPos = mapgen.getEndPos();
+	 		 startPos = mapgen.getStartPos();
+	 		 hero.setLoc(startPos);
 
+	    }
+	   
 	    if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-	    	if(camera.zoom < 1.30f) {
+	    	//if(camera.zoom < 1.30f) {
 	    		camera.zoom += 0.02;
-	    	}
+	    	//}
 	    }
 	    if (Gdx.input.isKeyPressed(Input.Keys.X)) {
 	    	if(camera.zoom > 0.60) {
 	    		camera.zoom -= 0.02;
 	    	}
 	    }
+	    camera.update();
 	 }
+
+	@Override
+	public void show() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+	@Override
+	public void pause() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void hide() {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

@@ -7,7 +7,7 @@ public class MapGenerator {
 	private int width;
 	private int currentStep;
 	private boolean wayExists;
-	private int tokens = -1;
+	private int tokens = -1; //tokens aren't working atm, but they are needed for more complex generator
 	Location startPos;
 	Location endPos;
 	Matrix map;
@@ -26,6 +26,26 @@ public class MapGenerator {
 		this.startPos = new Location(0,0);
 		this.map = new Matrix(length,width, WALL);
 		this.endPos = new Location(length-1, width-1);
+		addStep(startPos);	
+	}
+	
+	public MapGenerator(int length, int width, boolean randStart, boolean randEnd){
+		this.length = length;
+		this.width = width;
+		if(randStart) {
+			this.startPos = new Location((int) Math.floor(Math.random()*length), (int) Math.floor(Math.random()*width));
+		} else {
+			this.startPos = new Location(0,0);
+		}
+		
+		if(randEnd) {
+			this.endPos = new Location((int) Math.floor(Math.random()*length), (int) Math.floor(Math.random()*width));
+		} else {
+			this.endPos = new Location(length-1, width-1);
+		}
+		
+		this.map = new Matrix(length,width, WALL);
+		
 		addStep(startPos);
 		
 	}
@@ -45,7 +65,6 @@ public class MapGenerator {
 	
 	public void addStep(Location newLoc) {
 		if ((newLoc.getX() == endPos.getX()) && (newLoc.getY() == endPos.getY())) {
-			System.out.println("newloc equals endpos");
 			map.setCell(newLoc, 0);
 			 if(route.size() / (length*width) >= 0.5) {
 				 route.clear();
@@ -78,7 +97,6 @@ public class MapGenerator {
 			int direction = (int) Math.floor(Math.random() * 4);
 			
 			if(map.getCell(endPos) != 0 && searchForExit(currentLoc) > 0) {
-				System.out.println("i'm near the exit " + currentLoc);
 				switch(searchForExit(currentLoc)) {
 					case 1: { direction = 0; } break;
 					case 2: { direction = 1; } break;
@@ -89,22 +107,22 @@ public class MapGenerator {
 			
 			switch(direction) {
 				case 0: if (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))) {
-					System.out.println("going left");
+					
 					Location newLoc = new Location(currentLoc.getX()-1, currentLoc.getY());
 					addStep(newLoc);
 				}	break;
 				case 1: if (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))) {
-					System.out.println("going up");
+					
 					Location newLoc = new Location(currentLoc.getX(), currentLoc.getY()-1);
 					addStep(newLoc);
 				} break;
 				case 2: if (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))) {
-					System.out.println("going right");
+					
 					Location newLoc = new Location(currentLoc.getX()+1, currentLoc.getY());
 					addStep(newLoc);
 				} break;
 				case 3: if (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))) {
-					System.out.println("going down");
+					
 					Location newLoc = new Location(currentLoc.getX(), currentLoc.getY()+1);
 					addStep(newLoc);
 				} break;
@@ -191,6 +209,13 @@ public class MapGenerator {
 		return 0;
 	}
 	
+	public Location getStartPos() {
+		return startPos;
+	}
+
+	public Location getEndPos() {
+		return endPos;
+	}
 	public Matrix getMap(){
 		return map;
 	}

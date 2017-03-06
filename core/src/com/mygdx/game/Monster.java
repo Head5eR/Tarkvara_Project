@@ -26,20 +26,18 @@ public class Monster {
 	private int dexterity;
 	private int stamina;
 	private int wrath;
-	private int id;
-	private Modificator mod;
+	private Modifier mod;
 	private static String expression = "//monster[@name]";
 	
-	public Monster (int id) {
+	public Monster () {
 		List<String> monsterStats = readFromXML();
 		
-		this.mod = new Modificator();
-		this.setId(id);
+		this.mod = new Modifier();
 		this.name = monsterStats.get(0);	
-		this.strength = Integer.parseInt(monsterStats.get(1)) + Integer.parseInt(mod.getStrength()); // should be changed to monsterStat + modificator in future!
-		this.dexterity = Integer.parseInt(monsterStats.get(2)) + Integer.parseInt(mod.getDexterity());
-		this.stamina = Integer.parseInt(monsterStats.get(3)) + Integer.parseInt(mod.getStamina());
-		this.wrath = Integer.parseInt(monsterStats.get(4)) + Integer.parseInt(mod.getWrath());
+		this.strength = Integer.parseInt(monsterStats.get(1)); // should be changed to monsterStat + modificator in future!
+		this.dexterity = Integer.parseInt(monsterStats.get(2));
+		this.stamina = Integer.parseInt(monsterStats.get(3));
+		this.wrath = Integer.parseInt(monsterStats.get(4));
 	}
 	
 	private List<String> readFromXML() {
@@ -69,15 +67,13 @@ public class Monster {
             if (monsterNode.getNodeType() == Node.ELEMENT_NODE) {
                Element monsterXMLElement = (Element) monsterNode;
                monsterList.add(monsterXMLElement.getAttribute("name"));
-               System.out.println("Monster name : " 
-                       + monsterXMLElement.getAttribute("name")); 
+               
                NodeList listOfMonsterAttributes = monsterXMLElement.getElementsByTagName("*");
                
                for(int i=0; i<listOfMonsterAttributes.getLength(); i++) {
 					monsterList.add(listOfMonsterAttributes.item(i).getTextContent());					
 				}
                
-               	System.out.println(monsterList.toString());
                
                	return monsterList;
             } 
@@ -97,52 +93,56 @@ public class Monster {
 	}
 	
 	
-    public String getStrength() {
+    public String getModStrength() {
 		return strength + mod.getStrength();
 	}
 	public void setStrength(int strength) {
 		this.strength = strength;
 	}
-	public String getDexterity() {
+	public String getModDexterity() {
 		return dexterity + mod.getDexterity();
 	}
 	public void setDexterity(int dexterity) {
 		this.dexterity = dexterity;
 	}
-	public String getStamina() {
+	public String getModStamina() {
 		return stamina + mod.getStamina();
 	}
 	public void setStamina(int stamina) {
 		this.stamina = stamina;
 	}
-	public String getWrath() {
+	public String getModWrath() {
 		return wrath + mod.getWrath();
 	}
 	public void setWrath(int wrath) {
 		this.wrath = wrath;
 	}
-
-	public int getId() {
-		return id;
-	}
 	
-	public Modificator getMod() {
+	public int getStrength() {
+		return strength;
+	}
+
+	public int getDexterity() {
+		return dexterity;
+	}
+
+	public int getStamina() {
+		return stamina;
+	}
+
+	public int getWrath() {
+		return wrath;
+	} 
+
+	public Modifier getMod() {
 		return mod;
 	}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-	
 	@Override
 	public String toString() {
-		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath;
-	} 
+		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath + "\n Modifier: " + mod;
+	}
+
 	
-	/*public static void main(String[] args) {
-		*Monster monster = new Monster(1);
-		*System.out.println(monster);
-		*System.out.println(monster.getMod());		
-	*}
-	*/
+	
 }

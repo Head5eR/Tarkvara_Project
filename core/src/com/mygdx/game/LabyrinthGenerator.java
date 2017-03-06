@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class LabyrinthGenerator {
 	private int length;
