@@ -47,6 +47,8 @@ public class MyGdxGame implements Screen {
 	private TextArea mobinfo;
 	private TextArea invinfo;
 	private TextArea equipinfo;
+	private final int MAP_WIDTH = 12;
+	private final int MAP_HEIGHT = 14;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -124,7 +126,7 @@ public class MyGdxGame implements Screen {
 		uitable.getCell(equipwin).maxSize(300);
 		
 		/////////////////////////////////////////////////////////////////////
-		mapgen = new MapGenerator(10,14, true, true);
+		mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
 		mapgen.generateMap();
 		map = mapgen.getMap();
 		endPos = mapgen.getEndPos();
@@ -307,7 +309,7 @@ public class MyGdxGame implements Screen {
 	    }
 	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-	    	 mapgen = new MapGenerator(10,14, true, true);
+	    	 mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
 	 		 mapgen.generateMap();
 	 		 map = mapgen.getMap();
 	 		 endPos = mapgen.getEndPos();
