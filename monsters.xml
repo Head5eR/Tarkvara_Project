@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<monsters>
-	<monster name ="Skeleton"></monster>
-	<monster name ="Goblin"></monster>
-	<monster name ="Zombie"></monster>
-	<monster name ="Vampire"></monster>
-	<monster name ="Orc"></monster>
-</monsters>
-	

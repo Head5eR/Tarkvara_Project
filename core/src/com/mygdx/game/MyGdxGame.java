@@ -9,11 +9,24 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.FileTextureData;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
+	private ArrayList<Texture> mobtextures = new ArrayList<Texture>();
 	private ArrayList<Texture> textures2 = new ArrayList<Texture>();
+	private ArrayList<String> mobnames = new ArrayList<String>();
 	private OrthographicCamera camera;
 	private Rectangle tile;
 	private Matrix map;
@@ -24,9 +37,34 @@ public class MyGdxGame implements Screen {
 	private Hero hero;
 	private Rectangle heroSprite;
 	private MapGenerator mapgen;
+	private Stage stage;
+	private Table uitable;
+	private Table mobtable;
+	private Skin skin;
+	private Window mobwin;
+	private Window invwin;
+	private Window equipwin;
+	private TextArea mobinfo;
+	private TextArea invinfo;
+	private TextArea equipinfo;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
+		
+		mobtextures.add(new Texture("skeleton.png"));
+		mobtextures.add(new Texture("zombie.png"));
+		mobtextures.add(new Texture("orc.png"));
+		mobtextures.add(new Texture("goblin.png"));
+		mobtextures.add(new Texture("vampire.png"));
+		mobtextures.add(new Texture("spider.png"));
+		
+		
+		for(Texture tex : mobtextures) {
+			String filename = ((FileTextureData) tex.getTextureData()).getFileHandle().name();
+			String name = filename.replace(".png", "");
+			mobnames.add(name);
+		}
+		System.out.println(mobnames.toString());
 
 		textures2.add(new Texture("tile texture_0.png"));
 		textures2.add(new Texture("wall texture.png"));
@@ -36,7 +74,56 @@ public class MyGdxGame implements Screen {
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 800, 800);
+		
+		///////////////////////// UI ////////////////////////////////////////
+		
+		skin = new Skin(Gdx.files.internal("uiskin.json"));
+		
+		mobinfo = new TextArea("info", skin);
+		mobinfo.setPrefRows(3);
+		invinfo = new TextArea("Inventory contents", skin);
+		invinfo.setPrefRows(13);
+		equipinfo = new TextArea("Contents", skin);
+		equipinfo.setPrefRows(13);
 
+		mobwin = new Window("Generated monster", skin);
+		
+		mobtable = new Table();
+		mobtable.setWidth(mobwin.getWidth());
+		mobtable.setHeight(mobwin.getHeight());
+		mobtable.add(new Image(textures2.get(3)));
+		mobtable.add(mobinfo);
+		
+		mobwin.add(mobtable);
+
+		invwin = new Window("Inventory", skin);
+		invwin.setWidth(50);
+		invwin.setHeight(50);
+		invwin.add(invinfo);
+		invwin.setVisible(false);
+		
+		equipwin = new Window("Equipment", skin);
+		equipwin.setWidth(50);
+		equipwin.setHeight(50);
+		equipwin.add(equipinfo);
+		equipwin.setVisible(false);
+		
+		stage = new Stage();
+		uitable = new Table();
+		uitable.setFillParent(true);
+		uitable.align(Align.topRight);
+		uitable.setHeight(Gdx.graphics.getHeight());
+		uitable.setWidth(Gdx.graphics.getWidth());
+		//uitable.setPosition(0, Gdx.graphics.getHeight());
+		
+		stage.addActor(uitable);
+		uitable.add(mobwin);
+		uitable.row();
+		uitable.add(equipwin);
+		uitable.add(invwin);
+		uitable.getCell(equipwin).maxSize(300);
+		
+		/////////////////////////////////////////////////////////////////////
 		mapgen = new MapGenerator(10,14, true, true);
 		mapgen.generateMap();
 		map = mapgen.getMap();
@@ -91,6 +178,10 @@ public class MyGdxGame implements Screen {
 		}
 		
 		game.batch.end();
+		
+		stage.act(Gdx.graphics.getDeltaTime());
+		stage.draw();
+		uitable.debug();
 	}
 	
 	@Override
@@ -102,26 +193,41 @@ public class MyGdxGame implements Screen {
 	public void resize(int width, int height) {
 		camera.viewportHeight = height;
 		camera.viewportWidth = width;
-		camera.update();
+		camera.update();	
+		stage.getViewport().update(width, height);
+	}
+	
+	private void genMob() {
+		Monster mob = new Monster();
+		int randInt = (int) Math.floor(Math.random()*4);
+		Cell imgcell = mobtable.getCells().get(0);
+		int foundindex = mobnames.indexOf(mob.getName().toLowerCase());
+		if (foundindex >= 0) {
+			imgcell.setActor(new Image(mobtextures.get(foundindex)));
+		} else {
+			foundindex = randInt;
+			imgcell.setActor(new Image(textures2.get(foundindex)));
+		}
+		mobinfo.setText(mob.toString());	
 	}
 	
 	private void movementUpdate() {
 		
 		if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
 	    	hero.move(map,2);
-	    	System.out.println(new Monster());
+	    	genMob();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
 	    	hero.move(map,1);
-	    	System.out.println(new Monster());
+	    	genMob();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
 	    	hero.move(map,8);
-	    	System.out.println(new Monster());
+	    	genMob();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
 	    	hero.move(map,4);
-	    	System.out.println(new Monster());
+	    	genMob();
 	    }
 	    camera.update();
 	}
@@ -142,11 +248,64 @@ public class MyGdxGame implements Screen {
 	    }
 	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-	    	System.out.println(hero.getAllEquiped());
+	    	if(equipwin.isVisible()) {
+	    		equipwin.setVisible(false);
+	    	} else {
+	    		invwin.setVisible(false);
+	    		updateInvEquip();
+	    		equipwin.setVisible(true);
+	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
-	    	System.out.println(hero.getInventory());
+	    	if(invwin.isVisible()) {
+	    		invwin.setVisible(false);
+	    	} else {
+	    		equipwin.setVisible(false);
+	    		updateInvEquip();
+	    		invwin.setVisible(true);
+	    	}
 	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+	    	if(equipwin.isVisible()) {
+	    		hero.unequip(1);
+	    	} else if (invwin.isVisible()) {
+	    		hero.equipFromInv(1);
+	    	}
+	    	updateInvEquip();
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+	    	if(equipwin.isVisible()) {
+	    		hero.unequip(2);
+	    	} else if (invwin.isVisible()) {
+	    		hero.equipFromInv(2);
+	    	}
+	    	updateInvEquip();
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+	    	if(equipwin.isVisible()) {
+	    		hero.unequip(3);
+	    	} else if (invwin.isVisible()) {
+	    		hero.equipFromInv(3);
+	    	}
+	    	updateInvEquip();
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+	    	if(equipwin.isVisible()) {
+	    		hero.unequip(4);
+	    	} else if (invwin.isVisible()) {
+	    		hero.equipFromInv(4);
+	    	}
+	    	updateInvEquip();
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
+	    	if(equipwin.isVisible()) {
+	    		hero.unequip(5);
+	    	} else if (invwin.isVisible()) {
+	    		hero.equipFromInv(5);
+	    	}
+	    	updateInvEquip();
+	    }
+	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
 	    	 mapgen = new MapGenerator(10,14, true, true);
 	 		 mapgen.generateMap();
@@ -169,6 +328,11 @@ public class MyGdxGame implements Screen {
 	    }
 	    camera.update();
 	 }
+	
+	public void updateInvEquip() {
+		equipinfo.setText(hero.getAllEquiped());
+		invinfo.setText(hero.getInventory());	
+	}
 
 	@Override
 	public void show() {

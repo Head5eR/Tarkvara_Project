@@ -10,8 +10,8 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Tarkvara roguelike project";
-		config.width = 800;
-		config.height = 800;
+		config.width = 1280;
+		config.height = 720;
 		new LwjglApplication(new GameLauncher(), config);
 	}
 }

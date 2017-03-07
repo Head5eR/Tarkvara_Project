@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class Hero {
@@ -65,56 +67,84 @@ public class Hero {
 		return out;
 	}
 	
-	public void unequip() {
-		// TO-DO!
+	public void unequip(int itemNumber) {
+		int num = itemNumber-1;
+		System.out.println("slot number: " + num);
+		// BEWARE, INDIAN CODE INCOMING!
+		List slot = null;
+		switch(num) {
+			case 0: { slot = headSlot; break;}
+			case 1: { slot = torsoSlot; break;}
+			case 2: { slot = armsSlot; break;}
+			case 3: { slot = legsSlot; break;}
+			case 4: { slot = toesSlot; break;}
+			
+		}
+		if(slot != null) {
+			Item item = (Item) ((Item[]) slot.get(0))[0];
+			System.out.println("unequipping " + item);
+			if (item != null) {
+				inventory.add(item);
+				((Item[]) slot.get(0))[0] = null;
+			}
+		}
+		
 	}
 	
 	public void equipFromInv(int itemNumber) { // needs to be rewritten in the smarter way
-		if(inventory.size() <= itemNumber) { // if larger then requested item doesn't exist
-			Item item = (inventory.get(itemNumber));
-
+		int num = itemNumber-1;
+		if(inventory.size() >= itemNumber) { // if larger then requested item doesn't exist
+			Item item = (inventory.get(num));
 			if(item.isEquipable()) {
-				switch(item.getClass().toString()) {
+				switch(item.getClass().getSimpleName()) {
 					case("Headgear"): { 
+						System.out.println("case head");
 						if(headSlot.get(0)[0] == null) { // if doesn't have item then just add it to the slot
-							headSlot.get(0)[0] = (Headgear) inventory.get(itemNumber);
+							System.out.println("just equipping in head slot");
+							headSlot.get(0)[0] = (Headgear) inventory.get(num);
+							inventory.remove(num);
 						} else {
 							inventory.add(headSlot.get(0)[0]); // if there is an item in slot, then put it in inventory
-							headSlot.get(0)[0] = (Headgear) inventory.get(itemNumber);
+							headSlot.get(0)[0] = (Headgear) inventory.get(num);
 						}
-					}
+					} break;
 					case("Bodyarmor"): {
+						System.out.println("case body");
 						if(torsoSlot.get(0)[0] == null) {
-							torsoSlot.get(0)[0] = (Bodyarmor) inventory.get(itemNumber);
+							torsoSlot.get(0)[0] = (Bodyarmor) inventory.get(num);
+							inventory.remove(num);
 						} else {
 							inventory.add(headSlot.get(0)[0]);
-							torsoSlot.get(0)[0] = (Bodyarmor) inventory.get(itemNumber);
+							torsoSlot.get(0)[0] = (Bodyarmor) inventory.get(num);
 						}
-					}
+					} break;
 					case("Legarmor"): {
 						if(legsSlot.get(0)[0] == null) {
-							legsSlot.get(0)[0] = (Legarmor) inventory.get(itemNumber);
+							legsSlot.get(0)[0] = (Legarmor) inventory.get(num);
+							inventory.remove(num);
 						} else {
 							inventory.add(legsSlot.get(0)[0]);
-							legsSlot.get(0)[0] = (Legarmor) inventory.get(itemNumber);
+							legsSlot.get(0)[0] = (Legarmor) inventory.get(num);
 						}
-					}
+					} break;
 					case("Gloves"): {
 						if(armsSlot.get(0)[0] == null) {
-							armsSlot.get(0)[0] = (Gloves) inventory.get(itemNumber);
+							armsSlot.get(0)[0] = (Gloves) inventory.get(num);
+							inventory.remove(num);
 						} else {
 							inventory.add(headSlot.get(0)[0]);
-							armsSlot.get(0)[0] = (Gloves) inventory.get(itemNumber);
+							armsSlot.get(0)[0] = (Gloves) inventory.get(num);
 						}
-					}
+					} break;
 					case("Boots"): {
 						if(toesSlot.get(0)[0] == null) {
-							toesSlot.get(0)[0] = (Boots) inventory.get(itemNumber);
+							toesSlot.get(0)[0] = (Boots) inventory.get(num);
+							inventory.remove(num);
 						} else {
 							inventory.add(headSlot.get(0)[0]);
-							toesSlot.get(0)[0] = (Boots) inventory.get(itemNumber);
+							toesSlot.get(0)[0] = (Boots) inventory.get(num);
 						}
-					}
+					} break;
 				}
 			}
 		} else {

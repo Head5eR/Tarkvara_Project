@@ -137,6 +137,10 @@ public class Monster {
 	public Modifier getMod() {
 		return mod;
 	}
+	
+	public String getName() {
+		return name;
+	}
 
 	@Override
 	public String toString() {
