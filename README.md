@@ -1,5 +1,15 @@
 # Aruanne aka changelog
-![Plan](screenshots/tasks.png/?raw=true)
+
+2 iteratsioon
+  - By priority:
+    - Ambush-system (during adventure you’re being attacked by random-generated enemies)
+    - Fight-system + fight log
+    - Loot-system
+    - Hero abilities (need to discuss)
+   
+Current state:
+  ![Screenshot](screenshots/progress 10.03.png?raw=true)
+
 1.iteratsioon
    Kaarti random-generaator
    Monstrite random-generaator
@@ -9,13 +19,7 @@
    Equipment-system
    Baas kangelase liikumis-süsteem
    
-2. iteratsioon
-   By priority:
-   - Ambush-system (during adventure you’re being attacked by random-generated enemies)
-   - Fight-system + fight log
-   - Loot-system
-   - Hero abilities (need to discuss)
+
 
   
-  Current state:
-  ![Screenshot](screenshots/progress 10.03.png?raw=true)
+  
