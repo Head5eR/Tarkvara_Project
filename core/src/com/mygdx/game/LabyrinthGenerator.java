@@ -26,8 +26,8 @@ public class LabyrinthGenerator {
 		this.map = new Matrix(length,width);
 		markAsVisited(startPos);
 		
-		int randX = (int) Math.floor(Math.random()*(length-1));
-		int randY = (int) Math.floor(Math.random()*(width-1));
+//		int randX = (int) Math.floor(Math.random()*(length-1));
+//		int randY = (int) Math.floor(Math.random()*(width-1));
 		//this.endPos = new Location(randX,randY);
 		this.endPos = new Location(length-1, width-1);
 		//System.out.println(endPos);

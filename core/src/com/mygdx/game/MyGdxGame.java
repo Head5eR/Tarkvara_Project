@@ -13,14 +13,12 @@ import com.badlogic.gdx.graphics.glutils.FileTextureData;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
@@ -116,16 +114,17 @@ public class MyGdxGame implements Screen {
 		uitable.align(Align.topRight);
 		uitable.setHeight(Gdx.graphics.getHeight());
 		uitable.setWidth(Gdx.graphics.getWidth());
-		//uitable.setPosition(0, Gdx.graphics.getHeight());
 		
 		stage.addActor(uitable);
 		uitable.add(mobwin);
 		uitable.row();
 		uitable.add(equipwin);
 		uitable.add(invwin);
-		uitable.getCell(equipwin).maxSize(300);
+		uitable.getCell(equipwin).prefWidth(160);
+		uitable.getCell(invwin).prefWidth(160);
 		
 		/////////////////////////////////////////////////////////////////////
+		
 		mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
 		mapgen.generateMap();
 		map = mapgen.getMap();
