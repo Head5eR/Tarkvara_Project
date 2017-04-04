@@ -1,0 +1,18 @@
+<bodies>
+	<body type="humanoid">
+		<bodypart critical="true">Head</bodypart>
+		<bodypart>Torso</bodypart>
+		<bodypart>Right arm</bodypart>
+		<bodypart>Left arm</bodypart>
+		<bodypart>Right leg</bodypart>
+		<bodypart>Left leg</bodypart>
+	</body> 
+	
+	<body type="arachnid">
+		<bodypart critical="true">Head</bodypart>
+		<bodypart>Front body</bodypart>
+		<bodypart>Rear body</bodypart>
+		<bodypart count='4'>Left leg</bodypart>
+		<bodypart count='4'>Right leg</bodypart>
+	</body> 
+</bodies>

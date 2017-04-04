@@ -26,18 +26,21 @@ public class Monster {
 	private int dexterity;
 	private int stamina;
 	private int wrath;
+	private Body body;
 	private Modifier mod;
 	private static String expression = "//monster[@name]";
 	
 	public Monster () {
 		List<String> monsterStats = readFromXML();
+		String bodytype = monsterStats.get(1);
 		
 		this.mod = new Modifier();
+		this.body = new Body(bodytype);
 		this.name = monsterStats.get(0);	
-		this.strength = Integer.parseInt(monsterStats.get(1)); // should be changed to monsterStat + modificator in future!
-		this.dexterity = Integer.parseInt(monsterStats.get(2));
-		this.stamina = Integer.parseInt(monsterStats.get(3));
-		this.wrath = Integer.parseInt(monsterStats.get(4));
+		this.strength = Integer.parseInt(monsterStats.get(2));
+		this.dexterity = Integer.parseInt(monsterStats.get(3));
+		this.stamina = Integer.parseInt(monsterStats.get(4));
+		this.wrath = Integer.parseInt(monsterStats.get(5));
 	}
 	
 	private List<String> readFromXML() {
@@ -74,7 +77,7 @@ public class Monster {
 					monsterList.add(listOfMonsterAttributes.item(i).getTextContent());					
 				}
                
-               
+               System.out.println(monsterList.toString());
                	return monsterList;
             } 
             
@@ -116,6 +119,10 @@ public class Monster {
 	}
 	public void setWrath(int wrath) {
 		this.wrath = wrath;
+	}
+	
+	public Body getBody() {
+		return body;
 	}
 	
 	public int getStrength() {

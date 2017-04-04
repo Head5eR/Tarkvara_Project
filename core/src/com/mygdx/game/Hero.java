@@ -13,14 +13,17 @@ public class Hero {
 	final int MOVERIGHT = 4;
 	final int MOVEDOWN = 8;
 	final int EMPTY = 0;
+	private Body body;
 	
 	List<Item> inventory = new ArrayList<Item>();
-	List<Item[]> headSlot = new ArrayList<Item[]>();
+	List<Headgear[]> headSlot = new ArrayList<Headgear[]>();
 	List<Bodyarmor[]> torsoSlot = new ArrayList<Bodyarmor[]>();
-	List<Gloves[]> armsSlot = new ArrayList<Gloves[]>();
+	List<Item[]> armsSlot = new ArrayList<Item[]>();
+	List<MeleeWeapon[]> weaponSlot1 = new ArrayList<MeleeWeapon[]>();
+	List<Weapon[]> weaponSlot2 = new ArrayList<Weapon[]>();
 	List<Legarmor[]> legsSlot = new ArrayList<Legarmor[]>();
 	List<Boots[]> toesSlot = new ArrayList<Boots[]>();
-	List<?>[] slots = {headSlot,torsoSlot,armsSlot,legsSlot,toesSlot}; //strange syntax, but works :)
+	List<?>[] slots = {headSlot,torsoSlot,armsSlot,weaponSlot1, weaponSlot2, legsSlot,toesSlot}; //strange syntax, but works :)
 	
 	// Schema
 	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObject
@@ -30,6 +33,7 @@ public class Hero {
 		this.agility = agility;
 		this.intelligence = intelligence;
 		this.loc = loc;
+		body = new Body("humanoid");
 		
 		// Every slot is an array of certain type with length of 1, 
 		// so that it is possible to add only one item to the slot
@@ -39,6 +43,10 @@ public class Hero {
 			torsoSlot.add(ts);
 		Gloves[] as = {new Gloves("Gauntlets", true)};
 			armsSlot.add(as);
+		MeleeWeapon[] ws1 = {new MeleeWeapon("Stick", true)};
+			weaponSlot1.add(ws1);
+		Shield[] ws2 = {new Shield("Wooden Shield", true)};
+			weaponSlot2.add(ws2);
 		Legarmor[] ls = {new Legarmor("Pants", true)};
 			legsSlot.add(ls);
 		Boots[] toes = {new Boots("High boots", true)};
@@ -46,9 +54,14 @@ public class Hero {
 	}
 	
 	public String getAllEquiped() {
-		return "Character has following equipped items: \n 1.Head: " + headSlot.get(0)[0] + "\n 2.Torso: " 
-				+ torsoSlot.get(0)[0] + " \n 3.Arms: " + armsSlot.get(0)[0] + " \n 4.Legs: " + legsSlot.get(0)[0] 
-				+ "\n 5.Toes: " + toesSlot.get(0)[0];
+		String complex = "Character has following equipped items: ";
+		int i = 1;
+		for(List<?> slot : slots) {
+			complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName() + ": " + ((Item[]) slot.get(0))[0];
+			i++;
+		}
+		
+		return complex;
 	}
 	
 	public String getInventory() {
@@ -66,16 +79,14 @@ public class Hero {
 	public void unequip(int itemNumber) {
 		int num = itemNumber-1;
 		System.out.println("slot number: " + num);
-		// BEWARE, INDIAN CODE INCOMING!
-		List<?> slot = null;
-		switch(num) {
-			case 0: { slot = headSlot; break;}
-			case 1: { slot = torsoSlot; break;}
-			case 2: { slot = armsSlot; break;}
-			case 3: { slot = legsSlot; break;}
-			case 4: { slot = toesSlot; break;}
-			
+		List<?> slot;
+		
+		if(num <= slots.length) {
+			slot = slots[num];
+		} else {
+			slot = null;
 		}
+		
 		if(slot != null) {
 			Item item = (Item) ((Item[]) slot.get(0))[0];
 			System.out.println("unequipping " + item);
@@ -131,15 +142,15 @@ public class Hero {
 	}
 	
 	public int getArmor() {
-		return (int) (agility*0.5);
+		return (int) Math.round(agility*0.5);
 	}
 	
 	public int getAttackDamage() {
-		return (int) (strength*agility*0.2);
+		return (int) Math.round(strength*agility*0.2);
 	}
 	
 	public int getWrath() {
-		return (int) (strength*intelligence*0.02);
+		return (int) Math.round(strength*intelligence*0.02);
 	}
 
 	@Override

@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <monsters>
 	<monster name ="Skeleton">
+		<bodytype>humanoid</bodytype>
 		<strength>1</strength>
 		<dexterity>1</dexterity>
 		<stamina>1</stamina>
 		<wrath>1</wrath>
 	</monster>
 	<monster name ="Goblin">
+		<bodytype>humanoid</bodytype>
 		<strength>2</strength>
 		<dexterity>1</dexterity>
 		<stamina>2</stamina>
 		<wrath>2</wrath>
 	</monster>
 	<monster name ="Spider">
+		<bodytype>arachnid</bodytype>
 		<strength>3</strength>
 		<dexterity>7</dexterity>
 		<stamina>3</stamina>
 		<wrath>1</wrath>
 	</monster>
 	<monster name ="Zombie">
+		<bodytype>humanoid</bodytype>
 		<strength>3</strength>
 		<dexterity>2</dexterity>
 		<stamina>5</stamina>
 		<wrath>2</wrath>
 	</monster>
 	<monster name ="Vampire">
+		<bodytype>humanoid</bodytype>
 		<strength>5</strength>
 		<dexterity>5</dexterity>
 		<stamina>5</stamina>
 		<wrath>3</wrath>
 	</monster>
 	<monster name ="Orc">
+		<bodytype>humanoid</bodytype>
 		<strength>7</strength>
 		<dexterity>4</dexterity>
 		<stamina>7</stamina>
