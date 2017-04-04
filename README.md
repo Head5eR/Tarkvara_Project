@@ -2,13 +2,12 @@
 
 2 iteratsioon
   - By priority:
-    - Ambush-system (during adventure you’re being attacked by random-generated enemies)
-    - Fight-system + fight log
-    - Loot-system
-    - Hero abilities (need to discuss)
+    - Ambush-system (Denis)
+    - Fight-system + fight log (Gleb)
+    - Loot-system (Robert)
    
 Current state:
-  ![Screenshot](screenshots/progress 10.03.png?raw=true)
+  ![Screenshot](screenshots/progress05_04.PNG?raw=true)
 
 1.iteratsioon
    - Kaarti random-generaator
