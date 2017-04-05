@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<weapons>
+	<weapon type = "Sword">
+		<artifact name = "Long Sword">
+			<mindamage>2</mindamage>
+			<maxdamage>4</maxdamage>
+			<strength>3<strength>
+			<dexterity>0</dexterity>		
+			<stamina>0</stamina>
+			<wrath>0</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+		<artifact name = "Gryphon Sword">
+			<mindamage>4</mindamage>
+			<maxdamage>12</maxdamage>
+			<strength>7<strength>
+			<dexterity>0</dexterity>		
+			<stamina>0</stamina>
+			<wrath>2</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+		<artifact name = "Ancients Sword">
+			<mindamage>10</mindamage>
+			<maxdamage>30</maxdamage>
+			<strength>10<strength>
+			<dexterity>1</dexterity>		
+			<stamina>1</stamina>
+			<wrath>3</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+	</weapon>
+	<weapon type = "Shield">
+		<artifact name = "Shield Of Courage">
+			<defence>10</defence>
+			<strength>0<strength>
+			<dexterity>0</dexterity>		
+			<stamina>2</stamina>
+			<wrath>0</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+		<artifact name = "Shield Of Gryphon">
+			<defence>30</defence>
+			<strength>1<strength>
+			<dexterity>0</dexterity>		
+			<stamina>4</stamina>
+			<wrath>0</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+		<artifact name = "Ancients Shield">
+			<defence>50</defence>
+			<strength>2<strength>
+			<dexterity>2</dexterity>		
+			<stamina>5</stamina>
+			<wrath>1</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+	</weapon>
+	<weapon type = "Axe">
+		<artifact name = "Hunter Axe">
+			<mindamage>1</mindamage>
+			<maxdamage>6</maxdamage>
+			<strength>4<strength>
+			<dexterity>0</dexterity>		
+			<stamina>0</stamina>
+			<wrath>1</wrath>
+			<twohanded>yes</twohanded>
+		</artifact>
+		<artifact name = "Heavy Axe">
+			<mindamage>5</mindamage>
+			<maxdamage>17</maxdamage>
+			<strength>10<strength>
+			<dexterity>0</dexterity>		
+			<stamina>0</stamina>
+			<wrath>3</wrath>
+			<twohanded>yes</twohanded>
+		</artifact>
+		<artifact name = "Barbarian Battle Axe">
+			<mindamage>15</mindamage>
+			<maxdamage>40</maxdamage>
+			<strength>15<strength>
+			<dexterity>1</dexterity>		
+			<stamina>1</stamina>
+			<wrath>7</wrath>
+			<twohanded>yes</twohanded>
+		</artifact>
+	</weapon>
+	<weapon type = "TwoBlades">
+		<artifact name = "Northern Wind Dagger">
+			<mindamage>1</mindamage>
+			<maxdamage>4</maxdamage>
+			<strength>1<strength>
+			<dexterity>0</dexterity>		
+			<stamina>0</stamina>
+			<wrath>0</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+		<artifact name = "Dagger Of The Jaguar">
+			<mindamage>3</mindamage>
+			<maxdamage>8</maxdamage>
+			<strength>3<strength>
+			<dexterity>2</dexterity>		
+			<stamina>0</stamina>
+			<wrath>1</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+		<artifact name = "Scorpion Dagger">
+			<mindamage>7</mindamage>
+			<maxdamage>16</maxdamage>
+			<strength>5<strength>
+			<dexterity>5</dexterity>		
+			<stamina>1</stamina>
+			<wrath>1</wrath>
+			<twohanded>no</twohanded>
+		</artifact>
+	</weapon>
