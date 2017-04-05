@@ -53,53 +53,25 @@ public class Hero {
 			toesSlot.add(toes);
 	}
 	
-	public String getAllEquiped(int page) {
+	public String getAllEquiped() {
 		String complex = "Character has following equipped items: ";
-		
 		int i = 1;
-		if(page == 0) {
-			for(List<?> slot : slots) {
-				complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName() + ": " + ((Item[]) slot.get(0))[0];
-				i++;
-			}
-		} else {
-			for(int a = -5 + 5 * page; a < 5 * page; a++) { //if it's first page, then gives slots nr 0,1,2,3,4 // if it's second page then 5,6,7,8,9 etc...
-				if(a < slots.length) {
-					List<?> slot = slots[a];
-					complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName() + ": " + ((Item[]) slot.get(0))[0];
-					i++;
-				} else {
-					break;
-				}
-				
-			}
+		for(List<?> slot : slots) {
+			complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName() + ": " + ((Item[]) slot.get(0))[0];
+			i++;
 		}
-		
 		
 		return complex;
 	}
 	
-	public String getInventory(int page) {
+	public String getInventory() {
 		String out = "";
 		if(inventory.isEmpty()) {
 			out = "Inventory is empty";
 		} else {
-			if (page == 0) {
-				for(Item item : inventory) {
-					out += item.toString() + "\n";
-				}
-			} else {
-				for (int i = -5 + 5 *page; i < 5 * page; i++) {
-					if (i < inventory.size()) {
-						System.out.println(i);
-						out += inventory.get(i).toString() + "\n";
-					} else {
-						break;
-					}
-					
-				}
+			for(Item item : inventory) {
+				out += item.toString() + "\n";
 			}
-			
 		}
 		return out;
 	}
@@ -179,14 +151,6 @@ public class Hero {
 	
 	public int getWrath() {
 		return (int) Math.round(strength*intelligence*0.02);
-	}
-	
-	public int getInvSize() {
-		return inventory.size();
-	}
-	
-	public int getSlotsArraySize() {
-		return slots.length;
 	}
 
 	@Override

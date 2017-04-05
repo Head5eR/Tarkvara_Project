@@ -7,7 +7,7 @@ public class MatrixPrinter {
 	
 	public void printMap(Matrix m, boolean labyrinthVersion) {
 		//System.out.println("received matrix");
-		ArrayList<ArrayList<Integer>> matrix = m.getMatrix();
+		ArrayList<ArrayList> matrix = m.getMatrix();
 		for(int i=0; i<matrix.get(0).size(); i++) {
 			for(int j=0; j<matrix.size(); j++) {
 				if((int) matrix.get(j).get(i)>128) {
@@ -22,7 +22,7 @@ public class MatrixPrinter {
 	}
 	
 	public void printMapImproved(Matrix m) {
-		ArrayList<ArrayList<Integer>> matrix = m.getMatrix();
+		ArrayList<ArrayList> matrix = m.getMatrix();
 		for(int i=0; i<matrix.size(); i++) { // row 
 			for(int j=0; j<matrix.get(0).size(); j++) { // column
 				if(i==0 && j==0) {

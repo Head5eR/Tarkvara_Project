@@ -5,14 +5,14 @@ import java.util.ArrayList;
 public class Matrix {
 	private int length;
 	private int width;
-	private ArrayList<ArrayList<Integer>> columns = new ArrayList<ArrayList<Integer>>();
+	private ArrayList<ArrayList> columns = new ArrayList<>();
 	
 	public Matrix(int length, int width, int cellValues) {
 		this.setLength(length);
 		this.setWidth(width);
 		
 		for(int i=0; i<length; i++) {
-			columns.add(new ArrayList<Integer>());
+			columns.add(new ArrayList<>());
 			for(int j=0; j<width; j++) {
 				 (columns.get(i)).add(cellValues);
 				
@@ -26,7 +26,7 @@ public class Matrix {
 		this.setWidth(width);
 		
 		for(int i=0; i<length; i++) {
-			columns.add(new ArrayList<Integer>());
+			columns.add(new ArrayList<>());
 			for(int j=0; j<width; j++) {
 				 (columns.get(i)).add(15); // 15 means 1 + 2 + 4 + 8 => first 4 bits, each of them is value of the wall => 01111, 5th bit is for "visited" flag
 				
@@ -35,15 +35,13 @@ public class Matrix {
 		//System.out.println(columns.toString());
 	}
 	
-	public ArrayList<ArrayList<Integer>> getMatrix(){
+	public ArrayList<ArrayList> getMatrix(){
 		return columns;
 	}
 	
 	public int getCell(Location loc) {
 		//System.out.println("returned value: " + (int) columns.get(loc.getX()).get(loc.getY()));
-		
 		return (int) columns.get(loc.getX()).get(loc.getY());
-		//return (int) columns.get(loc.getX()).get(loc.getY());
 	}
 	
 	public int getCell(int x, int y) {

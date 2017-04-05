@@ -60,8 +60,6 @@ public class MyGdxGame implements Screen {
 	private Window monsterFwin;
 	private Window heroFwin;
 	private TextArea heroinfo;
-	private int equipPageNr;
-	private int invPageNr;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -99,9 +97,6 @@ public class MyGdxGame implements Screen {
 		invinfo.setPrefRows(13);
 		equipinfo = new TextArea("Contents", skin);
 		equipinfo.setPrefRows(13);
-		
-		equipPageNr = 1;
-		invPageNr = 1;
 
 		invwin = new Window("Inventory", skin);
 		invwin.setWidth(50);
@@ -347,71 +342,43 @@ public class MyGdxGame implements Screen {
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
 	    	if(equipwin.isVisible()) {
-	    		hero.unequip(1 + 5*(equipPageNr-1));
+	    		hero.unequip(1);
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(1 + 5*(invPageNr-1));
+	    		hero.equipFromInv(1);
 	    	}
 	    	updateInvEquip();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
 	    	if(equipwin.isVisible()) {
-	    		hero.unequip(2 + 5*(equipPageNr-1));
+	    		hero.unequip(2);
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(2 + 5*(invPageNr-1));
+	    		hero.equipFromInv(2);
 	    	}
 	    	updateInvEquip();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
 	    	if(equipwin.isVisible()) {
-	    		hero.unequip(3 + 5*(equipPageNr-1));
+	    		hero.unequip(3);
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(3 + 5*(invPageNr-1));
+	    		hero.equipFromInv(3);
 	    	}
 	    	updateInvEquip();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
 	    	if(equipwin.isVisible()) {
-	    		hero.unequip(4 + 5*(equipPageNr-1));
+	    		hero.unequip(4);
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(4 + 5*(invPageNr-1));
+	    		hero.equipFromInv(4);
 	    	}
 	    	updateInvEquip();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
 	    	if(equipwin.isVisible()) {
-	    		hero.unequip(5 + 5*(equipPageNr-1));
+	    		hero.unequip(5);
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(5 + 5*(invPageNr-1));
+	    		hero.equipFromInv(5);
 	    	}
 	    	updateInvEquip();
-	    }
-	    
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_0)) {
-	    	if(equipwin.isVisible()) {
-	    		if(hero.getSlotsArraySize() - 5*equipPageNr > 0) {
-	    			equipPageNr++;
-	    			updateInvEquip();
-	    		}
-	    	} else if (invwin.isVisible()) {
-	    		if(hero.getInvSize() - 5*invPageNr > 0) {
-	    			invPageNr++;
-	    			updateInvEquip();
-	    		}
-	    	}
-	    }
-	    
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)) {
-	    	if(equipwin.isVisible()) {
-	    		if(equipPageNr > 1) {
-	    			equipPageNr--;
-	    			updateInvEquip();
-	    		}
-	    	} else if (invwin.isVisible()) {
-	    		if(invPageNr > 1) {
-	    			invPageNr--;
-	    			updateInvEquip();
-	    		}
-	    	}
 	    }
 	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
@@ -452,8 +419,8 @@ public class MyGdxGame implements Screen {
 	 }
 	
 	public void updateInvEquip() {
-		equipinfo.setText(hero.getAllEquiped(equipPageNr));
-		invinfo.setText(hero.getInventory(invPageNr));	
+		equipinfo.setText(hero.getAllEquiped());
+		invinfo.setText(hero.getInventory());	
 	}
 
 	@Override
