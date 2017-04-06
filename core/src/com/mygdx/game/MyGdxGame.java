@@ -24,7 +24,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
@@ -54,7 +56,7 @@ public class MyGdxGame implements Screen {
 	private final int MAP_WIDTH = 12;
 	private final int MAP_HEIGHT = 14;
 	private boolean fightInProgress = false;
-	private Table ftable;
+	private Table fightTable;
 	private TextButton btn1;
 	private TextButton btn2;
 	private Window monsterFwin;
@@ -62,6 +64,13 @@ public class MyGdxGame implements Screen {
 	private TextArea heroinfo;
 	private int equipPageNr;
 	private int invPageNr;
+	private TextArea invPage;
+	private TextArea equipPage;
+	private Table actionsTable;
+	private Monster activeMob;
+	private TextArea pickedAttack;
+	private TextArea pickedDefence;
+	private TextButton startTheFight;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -79,7 +88,7 @@ public class MyGdxGame implements Screen {
 			String name = filename.replace(".png", "");
 			mobnames.add(name);
 		}
-		System.out.println(mobnames.toString());
+		//System.out.println(mobnames.toString());
 
 		textures2.add(new Texture("tile texture_0.png"));
 		textures2.add(new Texture("wall texture.png"));
@@ -108,12 +117,18 @@ public class MyGdxGame implements Screen {
 		invwin.setHeight(50);
 		invwin.add(invinfo);
 		invwin.setVisible(false);
+		invwin.row();
+		invPage = new TextArea("", skin);
+		invwin.add(invPage);
 		
 		equipwin = new Window("Equipment", skin);
 		equipwin.setWidth(50);
-		equipwin.setHeight(50);
+		//equipwin.setHeight(50);
 		equipwin.add(equipinfo);
 		equipwin.setVisible(false);
+		equipwin.row();
+		equipPage = new TextArea("",skin);
+		equipwin.add(equipPage);
 		
 		stage = new Stage();
 		Gdx.input.setInputProcessor(stage); // IMPORTANT
@@ -132,8 +147,8 @@ public class MyGdxGame implements Screen {
 		uitable.getCell(equipwin).prefWidth(160);
 		uitable.getCell(invwin).prefWidth(160);
 		
-		ftable = new Table(skin);
-		ftable.setVisible(false);
+		fightTable = new Table(skin);
+		fightTable.setVisible(false);
 		monsterFwin = new Window("Monster statistics", skin);
 		mobinfo = new TextArea("", skin);
 		mobinfo.setPrefRows(3);
@@ -147,34 +162,62 @@ public class MyGdxGame implements Screen {
 		btn1.addListener(new ChangeListener() {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
-	            System.out.println("Button1 Pressed");
+	            fillActionsTable(true);
 	        }
 	    });
 		heroFwin.add(btn1);
+		
+		pickedAttack = new TextArea("",skin);
+		heroFwin.add(pickedAttack);
 		heroFwin.row();
 		btn2 = new TextButton("Choose defence", skin);
 		btn2.addListener(new ChangeListener() {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
-	            System.out.println("Button2 Pressed");
+	            fillActionsTable(false);
 	        }
 	    });
 		
 		heroFwin.add(btn2);
+		pickedDefence = new TextArea("",skin);
+		heroFwin.add(pickedDefence);
 		
-		ftable.setBackground("textfield");;
-		ftable.setHeight(Gdx.graphics.getHeight()/2);
-		ftable.setWidth(Gdx.graphics.getWidth()/2);
-		ftable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
-		ftable.add(new Image(textures2.get(4))).expandX();
+		startTheFight = new TextButton("ATTACK!", skin);
+		startTheFight.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	if(pickedDefence.getName() != null & pickedAttack.getName() != null) {
+	        		int heroAttack = Integer.parseInt(pickedAttack.getName());
+	        		int heroDef = Integer.parseInt(pickedDefence.getName());
+	        		fight(hero, activeMob, heroAttack, heroDef, 2, 1);
+	        	}
+	            
+	        }
+	    });
+		heroFwin.row();
+		heroFwin.add(startTheFight);
 		
-		ftable.add(new Image(textures2.get(3))).expandX();
-		ftable.row();
-		ftable.add(heroFwin).fill().expand();
-		ftable.add(monsterFwin).fill().expand();
+		fightTable.setBackground("textfield");
+		fightTable.setHeight(Gdx.graphics.getHeight()/2);
+		fightTable.setWidth(Gdx.graphics.getWidth()/2);
+		fightTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		fightTable.add(new Image(textures2.get(4))).expandX();
 		
-		stage.addActor(ftable);
+		fightTable.add(new Image(textures2.get(3))).expandX();
+		fightTable.row();
+		fightTable.add(heroFwin).fill().expand();
+		fightTable.add(monsterFwin).fill().expand();
+		
+		actionsTable = new Table(skin);
+		actionsTable.setVisible(false);
+		actionsTable.setBackground("textfield");
+		actionsTable.setHeight(Gdx.graphics.getHeight()/2);
+		actionsTable.setWidth(Gdx.graphics.getWidth()/2);
+		actionsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		
+		stage.addActor(fightTable);
 		stage.addActor(uitable);
+		stage.addActor(actionsTable);
 
 		/////////////////////////////////////////////////////////////////////
 		
@@ -183,7 +226,7 @@ public class MyGdxGame implements Screen {
 		map = mapgen.getMap();
 		endPos = mapgen.getEndPos();
 		startPos = mapgen.getStartPos();
-		hero = new Hero(1,1,1,startPos);
+		hero = new Hero(10,10,10,startPos);
 		
 		tile = new Rectangle();
 		tile.width = 64;
@@ -258,27 +301,18 @@ public class MyGdxGame implements Screen {
 	}
 	
 	private void genMob() {
-		Monster mob = new Monster();
+		activeMob = new Monster();
 		int randInt = (int) Math.floor(Math.random()*4);
-		Cell imgcell = ftable.getCells().get(1);
-		int foundindex = mobnames.indexOf(mob.getName().toLowerCase());
+		Cell imgcell = fightTable.getCells().get(1);
+		int foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
 		if (foundindex >= 0) {
 			imgcell.setActor(new Image(mobtextures.get(foundindex)));
 		} else {
 			foundindex = randInt;
 			imgcell.setActor(new Image(textures2.get(foundindex)));
 		}
-		mobinfo.setText(mob.toString());	
+		mobinfo.setText(activeMob.toString());	
 		//System.out.println(mob.getBody());
-	}
-	
-	private void fight(Hero h, Monster m) {
-		fightInProgress = true;
-		Monster mob = new Monster();
-		System.out.println(mob);
-		//mob.getBody().getBodyParts();
-		//hero.get
-		
 	}
 	
 	private void handleFightInput() {
@@ -287,9 +321,9 @@ public class MyGdxGame implements Screen {
 			// if(chooseDef.selected()) {}
 	    }
 		if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-	    	if(ftable.isVisible()) {
+	    	if(fightTable.isVisible()) {
 	    		fightInProgress = false;
-	    		ftable.setVisible(false);
+	    		fightTable.setVisible(false);
 	    	}
 	    }
 		
@@ -443,19 +477,92 @@ public class MyGdxGame implements Screen {
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		genMob();
-	    		heroinfo.setText("Health: " + hero.getHealth() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Damage: " + hero.getAttackDamage());
+	    		heroinfo.setText("Health: " + hero.getHP() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Damage: " + hero.getAttackDamage());
 	    		fightInProgress = true;
-	    		ftable.setVisible(true);
+	    		fightTable.setVisible(true);
 	    }
 	    
 	    camera.update();
 	 }
 	
+	public void updateHeroMonsterInfo() {
+		heroinfo.setText("Health: " + hero.getHP() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Damage: " + hero.getAttackDamage());
+		mobinfo.setText(activeMob.toString());	
+	}
+	
 	public void updateInvEquip() {
 		equipinfo.setText(hero.getAllEquiped(equipPageNr));
-		invinfo.setText(hero.getInventory(invPageNr));	
+		invinfo.setText(hero.getInventory(invPageNr));
+		int numOfPages = (int) Math.round(Math.ceil((double) hero.getInvSize() / 5));
+		invPage.setText(invPageNr + "/" + numOfPages); 
+		numOfPages = (int) Math.round(Math.ceil((double) hero.getSlotsArraySize() / 5));
+		equipPage.setText(equipPageNr + "/" + numOfPages); 
+	}
+	
+	public void fillActionsTable(boolean isAttacking) {
+		Body body;
+		Bodypart picked;
+		fightTable.setVisible(false);
+		
+		if(isAttacking) {
+			body = activeMob.getBody();
+			actionsTable.setName("Attack");
+		} else {
+			actionsTable.setName("Defence");
+			body = hero.getBody();
+		}
+		
+		for(Bodypart bp : body.getBodyParts()) {
+			actionsTable.add(new TextArea(bp.toString(), skin));
+			
+			TextButton btn = new TextButton("pick",skin);
+			
+			btn.addListener(new ChangeListener() {
+		        @Override
+		        public void changed (ChangeEvent event, Actor actor) {
+		        	Bodypart picked;
+		        	int bodyPartIndex = (actor.getZIndex()-1) /2;
+		       
+		        	if(actor.getParent().getName() == "Attack") {
+		    			picked = activeMob.getBody().getBodyParts().get(bodyPartIndex);
+		    			pickedAttack.setText(picked.getName());
+		    			pickedAttack.setName("" + bodyPartIndex);
+		    		} else {
+		    			picked = hero.getBody().getBodyParts().get(bodyPartIndex);
+		    			pickedDefence.setText(picked.getName());
+		    			pickedDefence.setName("" + bodyPartIndex);
+		    		}
+		        	//System.out.println(picked);
+		        	actionsTable.setVisible(false);
+		        	fightTable.setVisible(true);
+		        	actionsTable.clear();
+		        }
+			});
+			actionsTable.add(btn);
+			actionsTable.row();
+		}
+		
+		actionsTable.setVisible(true);
+		
 	}
 
+	public void fight(Hero h, Monster m, int heroAtck, int heroDef, int monsterAtck, int monsterDef) {
+		if(monsterAtck == heroDef) {
+			System.out.println("YOU BLOCKED THE ATTACK");
+		} else {
+			System.out.println("Monster deals " + m.getAttackDamage() + " dmg to you");
+			h.takeDmg(m.getAttackDamage());
+		}
+		if(heroAtck == monsterDef) {
+			System.out.println("Your attack was blocked!");
+		} else {
+			System.out.println("You deal " + h.getAttackDamage() + " dmg");
+			m.takeDmg(h.getAttackDamage());
+		}
+		System.out.println(m.getHP() + " " + h.getHP());
+		updateHeroMonsterInfo();
+	}
+	
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub

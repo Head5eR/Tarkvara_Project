@@ -44,7 +44,7 @@ public abstract class Item {
 	
 	@Override
 	public String toString() {
-		return "Item [" + rarity + " " + name + "]";
+		return rarity + " " + name;
 	}
 	
 	
