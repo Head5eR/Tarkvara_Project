@@ -3,18 +3,13 @@ package com.mygdx.game;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Hero {
-	private int strength;
-	private int dexterity;
-	private int stamina;
-	private int hp;
+public class Hero extends Character {
 	private Location loc;
 	final int MOVELEFT = 1;
 	final int MOVEUP = 2;
 	final int MOVERIGHT = 4;
 	final int MOVEDOWN = 8;
-	final int EMPTY = 0;
-	private Body body;
+	final int EMPTY = 0;	
 	
 	List<Item> inventory = new ArrayList<Item>();
 	List<Headgear[]> headSlot = new ArrayList<Headgear[]>();
@@ -29,14 +24,11 @@ public class Hero {
 	// Schema
 	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObject
 	
-	public Hero(int strength, int agility, int intelligence, Location loc) {
-		this.strength = strength;
-		this.dexterity = agility;
-		this.stamina = intelligence;
-		this.loc = loc;
-		this.hp = stamina*13;
-		body = new Body("humanoid");
+	public Hero(int strength, int dexterity, int stamina, Location loc) {
+		super(strength, dexterity, stamina, "humanoid");
 		
+		this.loc = loc;
+
 		// Every slot is an array of certain type with length of 1, 
 		// so that it is possible to add only one item to the slot
 		Headgear[] hs = {new Headgear("Helmet", true)};
@@ -53,6 +45,14 @@ public class Hero {
 			legsSlot.add(ls);
 		Boots[] toes = {new Boots("High boots", true)};
 			toesSlot.add(toes);
+	}
+	
+	public int getInvSize() {
+		return inventory.size();
+	}
+	
+	public int getSlotsArraySize() {
+		return slots.length;
 	}
 	
 	public String getAllEquiped(int page) {
@@ -161,38 +161,6 @@ public class Hero {
 		}
 	}
 
-	public float getEvasion() {
-		return (float) (dexterity*stamina*0.1);
-	}
-	
-	public int getArmor() {
-		return 1; //get armor from equipped items pls
-	}
-	
-	public int getAttackDamage() {
-		return (int) Math.round(strength*stamina*0.2);
-	}
-	
-	public int getWrath() {
-		return (int) Math.round(strength*stamina*dexterity*0.02);
-	}
-	
-	public int getInvSize() {
-		return inventory.size();
-	}
-	
-	public int getSlotsArraySize() {
-		return slots.length;
-	}
-
-	@Override
-	public String toString() {
-		return "Hero [strength=" + strength + ", agility=" + dexterity + ", intelligence=" + stamina
-				+ ", getHealth()=" + getHP() + ", getMana()=" + getHP() + ", getEvasion()=" + getEvasion()
-				+ ", getArmor()=" + getArmor() + ", getAttackDamage()=" + getAttackDamage() + ", getWrath()="
-				+ getWrath() + "]";
-	}
-	
 	public Location getLoc() {
 		return loc;
 	}
@@ -210,18 +178,18 @@ public class Hero {
 		}
 			
 	}
-
-	public Body getBody() {
-		return body;
-	}
-
-	public int getDexterity() {
-		return dexterity;
+	
+	public int getArmor() {
+		return 1; //get armor from equipped items pls
 	}
 	
-	public int getHP() {
-		return hp;
+	@Override
+	public String toString() {
+		return "Hero [strength=" + getStrength() + ", agility=" + getDexterity() + ", intelligence=" + getStamina()
+				+ ", Health=" + getHp() + ", Evasion=" + getEvasion()
+				+ ", Armor=" + getArmor() + ", AttackDamage=" + getAttackDamage() + "]";
 	}
+	
 	
 	public void takeDmg(int dmg) {
 		if (dmg <= hp) {

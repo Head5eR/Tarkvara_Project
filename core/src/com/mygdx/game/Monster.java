@@ -20,33 +20,34 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-public class Monster {
+public class Monster extends Character {
 	private String name;
-	private int strength;
-	private int dexterity;
-	private int stamina;
 	private int wrath;
-	private Body body;
-	private int hp;
 	private Modifier mod;
 	private static String expression = "//monster[@name]";
+	private static List<String> monsterStats;
 	
-	public Monster () {
-		List<String> monsterStats = readFromXML();
+	public static Monster getMonster() {
+		
+		monsterStats = readFromXML();
 		String bodytype = monsterStats.get(1);
 		
+		int str = Integer.parseInt(monsterStats.get(2));
+		int dex = Integer.parseInt(monsterStats.get(3));
+		int stam =  Integer.parseInt(monsterStats.get(4));
+		return new Monster(str, dex, stam, bodytype);
 		
-		this.mod = new Modifier();
-		this.body = new Body(bodytype);
-		this.name = monsterStats.get(0);	
-		this.strength = Integer.parseInt(monsterStats.get(2));
-		this.dexterity = Integer.parseInt(monsterStats.get(3));
-		this.stamina = Integer.parseInt(monsterStats.get(4));
-		this.wrath = Integer.parseInt(monsterStats.get(5));
-		this.hp = strength*10;
+		
 	}
 	
-	private List<String> readFromXML() {
+	public Monster(int str, int dex, int stam, String bodytype) {
+		super(str, dex, stam, bodytype);
+		this.mod = new Modifier();
+		this.name = monsterStats.get(0);	
+		this.wrath = Integer.parseInt(monsterStats.get(5));
+	}
+	
+	private static List<String> readFromXML() {
 		try {
     	 File inputFile = new File("monsters.xml");
 		    
@@ -100,44 +101,22 @@ public class Monster {
 	
 	
     public String getModStrength() {
-		return strength + mod.getStrength();
+		return getStrength() + mod.getStrength();
 	}
-	public void setStrength(int strength) {
-		this.strength = strength;
-	}
+	
 	public String getModDexterity() {
-		return dexterity + mod.getDexterity();
+		return getDexterity() + mod.getDexterity();
 	}
-	public void setDexterity(int dexterity) {
-		this.dexterity = dexterity;
-	}
+	
 	public String getModStamina() {
-		return stamina + mod.getStamina();
+		return getStamina() + mod.getStamina();
 	}
-	public void setStamina(int stamina) {
-		this.stamina = stamina;
-	}
+	
 	public String getModWrath() {
 		return wrath + mod.getWrath();
 	}
 	public void setWrath(int wrath) {
 		this.wrath = wrath;
-	}
-	
-	public Body getBody() {
-		return body;
-	}
-	
-	public int getStrength() {
-		return strength;
-	}
-
-	public int getDexterity() {
-		return dexterity;
-	}
-
-	public int getStamina() {
-		return stamina;
 	}
 
 	public int getWrath() {
@@ -152,9 +131,6 @@ public class Monster {
 		return name;
 	}
 	
-	public int getHP() {
-		return hp;
-	}
 	
 	public void takeDmg(int dmg) {
 		if (dmg <= hp) {
@@ -163,15 +139,11 @@ public class Monster {
 			hp = 0;
 		}
 	}
-	
-	public int getAttackDamage() {
-		return (int) Math.round(strength*stamina*0.2);
-	}
 
 	@Override
 	public String toString() {
 		//return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath + "\n Modifier: " + mod;
-		return name + "\n" + "HP: " + getHP() + "\n Attack: " + getAttackDamage();
+		return name + "\n" + "HP: " + getHp() + "/" + getMaxHp() + "\n Attack: " + getAttackDamage();
 	}
 
 	
