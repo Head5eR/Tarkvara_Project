@@ -5,8 +5,9 @@ import java.util.List;
 
 public class Hero {
 	private int strength;
-	private int agility;
-	private int intelligence;
+	private int dexterity;
+	private int stamina;
+	private int hp;
 	private Location loc;
 	final int MOVELEFT = 1;
 	final int MOVEUP = 2;
@@ -30,9 +31,10 @@ public class Hero {
 	
 	public Hero(int strength, int agility, int intelligence, Location loc) {
 		this.strength = strength;
-		this.agility = agility;
-		this.intelligence = intelligence;
+		this.dexterity = agility;
+		this.stamina = intelligence;
 		this.loc = loc;
+		this.hp = stamina*13;
 		body = new Body("humanoid");
 		
 		// Every slot is an array of certain type with length of 1, 
@@ -59,14 +61,14 @@ public class Hero {
 		int i = 1;
 		if(page == 0) {
 			for(List<?> slot : slots) {
-				complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName() + ": " + ((Item[]) slot.get(0))[0];
+				complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName().replace("[]", "") + ": " + ((Item[]) slot.get(0))[0];
 				i++;
 			}
 		} else {
 			for(int a = -5 + 5 * page; a < 5 * page; a++) { //if it's first page, then gives slots nr 0,1,2,3,4 // if it's second page then 5,6,7,8,9 etc...
 				if(a < slots.length) {
 					List<?> slot = slots[a];
-					complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName() + ": " + ((Item[]) slot.get(0))[0];
+					complex += "\n" + i + ". " + slot.get(0).getClass().getSimpleName().replace("[]", "") + ": " + ((Item[]) slot.get(0))[0];
 					i++;
 				} else {
 					break;
@@ -81,18 +83,21 @@ public class Hero {
 	
 	public String getInventory(int page) {
 		String out = "";
+		int num = 1;
 		if(inventory.isEmpty()) {
 			out = "Inventory is empty";
 		} else {
 			if (page == 0) {
 				for(Item item : inventory) {
-					out += item.toString() + "\n";
+					out += num + ". " + item.toString() + "\n";
+					num++;
 				}
 			} else {
 				for (int i = -5 + 5 *page; i < 5 * page; i++) {
 					if (i < inventory.size()) {
 						System.out.println(i);
-						out += inventory.get(i).toString() + "\n";
+						out += num + ". " + inventory.get(i).toString() + "\n";
+						num++;
 					} else {
 						break;
 					}
@@ -138,7 +143,6 @@ public class Hero {
 					if (arrayname != null && arrayname.equals(item.getClass().getSimpleName())) {
 						foundSlot = (ArrayList) slot;
 						Item[] innerSlot = (Item[]) foundSlot.get(0);
-						System.out.println(foundSlot.get(0));
 						
 						if(innerSlot[0] == null) { // if doesn't have item then just add it to the slot
 							System.out.println("just equipping slot");
@@ -156,29 +160,21 @@ public class Hero {
 			return;
 		}
 	}
-	
-	public int getHealth() {
-		return strength * 18;
-	}
-	
-	public int getMana() {
-		return intelligence * 13;
-	}
-	
+
 	public float getEvasion() {
-		return (float) (agility*intelligence*0.1);
+		return (float) (dexterity*stamina*0.1);
 	}
 	
 	public int getArmor() {
-		return (int) Math.round(agility*0.5);
+		return 1; //get armor from equipped items pls
 	}
 	
 	public int getAttackDamage() {
-		return (int) Math.round(strength*agility*0.2);
+		return (int) Math.round(strength*stamina*0.2);
 	}
 	
 	public int getWrath() {
-		return (int) Math.round(strength*intelligence*0.02);
+		return (int) Math.round(strength*stamina*dexterity*0.02);
 	}
 	
 	public int getInvSize() {
@@ -191,8 +187,8 @@ public class Hero {
 
 	@Override
 	public String toString() {
-		return "Hero [strength=" + strength + ", agility=" + agility + ", intelligence=" + intelligence
-				+ ", getHealth()=" + getHealth() + ", getMana()=" + getMana() + ", getEvasion()=" + getEvasion()
+		return "Hero [strength=" + strength + ", agility=" + dexterity + ", intelligence=" + stamina
+				+ ", getHealth()=" + getHP() + ", getMana()=" + getHP() + ", getEvasion()=" + getEvasion()
 				+ ", getArmor()=" + getArmor() + ", getAttackDamage()=" + getAttackDamage() + ", getWrath()="
 				+ getWrath() + "]";
 	}
@@ -214,4 +210,25 @@ public class Hero {
 		}
 			
 	}
+
+	public Body getBody() {
+		return body;
+	}
+
+	public int getDexterity() {
+		return dexterity;
+	}
+	
+	public int getHP() {
+		return hp;
+	}
+	
+	public void takeDmg(int dmg) {
+		if (dmg <= hp) {
+			hp -= dmg;
+		} else {
+			hp = 0;
+		}
+	}
 }
+

@@ -13,4 +13,8 @@ public class Bodypart {
 	public String toString() {
 		return name + " isCritical: " + isCritical;
 	}
+
+	public String getName() {
+		return name;
+	}
 }

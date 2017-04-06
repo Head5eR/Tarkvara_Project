@@ -27,12 +27,14 @@ public class Monster {
 	private int stamina;
 	private int wrath;
 	private Body body;
+	private int hp;
 	private Modifier mod;
 	private static String expression = "//monster[@name]";
 	
 	public Monster () {
 		List<String> monsterStats = readFromXML();
 		String bodytype = monsterStats.get(1);
+		
 		
 		this.mod = new Modifier();
 		this.body = new Body(bodytype);
@@ -41,6 +43,7 @@ public class Monster {
 		this.dexterity = Integer.parseInt(monsterStats.get(3));
 		this.stamina = Integer.parseInt(monsterStats.get(4));
 		this.wrath = Integer.parseInt(monsterStats.get(5));
+		this.hp = strength*10;
 	}
 	
 	private List<String> readFromXML() {
@@ -77,7 +80,7 @@ public class Monster {
 					monsterList.add(listOfMonsterAttributes.item(i).getTextContent());					
 				}
                
-               System.out.println(monsterList.toString());
+               //System.out.println(monsterList.toString());
                	return monsterList;
             } 
             
@@ -148,10 +151,27 @@ public class Monster {
 	public String getName() {
 		return name;
 	}
+	
+	public int getHP() {
+		return hp;
+	}
+	
+	public void takeDmg(int dmg) {
+		if (dmg <= hp) {
+			hp -= dmg;
+		} else {
+			hp = 0;
+		}
+	}
+	
+	public int getAttackDamage() {
+		return (int) Math.round(strength*stamina*0.2);
+	}
 
 	@Override
 	public String toString() {
-		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath + "\n Modifier: " + mod;
+		//return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath + "\n Modifier: " + mod;
+		return name + "\n" + "HP: " + getHP() + "\n Attack: " + getAttackDamage();
 	}
 
 	
