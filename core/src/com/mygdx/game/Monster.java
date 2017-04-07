@@ -21,11 +21,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class Monster extends Character {
-	private String name;
 	private int wrath;
 	private Modifier mod;
 	private static String expression = "//monster[@name]";
 	private static List<String> monsterStats;
+	private ArrayList<Integer> pickedDefs = new ArrayList<Integer>();
 	
 	public static Monster getMonster() {
 		
@@ -35,16 +35,17 @@ public class Monster extends Character {
 		int str = Integer.parseInt(monsterStats.get(2));
 		int dex = Integer.parseInt(monsterStats.get(3));
 		int stam =  Integer.parseInt(monsterStats.get(4));
-		return new Monster(str, dex, stam, bodytype);
+		String name = monsterStats.get(0);	
+		return new Monster(str, dex, stam, bodytype, name);
 		
 		
 	}
 	
-	public Monster(int str, int dex, int stam, String bodytype) {
-		super(str, dex, stam, bodytype);
+	public Monster(int str, int dex, int stam, String bodytype, String name) {
+		super(str, dex, stam, bodytype, name);
 		this.mod = new Modifier();
-		this.name = monsterStats.get(0);	
 		this.wrath = Integer.parseInt(monsterStats.get(5));
+		setHp(getMaxHp());
 	}
 	
 	private static List<String> readFromXML() {
@@ -99,51 +100,69 @@ public class Monster extends Character {
 		return null;
 	}
 	
+	@Override
+	public int getMaxHp() {
+		return getModStrength()*13;
+	}
 	
-    public String getModStrength() {
+	@Override
+	public int getWrath() {
+		return (int) Math.round(getModStrength()*getModStamina()*getModDexterity()*0.001);
+	}
+	
+	@Override
+	public float getEvasion() {
+		return (float) (getModDexterity()*0.1);
+	}
+	
+	
+    public int getModStrength() {
 		return getStrength() + mod.getStrength();
 	}
 	
-	public String getModDexterity() {
+	public int getModDexterity() {
 		return getDexterity() + mod.getDexterity();
 	}
 	
-	public String getModStamina() {
+	public int getModStamina() {
 		return getStamina() + mod.getStamina();
 	}
 	
-	public String getModWrath() {
+	public int getModWrath() {
 		return wrath + mod.getWrath();
 	}
 	public void setWrath(int wrath) {
 		this.wrath = wrath;
 	}
 
-	public int getWrath() {
-		return wrath;
-	} 
-
 	public Modifier getMod() {
 		return mod;
+	}	
+	
+	public ArrayList<Integer> getDefenceMoves() {
+		return pickedDefs;
+	}	
+	
+	public boolean checkIfHasDefenceMove(int attackMove) {
+		return pickedDefs.contains(attackMove);
 	}
 	
-	public String getName() {
-		return name;
+	@Override
+	public int getMaxAttackDamage() {
+		return (int) Math.round(getModStrength()*getModStamina()*0.2);
 	}
 	
-	
-	public void takeDmg(int dmg) {
-		if (dmg <= hp) {
-			hp -= dmg;
-		} else {
-			hp = 0;
-		}
+	@Override
+	public boolean canDefend(int attackMove) {
+		return checkIfHasDefenceMove(attackMove);
 	}
 
 	@Override
 	public String toString() {
 		//return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath + "\n Modifier: " + mod;
-		return name + "\n" + "HP: " + getHp() + "/" + getMaxHp() + "\n Attack: " + getAttackDamage();
+		return getMod().getName() + " " + getName() + 
+				"\n" + "HP: " + getHp() + "/" + getMaxHp() 
+				+ "\n Attack: " + getAttackDamageStr();
 	}
 
 	

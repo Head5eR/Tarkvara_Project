@@ -25,8 +25,8 @@ public class Hero extends Character {
 	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObject
 	
 	public Hero(int strength, int dexterity, int stamina, Location loc) {
-		super(strength, dexterity, stamina, "humanoid");
-		
+		super(strength, dexterity, stamina, "humanoid", "Hero");
+		setHp(getMaxHp());
 		this.loc = loc;
 
 		// Every slot is an array of certain type with length of 1, 
@@ -190,10 +190,12 @@ public class Hero extends Character {
 				+ ", Armor=" + getArmor() + ", AttackDamage=" + getAttackDamage() + "]";
 	}
 	
-	
-	public void takeDmg(int dmg) {
-		if (dmg <= hp) {
-			hp -= dmg;
+	@Override
+	public void takeDmg(int dmg, int bodypart) {
+		dmg = checkIfFatalStrike(dmg, bodypart);
+		int actualDmg = dmg - getArmor();
+		if (actualDmg <= hp) {
+			hp -= actualDmg;
 		} else {
 			hp = 0;
 		}

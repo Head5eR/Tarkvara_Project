@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -77,6 +76,7 @@ public class MyGdxGame implements Screen {
 	private Window options;
 	private TextField mapWidthTextField;
 	private TextField mapHeightTextField;
+	private java.util.Random randomizer;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -201,12 +201,12 @@ public class MyGdxGame implements Screen {
 		startTheFight.addListener(new ChangeListener() {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
-	        	if(pickedDefence.getName() != null & pickedAttack.getName() != null & !isDead()) {
-	        		int heroAttack = Integer.parseInt(pickedAttack.getName());
-	        		int heroDef = Integer.parseInt(pickedDefence.getName());
-	        		int monsterAttack = MathUtils.random(hero.getBody().getBodyParts().size());
-	        		int monsterDef = MathUtils.random(activeMob.getBody().getBodyParts().size());
-	        		fight(hero, activeMob, heroAttack, heroDef, monsterAttack, monsterDef);
+	        	if(pickedDefence.getName() != null & pickedAttack.getName() != null & !FightSystem.isDead(activeMob) & !FightSystem.isDead(hero)) {
+	        		hero.setAttackMove(Integer.parseInt(pickedAttack.getName()));
+	        		hero.setDefenceMove(Integer.parseInt(pickedDefence.getName()));
+	        		activeMob.setAttackMove(MathUtils.random(hero.getBody().getBodyParts().size()-1));
+	        		FightSystem.fight(hero, activeMob);
+	        		updateHeroMonsterInfo();
 	        	}
 	            
 	        }
@@ -494,6 +494,7 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+	    	
 	    		genMob();
 	    		updateHeroMonsterInfo();
 	    		fightInProgress = true;
@@ -504,17 +505,20 @@ public class MyGdxGame implements Screen {
 	 }
 	
 	public void updateHeroMonsterInfo() {
-		heroinfo.setText("Health: " + hero.getHp() + "/" + hero.getMaxHp() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Attack: " + hero.getAttackDamage());
+		heroinfo.setText("Health: " + hero.getHp() + "/" + hero.getMaxHp() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Attack: " + hero.getAttackDamageStr());
 		mobinfo.setText(activeMob.toString());
+		if(FightSystem.isDead(hero)) {
+			heroinfo.appendText("\n DEAD");
+		}
+		if(FightSystem.isDead(activeMob)) {
+			mobinfo.appendText("\n DEAD");
+		}
 		createLoot();
 	}
 	
-	public boolean isDead() {
-		return activeMob.getHp() == 0;
-	}
 	
 	public void createLoot() {
-		if(isDead() & mobFwin.findActor("lootbtn") == null) {
+		if(FightSystem.isDead(activeMob) & mobFwin.findActor("lootbtn") == null) {
 			mobinfo.setText(activeMob.toString() + "\n" + "DEAD");
 			mobFwin.row();
 			TextButton lootbtn = new TextButton("LOOT BODY", skin);
@@ -583,23 +587,6 @@ public class MyGdxGame implements Screen {
 		
 		actionsTable.setVisible(true);
 		
-	}
-
-	public void fight(Hero h, Monster m, int heroAtck, int heroDef, int monsterAtck, int monsterDef) {
-		if(monsterAtck == heroDef) {
-			System.out.println("YOU BLOCKED THE ATTACK");
-		} else {
-			System.out.println("Monster deals " + m.getAttackDamage() + " dmg to you");
-			h.takeDmg(m.getAttackDamage());
-		}
-		if(heroAtck == monsterDef) {
-			System.out.println("Your attack was blocked!");
-		} else {
-			System.out.println("You deal " + h.getAttackDamage() + " dmg");
-			m.takeDmg(h.getAttackDamage());
-		}
-		System.out.println(m.getHp() + " " + h.getHp());
-		updateHeroMonsterInfo();
 	}
 	
 	@Override
