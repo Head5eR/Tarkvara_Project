@@ -143,18 +143,9 @@ public class Monster extends Character {
 		return pickedDefs;
 	}	
 	
-	public boolean checkIfHasDefenceMove(int attackMove) {
-		return pickedDefs.contains(attackMove);
-	}
-	
 	@Override
 	public int getMaxAttackDamage() {
 		return (int) Math.round(getModStrength()*getModStamina()*0.2);
-	}
-	
-	@Override
-	public boolean canDefend(int attackMove) {
-		return checkIfHasDefenceMove(attackMove);
 	}
 
 	@Override

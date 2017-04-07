@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.math.MathUtils;
@@ -11,8 +12,9 @@ public abstract class Character {
 	private String name;
 	protected int hp;
 	private int attackMove;
-	private int defenceMove;
 	private Body body;
+	private ArrayList<Integer> pickedDefs = new ArrayList<Integer>();
+	private ArrayList<Integer> pickedAttacks = new ArrayList<Integer>();
 	
 	public Character(int strength, int dexterity, int stamina, String bodytype, String name) {
 		this.strength = strength;
@@ -74,17 +76,21 @@ public abstract class Character {
 	public float getEvasion() {
 		return (float) (getDexterity()*0.1);
 	}
-
-	public int getAttackMove() {
-		return attackMove;
+	
+	public ArrayList<Integer> getPickedDefs() {
+		return pickedDefs;
+	}
+	
+	public ArrayList<Integer> getPickedAttacks() {
+		return pickedAttacks;
 	}
 
-	public int getDefenceMove() {
-		return defenceMove;
+	public int getAttackMove(int num) {
+		return pickedAttacks.get(num);
 	}
 	
 	public boolean canDefend(int attackMove) {
-		return getDefenceMove() == attackMove;
+		return pickedDefs.contains(attackMove);
 	}
 
 	public void setAttackMove(int attackMove) {
@@ -92,7 +98,7 @@ public abstract class Character {
 	}
 
 	public void setDefenceMove(int defenceMove) {
-		this.defenceMove = defenceMove;
+		pickedDefs.add(defenceMove);
 	}
 	
 	public String getName() {
@@ -117,5 +123,13 @@ public abstract class Character {
 		} else {
 			hp = 0;
 		}
+	}
+
+	public void setPickedDefs(ArrayList<Integer> pickedDefs) {
+		this.pickedDefs = pickedDefs;
+	}
+
+	public void setPickedAttacks(ArrayList<Integer> pickedAttacks) {
+		this.pickedAttacks = pickedAttacks;
 	}
 }

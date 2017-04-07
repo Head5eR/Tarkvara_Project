@@ -194,9 +194,11 @@ public class Hero extends Character {
 	public void takeDmg(int dmg, int bodypart) {
 		dmg = checkIfFatalStrike(dmg, bodypart);
 		int actualDmg = dmg - getArmor();
+		System.out.println(getName() + " has taken " + actualDmg + " DMG");
 		if (actualDmg <= hp) {
 			hp -= actualDmg;
 		} else {
+			System.out.println("Hero is dead");
 			hp = 0;
 		}
 	}

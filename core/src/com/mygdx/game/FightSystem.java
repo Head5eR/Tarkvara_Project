@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 public class FightSystem {
 	static Random randomizer;
 	
-	public static void genDefencesForMonster(Monster m) {
+	private static void genDefencesForMonster(Monster m) {
 		ArrayList<Integer> pickedDefs = m.getDefenceMoves();
 		pickedDefs.clear();
 		int numOfDefs =(int) Math.ceil(m.getBody().getBodyParts().size() / 4);
@@ -21,15 +21,33 @@ public class FightSystem {
 		}
 	}
 	
+	private static void genAttacksForMonster(Monster m, Hero h) {
+		ArrayList<Integer> pickedAttacks = m.getPickedAttacks();
+		pickedAttacks.add(MathUtils.random(h.getBody().getBodyParts().size()-1));
+	}
+	
+	public static int howManyAttacksToPick(Hero h) {
+		String weaponSlotClass1 = h.weaponSlot1.get(0).getClass().getComponentType().getSimpleName();
+		String weaponSlotClass2 = h.weaponSlot2.get(0).getClass().getComponentType().getSimpleName();
+		if(weaponSlotClass1 == weaponSlotClass2 & weaponSlotClass1 == "MeleeWeapon") {
+			return 2;
+		}
+		return 1;
+	}
+	
 	public static void fight(Hero h, Monster m) {
 		genDefencesForMonster(m);
+		genAttacksForMonster(m,h);
 		if(h.getDexterity() > m.getDexterity()) {
-			attack(h, m);
-			if(!isDead(m)) {
-				attack(m, h);
-			} else {
-				System.out.println("Monster has been struck to death!");
+			for(int i=0; i<h.getPickedAttacks().size(); i++) {
+				attack(h, m);
+				if(!isDead(m)) {
+					attack(m, h);
+				} else {
+					System.out.println("Monster has been struck to death!");
+				}
 			}
+			
 		} else {
 			attack(m, h);
 			if(!isDead(h)) {
@@ -44,26 +62,31 @@ public class FightSystem {
 	private static void attack(Character attacker, Character target) {
 		randomizer = new java.util.Random();
 		
-		if(target.canDefend(attacker.getAttackMove())) {
-			System.out.println(target.getName() + " has blocked the attack!");
-		} else {
-			float bodypartExtraEvasion = 0; // probably need to implement bodyparts' own hit chances
-			if(target.getBody().getBodyParts().get(attacker.getAttackMove()).isCritical()) {
-				bodypartExtraEvasion = 0.1f;
-			}
-			
-			if(randomizer.nextFloat() <= target.getEvasion()/10 + bodypartExtraEvasion) {
-				System.out.println(target.getName() + " DODGED THE ATTACK!");
+		for(int attackMove : attacker.getPickedAttacks()) {
+			if(target.canDefend(attackMove)) {
+				target.getPickedDefs().remove(attackMove);
+				System.out.println(target.getName() + " has blocked the attack!");
 			} else {
-				int dealtDamage = attacker.getAttackDamage();
-				if(randomizer.nextFloat() <= attacker.getWrath()/1000) {
-					System.out.println("CRITICAL STRIKE!");
-					dealtDamage += dealtDamage*0.3;
+				float bodypartExtraEvasion = 0; // probably need to implement bodyparts' own hit chances
+				if(target.getBody().getBodyParts().get(attackMove).isCritical()) {
+					bodypartExtraEvasion = 0.1f;
 				}
-				System.out.println(attacker.getName() + " deals " + dealtDamage + " dmg");
-				target.takeDmg(dealtDamage, attacker.getAttackMove());
+				
+				if(randomizer.nextFloat() <= target.getEvasion()/10 + bodypartExtraEvasion) {
+					System.out.println(target.getName() + " DODGED THE ATTACK!");
+				} else {
+					int dealtDamage = attacker.getAttackDamage();
+					if(randomizer.nextFloat() <= attacker.getWrath()/1000) {
+						System.out.println("CRITICAL STRIKE!");
+						dealtDamage += dealtDamage*0.3;
+					}
+					System.out.println(attacker.getName() + " deals " + dealtDamage + " dmg");
+					target.takeDmg(dealtDamage, attackMove);
+				}
 			}
 		}
+		attacker.getPickedAttacks().clear();
+		
 	}
 	
 	public static boolean isDead(Character c) {

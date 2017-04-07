@@ -68,7 +68,7 @@ public class MyGdxGame implements Screen {
 	private int invPageNr;
 	private TextArea invPage;
 	private TextArea equipPage;
-	private Table actionsTable;
+	private Table bodyPartsTable;
 	private Monster activeMob;
 	private TextArea pickedAttack;
 	private TextArea pickedDefence;
@@ -76,7 +76,7 @@ public class MyGdxGame implements Screen {
 	private Window options;
 	private TextField mapWidthTextField;
 	private TextField mapHeightTextField;
-	private java.util.Random randomizer;
+	private Table attackAndDefence;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -173,46 +173,6 @@ public class MyGdxGame implements Screen {
 		heroinfo = new TextArea("", skin);
 		heroFwin.add(heroinfo).fill().expand();
 		heroFwin.row();
-		btn1 = new TextButton("Choose attack", skin);
-		btn1.addListener(new ChangeListener() {
-	        @Override
-	        public void changed (ChangeEvent event, Actor actor) {
-	            fillActionsTable(true);
-	        }
-	    });
-		heroFwin.add(btn1);
-		
-		pickedAttack = new TextArea("",skin);
-		heroFwin.add(pickedAttack);
-		heroFwin.row();
-		btn2 = new TextButton("Choose defence", skin);
-		btn2.addListener(new ChangeListener() {
-	        @Override
-	        public void changed (ChangeEvent event, Actor actor) {
-	            fillActionsTable(false);
-	        }
-	    });
-		
-		heroFwin.add(btn2);
-		pickedDefence = new TextArea("",skin);
-		heroFwin.add(pickedDefence);
-		
-		startTheFight = new TextButton("ATTACK!", skin);
-		startTheFight.addListener(new ChangeListener() {
-	        @Override
-	        public void changed (ChangeEvent event, Actor actor) {
-	        	if(pickedDefence.getName() != null & pickedAttack.getName() != null & !FightSystem.isDead(activeMob) & !FightSystem.isDead(hero)) {
-	        		hero.setAttackMove(Integer.parseInt(pickedAttack.getName()));
-	        		hero.setDefenceMove(Integer.parseInt(pickedDefence.getName()));
-	        		activeMob.setAttackMove(MathUtils.random(hero.getBody().getBodyParts().size()-1));
-	        		FightSystem.fight(hero, activeMob);
-	        		updateHeroMonsterInfo();
-	        	}
-	            
-	        }
-	    });
-		heroFwin.row();
-		heroFwin.add(startTheFight);
 		
 		fightTable.setBackground("textfield");
 		fightTable.setHeight(Gdx.graphics.getHeight()/2);
@@ -225,16 +185,22 @@ public class MyGdxGame implements Screen {
 		fightTable.add(heroFwin).fill().expand();
 		fightTable.add(mobFwin).fill().expand();
 		
-		actionsTable = new Table(skin);
-		actionsTable.setVisible(false);
-		actionsTable.setBackground("textfield");
-		actionsTable.setHeight(Gdx.graphics.getHeight()/2);
-		actionsTable.setWidth(Gdx.graphics.getWidth()/2);
-		actionsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		attackAndDefence = new Table(skin);
+		
+		fightTable.row();
+		fightTable.add(attackAndDefence);
+		fightTable.row();
+		
+		bodyPartsTable = new Table(skin);
+		bodyPartsTable.setVisible(false);
+		bodyPartsTable.setBackground("textfield");
+		bodyPartsTable.setHeight(Gdx.graphics.getHeight()/2);
+		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
+		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
 		
 		stage.addActor(fightTable);
 		stage.addActor(uitable);
-		stage.addActor(actionsTable);
+		stage.addActor(bodyPartsTable);
 
 		/////////////////////////////////////////////////////////////////////
 		
@@ -338,10 +304,7 @@ public class MyGdxGame implements Screen {
 	    		fightInProgress = false;
 	    		fightTable.setVisible(false);
 	    		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
-	    		pickedAttack.setName(null);
-	    		pickedAttack.setText("");
-	    		pickedDefence.setName(null);
-	    		pickedDefence.setText("");
+	    		attackAndDefence.clear();
 	    	}
 	    }
 		
@@ -472,6 +435,7 @@ public class MyGdxGame implements Screen {
 	 		 map = mapgen.getMap();
 	 		 endPos = mapgen.getEndPos();
 	 		 startPos = mapgen.getStartPos();
+	 		 hero = new Hero(10,10,10,startPos);
 	 		 hero.setLoc(startPos);
 
 	    }
@@ -494,8 +458,9 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-	    	
 	    		genMob();
+	    		createActionButtons();
+	    		findTableWithNameContaining(attackAndDefence, "wat");
 	    		updateHeroMonsterInfo();
 	    		fightInProgress = true;
 	    		fightTable.setVisible(true);
@@ -512,13 +477,125 @@ public class MyGdxGame implements Screen {
 		}
 		if(FightSystem.isDead(activeMob)) {
 			mobinfo.appendText("\n DEAD");
+			createLoot();
 		}
-		createLoot();
+		
 	}
 	
 	
+	
+	public boolean attackAndDefenceIsComplete() {
+		Array<Cell> cells = attackAndDefence.getCells();
+		for(Cell c : cells) {
+			if(c.hasActor()) {
+				if(c.getActor().getClass().getSimpleName().equals("Table")) {
+					TextArea t = findTextAreaInTable((Table) c.getActor());
+					if(t.getName() == null) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public void createActionButtons() {
+		int numOfAttacks = FightSystem.howManyAttacksToPick(hero);
+		if(numOfAttacks == 1) {
+			attackAndDefence.add(createButtonAndText(true));
+			attackAndDefence.row();
+			attackAndDefence.add(createButtonAndText(false));
+		} else if(numOfAttacks == 2) {
+			attackAndDefence.add(createButtonAndText(true));
+			attackAndDefence.row();
+			attackAndDefence.add(createOptionalButtonAndText());
+		}
+	}
+	
+	public Table createButtonAndText(boolean isAtck) { 
+		// attackAction TABLE consists of -> Button (text == Choose attack), TextArea (name == bodypart nr, text == bodypart fullname)
+		Table table = new Table();
+		String btnText;
+		TextButton btn;
+		Array<Cell> existingCells = attackAndDefence.getCells();
+		int counter = 0;
+		if(isAtck) {
+			for(Cell c : existingCells) {
+				if(c.hasActor()) {
+					if(c.getActor().getName() != null & c.getActor().getName().contains("attackAction")) { // find how many TABLES of attackAction already exist
+						counter++;
+					}
+				}
+			}
+			table.setName("attackAction" + counter);
+			btn = new TextButton("Choose attack", skin);
+			btn.addListener(new ChangeListener() {
+		        @Override
+		        public void changed (ChangeEvent event, Actor actor) {
+		        	String parentName = actor.getParent().getName();
+		        	int parentIndex = Integer.parseInt(parentName.substring(parentName.length()-1));
+		            fillBodypartsTable(true, parentIndex);
+		        }
+		    });
+			btnText = "Choose attack";
+		} else {
+			for(Cell c : existingCells) {
+				if(c.hasActor()) {
+					if(c.getActor().getName() != null & c.getActor().getName().contains("defenceAction")) {
+						counter++;
+					}
+				}
+			}
+			table.setName("defenceAction" + counter);
+			btn = new TextButton("Choose defence", skin);
+			btn.addListener(new ChangeListener() {
+		        @Override
+		        public void changed (ChangeEvent event, Actor actor) {
+		        	String parentName = actor.getParent().getName();
+		        	int parentIndex = Integer.parseInt(parentName.substring(parentName.length()-1));
+		            fillBodypartsTable(false, parentIndex);
+		        }
+		    });
+		}
+		
+		table.add(btn);
+		TextArea btnAlliedText = new TextArea("",skin);
+		table.add(btnAlliedText);
+		return table;
+	}
+	
+	public Table createOptionalButtonAndText() {
+		Table table = new Table();
+		table.setName("optional");
+		TextButton attackButton = new TextButton("Attack", skin);
+		TextButton defenceButton = new TextButton("Defence", skin);
+		attackButton.addListener(new ChangeListener() {
+			@Override
+			public void changed (ChangeEvent event, Actor actor) {
+				Table t = (Table) actor.getParent().getParent();
+				t.getCell(actor.getParent()).setActor(createButtonAndText(true));
+	            createStartTheFightButton();
+	        }
+		});
+		
+		defenceButton.addListener(new ChangeListener() {
+			@Override
+			public void changed (ChangeEvent event, Actor actor) {
+				Table t = (Table) actor.getParent().getParent();
+				t.getCell(actor.getParent()).setActor(createButtonAndText(false));
+	            createStartTheFightButton();
+	        }
+		});
+		table.add(attackButton);
+		TextArea text = new TextArea(" or ", skin);
+		table.add(text);
+		table.add(defenceButton);
+		return table;
+	}
+	
 	public void createLoot() {
-		if(FightSystem.isDead(activeMob) & mobFwin.findActor("lootbtn") == null) {
+
+		if(mobFwin.findActor("lootbtn") == null) {
 			mobinfo.setText(activeMob.toString() + "\n" + "DEAD");
 			mobFwin.row();
 			TextButton lootbtn = new TextButton("LOOT BODY", skin);
@@ -532,6 +609,44 @@ public class MyGdxGame implements Screen {
 			mobFwin.add(lootbtn);
 		}
 	}
+
+	public ArrayList<Integer> getAllActionsOfType(String actionType) {
+		ArrayList<Integer> allActions = new ArrayList<Integer>();
+		Array<Cell> cells = attackAndDefence.getCells();
+		for(Cell c : cells) {
+			if(c.hasActor()) {
+				if(c.getActor().getClass().getSimpleName().equals("Table")) {
+					if(c.getActor().getName().contains(actionType)) {
+						Table t = (Table) c.getActor();
+						allActions.add(Integer.parseInt(findTextAreaInTable(t).getName()));
+					}
+				}
+			}
+		}
+		
+		return allActions;
+	}
+	
+	public void createStartTheFightButton() {
+		startTheFight = new TextButton("ATTACK!", skin);
+		startTheFight.setName("startthefight");
+		startTheFight.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	if(attackAndDefenceIsComplete() & !FightSystem.isDead(activeMob) & !FightSystem.isDead(hero)) {
+	        		hero.setPickedAttacks(getAllActionsOfType("attackAction"));
+	        		hero.setPickedDefs(getAllActionsOfType("defenceAction"));
+	        		FightSystem.fight(hero, activeMob);
+	        		updateHeroMonsterInfo();
+	        		attackAndDefence.clear();
+	        		createActionButtons();
+	        	}
+	            
+	        }
+	    });
+		attackAndDefence.row();
+		attackAndDefence.add(startTheFight);
+	}
 	
 	public void updateInvEquip() {
 		equipinfo.setText(hero.getAllEquiped(equipPageNr));
@@ -542,21 +657,21 @@ public class MyGdxGame implements Screen {
 		equipPage.setText(equipPageNr + "/" + numOfPages); 
 	}
 	
-	public void fillActionsTable(boolean isAttacking) {
+	public void fillBodypartsTable(boolean isAttacking, int serialNr) { //serialNr is number which indicated what button exactly triggered this method
 		Body body;
 		Bodypart picked;
 		fightTable.setVisible(false);
 		
 		if(isAttacking) {
 			body = activeMob.getBody();
-			actionsTable.setName("Attack");
+			bodyPartsTable.setName("Attack"+serialNr);
 		} else {
-			actionsTable.setName("Defence");
+			bodyPartsTable.setName("Defence"+serialNr);
 			body = hero.getBody();
 		}
 		
 		for(Bodypart bp : body.getBodyParts()) {
-			actionsTable.add(new TextArea(bp.getName(), skin));
+			bodyPartsTable.add(new TextArea(bp.getName(), skin));
 			
 			TextButton btn = new TextButton("pick",skin);
 			
@@ -565,30 +680,76 @@ public class MyGdxGame implements Screen {
 		        public void changed (ChangeEvent event, Actor actor) {
 		        	Bodypart picked;
 		        	int bodyPartIndex = (actor.getZIndex()-1) /2;
+		        	String parentName = actor.getParent().getName();
+	    			int parentIndex = Integer.parseInt(actor.getParent().getName().substring(parentName.length()-1));
+	    			Table t;
+	    			TextArea ta;
 		       
-		        	if(actor.getParent().getName() == "Attack") {
-		    			picked = activeMob.getBody().getBodyParts().get(bodyPartIndex);
-		    			pickedAttack.setText(picked.getName());
-		    			pickedAttack.setName("" + bodyPartIndex);
-		    		} else {
+		        	if(actor.getParent().getName().startsWith("Attack")) {
+		    			picked = activeMob.getBody().getBodyParts().get(bodyPartIndex);		    			
+		    			t = (Table) findActorInTableByName(attackAndDefence, "attackAction" + parentIndex);
+		    			ta = findTextAreaInTable(t);
+		    			ta.setText(picked.getName());
+		    			ta.setName("" + bodyPartIndex);
+		    		} else if (actor.getParent().getName().startsWith("Defence")) {
 		    			picked = hero.getBody().getBodyParts().get(bodyPartIndex);
-		    			pickedDefence.setText(picked.getName());
-		    			pickedDefence.setName("" + bodyPartIndex);
+		    			t = (Table) findActorInTableByName(attackAndDefence, "defenceAction" + parentIndex);
+		    			ta = findTextAreaInTable(t);
+		    			ta.setText(picked.getName());
+		    			ta.setName("" + bodyPartIndex);
 		    		}
-		        	//System.out.println(picked);
-		        	actionsTable.setVisible(false);
+		        	
+
+		        	bodyPartsTable.setVisible(false);
 		        	fightTable.setVisible(true);
-		        	actionsTable.clear();
+		        	bodyPartsTable.clear();
 		        }
 			});
-			actionsTable.add(btn);
-			actionsTable.row();
+			bodyPartsTable.add(btn);
+			bodyPartsTable.row();
 		}
 		
-		actionsTable.setVisible(true);
+		bodyPartsTable.setVisible(true);
 		
 	}
 	
+	public Actor findActorInTableByName(Table t, String name) {
+		Array<Cell> cells = t.getCells();
+		for(Cell c : cells) {
+			if(c.hasActor()) {
+				String actorName = c.getActor().getName();
+				if(actorName.equals(name)) {
+					return c.getActor();
+				}
+			}
+		}
+		return null;
+	}
+	
+	public Table findTableWithNameContaining(Table t, String name) {
+		for(Cell c : t.getCells()) {
+			if(c.hasActor()) {
+				if(c.getActor().getClass().getSimpleName().equals("Table")) {
+					if(c.getActor().getName().contains(name)) {
+						return (Table) c.getActor();
+					}
+				}
+				
+			}
+		}
+		return null;
+	}
+	
+	
+	public TextArea findTextAreaInTable(Table t) {
+		for(Cell c : t.getCells()) {
+			String actorName = c.getActor().getClass().getSimpleName();
+			if(actorName.equals("TextArea")) {
+				return (TextArea) c.getActor();
+			}
+		}
+		return null;
+	}
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
