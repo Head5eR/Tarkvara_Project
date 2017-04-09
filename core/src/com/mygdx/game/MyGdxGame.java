@@ -77,6 +77,7 @@ public class MyGdxGame implements Screen {
 	private TextField mapWidthTextField;
 	private TextField mapHeightTextField;
 	private Table attackAndDefence;
+	private Table chooseSlot;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -360,11 +361,12 @@ public class MyGdxGame implements Screen {
 	    		invwin.setVisible(true);
 	    	}
 	    }
+	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
 	    	if(equipwin.isVisible()) {
 	    		hero.unequip(1 + 5*(equipPageNr-1));
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(1 + 5*(invPageNr-1));
+	    		chooseEquipMethod(1 + 5*(invPageNr-1));
 	    	}
 	    	updateInvEquip();
 	    }
@@ -372,7 +374,7 @@ public class MyGdxGame implements Screen {
 	    	if(equipwin.isVisible()) {
 	    		hero.unequip(2 + 5*(equipPageNr-1));
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(2 + 5*(invPageNr-1));
+	    		chooseEquipMethod(2 + 5*(invPageNr-1));
 	    	}
 	    	updateInvEquip();
 	    }
@@ -380,7 +382,7 @@ public class MyGdxGame implements Screen {
 	    	if(equipwin.isVisible()) {
 	    		hero.unequip(3 + 5*(equipPageNr-1));
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(3 + 5*(invPageNr-1));
+	    		chooseEquipMethod(3 + 5*(invPageNr-1));
 	    	}
 	    	updateInvEquip();
 	    }
@@ -388,7 +390,7 @@ public class MyGdxGame implements Screen {
 	    	if(equipwin.isVisible()) {
 	    		hero.unequip(4 + 5*(equipPageNr-1));
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(4 + 5*(invPageNr-1));
+	    		chooseEquipMethod(4 + 5*(invPageNr-1));
 	    	}
 	    	updateInvEquip();
 	    }
@@ -396,7 +398,7 @@ public class MyGdxGame implements Screen {
 	    	if(equipwin.isVisible()) {
 	    		hero.unequip(5 + 5*(equipPageNr-1));
 	    	} else if (invwin.isVisible()) {
-	    		hero.equipFromInv(5 + 5*(invPageNr-1));
+	    		chooseEquipMethod(5 + 5*(invPageNr-1));
 	    	}
 	    	updateInvEquip();
 	    }
@@ -460,7 +462,7 @@ public class MyGdxGame implements Screen {
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		genMob();
 	    		createActionButtons();
-	    		findTableWithNameContaining(attackAndDefence, "wat");
+	    		findTableWithNameContaining(attackAndDefence, "placeholder");
 	    		updateHeroMonsterInfo();
 	    		fightInProgress = true;
 	    		fightTable.setVisible(true);
@@ -468,6 +470,46 @@ public class MyGdxGame implements Screen {
 	    
 	    camera.update();
 	 }
+	
+	public void chooseEquipMethod(int invItemNumber) {
+		Item item = hero.getInventoryItemFromNumber(invItemNumber);
+		if(item.checkIfMelee(item)) {
+			System.out.println("okay, it's melee, generating window");
+			createChooseWeaponSlot(invItemNumber);
+		} else if(item.checkIfShield(item)) {
+			System.out.println("oaky, it's shield, equipping in weaponslot2");
+			hero.equipShield((Shield) item); // equipped only in second weapon slot
+		} else {
+			System.out.println("okay, it's smth else, equipping in suitable slot");
+			hero.equipFromInv(invItemNumber);
+		}
+	}
+	
+	public void createChooseWeaponSlot(int invItemNumber) {
+		chooseSlot = new Table(skin);
+		chooseSlot.setVisible(true);
+		chooseSlot.setBackground("textfield");
+		chooseSlot.setHeight(Gdx.graphics.getHeight()/8);
+		chooseSlot.setWidth(Gdx.graphics.getWidth()/8);
+		chooseSlot.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+		chooseSlot.setName(""+invItemNumber);
+
+		for(int i = 0; i<hero.weaponSlots.length; i++) {
+			TextButton btn = new TextButton("WeaponSlot " + i, skin);
+			btn.setName(""+i);
+			btn.addListener(new ChangeListener() {
+		        @Override
+		        public void changed (ChangeEvent event, Actor actor) {
+		        	Item item = hero.getInventoryItemFromNumber(Integer.parseInt(actor.getParent().getName()));
+		        	hero.equipMelee((MeleeWeapon) item, Integer.parseInt(actor.getName()));
+		        	updateInvEquip();
+		        	chooseSlot.remove();
+		        }
+		    });
+			chooseSlot.add(btn);
+		}
+		stage.addActor(chooseSlot);
+	}
 	
 	public void updateHeroMonsterInfo() {
 		heroinfo.setText("Health: " + hero.getHp() + "/" + hero.getMaxHp() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Attack: " + hero.getAttackDamageStr());
@@ -501,14 +543,25 @@ public class MyGdxGame implements Screen {
 	
 	public void createActionButtons() {
 		int numOfAttacks = FightSystem.howManyAttacksToPick(hero);
-		if(numOfAttacks == 1) {
+		int numOfDefences = FightSystem.howManyDefencesToPick(hero);
+		//int numOfAttacks = 2;
+		if(numOfAttacks == 1 & numOfDefences == 1) {
 			attackAndDefence.add(createButtonAndText(true));
 			attackAndDefence.row();
 			attackAndDefence.add(createButtonAndText(false));
+			attackAndDefence.row();
+			createStartTheFightButton();
 		} else if(numOfAttacks == 2) {
 			attackAndDefence.add(createButtonAndText(true));
 			attackAndDefence.row();
 			attackAndDefence.add(createOptionalButtonAndText());
+		} else if (numOfAttacks == 1 & numOfDefences == 2) {
+			attackAndDefence.add(createButtonAndText(true));
+			attackAndDefence.row();
+			attackAndDefence.add(createButtonAndText(false));
+			attackAndDefence.row();
+			attackAndDefence.add(createButtonAndText(false));
+			createStartTheFightButton();
 		}
 	}
 	

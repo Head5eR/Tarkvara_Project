@@ -35,6 +35,16 @@ public class FightSystem {
 		return 1;
 	}
 	
+	public static int howManyDefencesToPick(Hero h) {
+		String weaponSlotClass1 = h.weaponSlot1.get(0).getClass().getComponentType().getSimpleName();
+		String weaponSlotClass2 = h.weaponSlot2.get(0).getClass().getComponentType().getSimpleName();
+		if(weaponSlotClass2.equals("Shield")) {
+			System.out.println("shield found");
+			return 2;
+		}
+		return 1;
+	}
+	
 	public static void fight(Hero h, Monster m) {
 		genDefencesForMonster(m);
 		genAttacksForMonster(m,h);
@@ -64,7 +74,7 @@ public class FightSystem {
 		
 		for(int attackMove : attacker.getPickedAttacks()) {
 			if(target.canDefend(attackMove)) {
-				target.getPickedDefs().remove(attackMove);
+				target.getPickedDefs().remove(target.getPickedDefs().indexOf(attackMove));
 				System.out.println(target.getName() + " has blocked the attack!");
 			} else {
 				float bodypartExtraEvasion = 0; // probably need to implement bodyparts' own hit chances

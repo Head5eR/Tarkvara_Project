@@ -15,4 +15,5 @@ public class Weapon extends Item {
 		super(name, rarity, equipable);
 		// TODO Auto-generated constructor stub
 	}
+
 }

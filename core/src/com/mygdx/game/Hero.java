@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Hero extends Character {
@@ -14,15 +16,16 @@ public class Hero extends Character {
 	List<Item> inventory = new ArrayList<Item>();
 	List<Headgear[]> headSlot = new ArrayList<Headgear[]>();
 	List<Bodyarmor[]> torsoSlot = new ArrayList<Bodyarmor[]>();
-	List<Item[]> armsSlot = new ArrayList<Item[]>();
+	List<Gloves[]> armsSlot = new ArrayList<Gloves[]>();
 	List<MeleeWeapon[]> weaponSlot1 = new ArrayList<MeleeWeapon[]>();
 	List<Weapon[]> weaponSlot2 = new ArrayList<Weapon[]>();
 	List<Legarmor[]> legsSlot = new ArrayList<Legarmor[]>();
 	List<Boots[]> toesSlot = new ArrayList<Boots[]>();
 	List<?>[] slots = {headSlot,torsoSlot,armsSlot,weaponSlot1, weaponSlot2, legsSlot,toesSlot}; //strange syntax, but works :)
+	List<?>[] weaponSlots = {weaponSlot1, weaponSlot2};
 	
 	// Schema
-	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObject
+	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObjectReference
 	
 	public Hero(int strength, int dexterity, int stamina, Location loc) {
 		super(strength, dexterity, stamina, "humanoid", "Hero");
@@ -31,6 +34,8 @@ public class Hero extends Character {
 
 		// Every slot is an array of certain type with length of 1, 
 		// so that it is possible to add only one item to the slot
+		inventory.addAll(Arrays.asList(new MeleeWeapon("SuperStick", true),new Shield("Bronze Shield", true)));
+		
 		Headgear[] hs = {new Headgear("Helmet", true)};
 			headSlot.add(hs);
 		Bodyarmor[] ts = {new Bodyarmor("Chainmail", true)};
@@ -81,6 +86,7 @@ public class Hero extends Character {
 		return complex;
 	}
 	
+	
 	public String getInventory(int page) {
 		String out = "";
 		int num = 1;
@@ -95,7 +101,6 @@ public class Hero extends Character {
 			} else {
 				for (int i = -5 + 5 *page; i < 5 * page; i++) {
 					if (i < inventory.size()) {
-						System.out.println(i);
 						out += num + ". " + inventory.get(i).toString() + "\n";
 						num++;
 					} else {
@@ -109,9 +114,110 @@ public class Hero extends Character {
 		return out;
 	}
 	
+	public void unequipSlot(List<?> slot) {
+		if(!slot.isEmpty()) {
+			Item equippedItem = ((Item[]) slot.get(0))[0];
+			if(equippedItem != null) {
+				inventory.add(equippedItem);
+				((Item[]) slot.get(0))[0] = null;
+			}
+		}			
+	}
+	
+	public boolean isSlotEmpty(List<?> slot) {
+		return  ((Item[]) slot.get(0))[0] == null;
+		
+	}
+	
+	public void equip(Item item, List slot) {
+		if(isSlotEmpty(slot)) {
+			((Item[]) slot.get(0))[0] = item;
+		}
+	}
+	
+	public void fillWithMeleeArray(List slot) {
+		slot.clear();
+		MeleeWeapon[] array = new MeleeWeapon[1];
+		slot.add(array);
+	}
+	
+	public void fillWithShieldArray(List slot) {
+		slot.clear();
+		Shield[] array = new Shield[1];
+		slot.add(array);
+	}
+	
+	public Item getInventoryItemFromNumber(int itemNumber) {
+		int num = itemNumber-1;
+		return inventory.get(num);
+	}
+	
+	public Item getEquipmentItemFromNumber(int itemNumber) {
+		int num = itemNumber-1;
+		List<?> slot;
+		
+		if(num <= slots.length) {
+			slot = slots[num];
+		} else {
+			slot = null;
+		}
+		
+		if(slot != null) {
+			return (Item) ((Item[]) slot.get(0))[0];
+		}
+		return null;
+	}
+	
+	public boolean isTwoHanded(MeleeWeapon weapon) {
+		return weapon.isTwohanded();
+	}
+	
+	public void equipMelee(MeleeWeapon item, int slotNr) {
+		inventory.remove(item);
+		if(weaponSlots.length > slotNr) {
+			List<?> slot = weaponSlots[slotNr];
+			if(item.isTwohanded()) { // if weapon is twohanded, then both hands should be empty to equip it
+				if(isSlotEmpty(weaponSlot1) & isSlotEmpty(weaponSlot2)) {
+					equip(item, weaponSlot1);
+				} else {
+					System.out.println("Unequip everything from your hands first!");
+				}
+			} else {
+				if(slot.equals(weaponSlot1)) {
+					if(!isSlotEmpty(slot)) {
+						unequipSlot(slot);
+					}
+					equip(item, slot);
+				} else if(slot.equals(weaponSlot2)) {
+					System.out.println("isempty " + isSlotEmpty(weaponSlot1));
+					if(!isSlotEmpty(weaponSlot1) && ((MeleeWeapon) getItemFromSlot(weaponSlot1)).isTwohanded()) {
+						unequipSlot(weaponSlot1);
+					}
+					if(!isSlotEmpty(slot)) {
+						unequipSlot(slot);
+						fillWithMeleeArray(slot);
+					}
+					equip(item, slot);
+				}
+			}
+		}
+	}
+	
+	public void equipShield(Shield item) {
+		inventory.remove(item);
+		if(!isSlotEmpty(weaponSlot2)) {
+			unequipSlot(weaponSlot2);
+			fillWithShieldArray(weaponSlot2);
+		}
+		equip(item, weaponSlot2);
+	}
+	
+	public Item getItemFromSlot(List slot) {
+		return ((Item[]) slot.get(0))[0];
+	}
+	
 	public void unequip(int itemNumber) {
 		int num = itemNumber-1;
-		System.out.println("slot number: " + num);
 		List<?> slot;
 		
 		if(num <= slots.length) {
@@ -139,18 +245,29 @@ public class Hero extends Character {
 			
 			if(item.isEquipable()) {
 				for (List<?> slot : slots) {
-					String arrayname = (slot.get(0).getClass().getSimpleName().split("\\["))[0];
-					if (arrayname != null && arrayname.equals(item.getClass().getSimpleName())) {
+					String arrayname = (slot.get(0).getClass().getComponentType().getSimpleName()); 
+					if (arrayname != null && arrayname.equals(item.getClass().getSimpleName())) { // checking if array in the slot of type Shield\MeleeWeapon\Headgear or smth else
 						foundSlot = (ArrayList) slot;
-						Item[] innerSlot = (Item[]) foundSlot.get(0);
+						Item[] innerSlot = (Item[]) foundSlot.get(0); // won't it throw an Exception if array is empty??? i'm not sure
+
+						System.out.println(weaponSlot2.getClass().getTypeName());
+						
+						if(innerSlot.getClass().getComponentType().isAssignableFrom(item.getClass())) {
+							System.out.println("It's instance of " + innerSlot.getClass());
+						} else {
+							System.out.println("It isn't instance of " + innerSlot.getClass());
+						}
 						
 						if(innerSlot[0] == null) { // if doesn't have item then just add it to the slot
-							System.out.println("just equipping slot");
+							System.out.println("just equipping item in empty slot");
 							innerSlot[0] = inventory.get(num);
 							inventory.remove(num);
 						} else {
-							inventory.add(innerSlot[0]); // if there is an item in slot, then put it in inventory
+							Item slotItem = innerSlot[0];
 							innerSlot[0] =  inventory.get(num);
+							inventory.remove(num);
+							inventory.add(slotItem); // if there is an item in slot, then put it in inventory
+							
 						}
 						return;
 					}
@@ -160,7 +277,7 @@ public class Hero extends Character {
 			return;
 		}
 	}
-
+	
 	public Location getLoc() {
 		return loc;
 	}
