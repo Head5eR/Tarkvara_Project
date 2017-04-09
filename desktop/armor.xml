@@ -1,117 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <items>
-	<item type = "Head">
-		<artifact name = "Leather Helmet">
-			<armor>10</armor>
-			<strength>1<strength>
-			<dexterity>1</dexterity>		
-			<stamina>2</stamina>
-			<wrath>0</wrath>
-		</artifact>
-		<artifact name = "Steel Helmet">
-			<defence>20</defence>
-			<strength>2<strength>
-			<dexterity>2</dexterity>		
-			<stamina>4</stamina>
-			<wrath>1</wrath>
-		</artifact>
-		<artifact name = "Obsidian Helmet">
-			<defence>50</defence>
-			<strength>5<strength>
-			<dexterity>4</dexterity>		
-			<stamina>7</stamina>
-			<wrath>3</wrath>
-		</artifact>
+	<item name = "Leather Helmet">
+		<armor>10</armor>
+		<strength>1</strength>
+		<dexterity>1</dexterity>		
+		<stamina>2</stamina>
+		<wrath>0</wrath>
+		<type>head</type>
+		<level>1</level>
 	</item>
-	<item type = "Body">
-		<artifact name = "Leather Armor">
-			<armor>15</armor>
-			<strength>1<strength>
-			<dexterity>1</dexterity>		
-			<stamina>3</stamina>
-			<wrath>0</wrath>
-		</artifact>
-		<artifact name = "Steel Armor">
-			<defence>30</defence>
-			<strength>2<strength>
-			<dexterity>1</dexterity>		
-			<stamina>6</stamina>
-			<wrath>1</wrath>
-		</artifact>
-		<artifact name = "Obsidian Armor">
-			<defence>75</defence>
-			<strength>5<strength>
-			<dexterity>4</dexterity>		
-			<stamina>10</stamina>
-			<wrath>3</wrath>
-		</artifact>
+	<item name = "Steel Helmet">
+		<armor>20</armor>
+		<strength>2</strength>
+		<dexterity>2</dexterity>		
+		<stamina>4</stamina>
+		<wrath>1</wrath>
+		<type>head</type>
+		<level>2</level>
 	</item>
-	<item type = "Legs">
-		<artifact name = "Leather Cuisses">
-			<armor>10</armor>
-			<strength>0<strength>
-			<dexterity>2</dexterity>		
-			<stamina>3</stamina>
-			<wrath>0</wrath>
-		</artifact>
-		<artifact name = "Steel Cuisses">
-			<defence>25</defence>
-			<strength>1<strength>
-			<dexterity>4</dexterity>		
-			<stamina>6</stamina>
-			<wrath>1</wrath>
-		</artifact>
-		<artifact name = "Obsidian Cuisses">
-			<defence>60</defence>
-			<strength>3<strength>
-			<dexterity>6</dexterity>		
-			<stamina>10</stamina>
-			<wrath>1</wrath>
-		</artifact>
+		<item name = "Obsidian Helmet">
+		<armor>50</armor>
+		<strength>5</strength>
+		<dexterity>4</dexterity>		
+		<stamina>7</stamina>
+		<wrath>3</wrath>
+		<type>head</type>
+		<level>3</level>
 	</item>
-	<item type = "Feet">
-		<artifact name = "Leather Boots">
-			<armor>10</armor>
-			<strength>0<strength>
-			<dexterity>2</dexterity>		
-			<stamina>2</stamina>
-			<wrath>0</wrath>
-		</artifact>
-		<artifact name = "Steel Boots">
-			<defence>20</defence>
-			<strength>1<strength>
-			<dexterity>3</dexterity>		
-			<stamina>4</stamina>
-			<wrath>1</wrath>
-		</artifact>
-		<artifact name = "Obsidian Boots">
-			<defence>50</defence>
-			<strength>2<strength>
-			<dexterity>5</dexterity>		
-			<stamina>7</stamina>
-			<wrath>2</wrath>
-		</artifact>
+
+
+	<item name = "Leather Armor">
+		<armor>15</armor>
+		<strength>1</strength>
+		<dexterity>1</dexterity>		
+		<stamina>3</stamina>
+		<wrath>0</wrath>
+		<type>body</type>
+		<level>1</level>
 	</item>
-	<item type = "Arms">
-		<artifact name = "Leather Gauntlets">
-			<armor>5</armor>
-			<strength>1<strength>
-			<dexterity>0</dexterity>		
-			<stamina>2</stamina>
-			<wrath>1</wrath>
-		</artifact>
-		<artifact name = "Steel Gauntlets">
-			<defence>15</defence>
-			<strength>3<strength>
-			<dexterity>1</dexterity>		
-			<stamina>3</stamina>
-			<wrath>3</wrath>
-		</artifact>
-		<artifact name = "Obsidian Gauntlets">
-			<defence>35</defence>
-			<strength>5<strength>
-			<dexterity>1</dexterity>		
-			<stamina>5</stamina>
-			<wrath>7</wrath>
-		</artifact>
+	<item name = "Steel Armor">
+		<armor>30</armor>
+		<strength>2</strength>
+		<dexterity>1</dexterity>		
+		<stamina>6</stamina>
+		<wrath>1</wrath>
+		<type>body</type>
+		<level>2</level>
 	</item>
+	<item name = "Obsidian Armor">
+		<armor>75</armor>
+		<strength>5</strength>
+		<dexterity>4</dexterity>		
+		<stamina>10</stamina>
+		<wrath>3</wrath>
+		<type>body</type>
+		<level>3</level>
+	</item>
+
+
+	<item name = "Leather Cuisses">
+		<armor>10</armor>
+		<strength>0</strength>
+		<dexterity>2</dexterity>		
+		<stamina>3</stamina>
+		<wrath>0</wrath>
+		<type>legs</type>
+		<level>1</level>
+	</item>
+	<item name = "Steel Cuisses">
+		<armor>25</armor>
+		<strength>1</strength>
+		<dexterity>4</dexterity>		
+		<stamina>6</stamina>
+		<wrath>1</wrath>
+		<type>legs</type>
+		<level>2</level>
+	</item>
+	<item name = "Obsidian Cuisses">
+		<armor>60</armor>
+		<strength>3</strength>
+		<dexterity>6</dexterity>		
+		<stamina>10</stamina>
+		<wrath>1</wrath>
+		<type>legs</type>
+		<level>3</level>
+	</item>
+
+
+	<item name = "Leather Boots">
+		<armor>10</armor>
+		<strength>0</strength>
+		<dexterity>2</dexterity>		
+		<stamina>2</stamina>
+		<wrath>0</wrath>
+		<type>feet</type>
+		<level>1</level>
+	</item>
+	<item name = "Steel Boots">
+		<armor>20</armor>
+		<strength>1</strength>
+		<dexterity>3</dexterity>		
+		<stamina>4</stamina>
+		<wrath>1</wrath>
+		<type>feet</type>
+		<level>2</level>
+	</item>
+	<item name = "Obsidian Boots">
+		<armor>50</armor>
+		<strength>2</strength>
+		<dexterity>5</dexterity>		
+		<stamina>7</stamina>
+		<wrath>2</wrath>
+		<type>feet</type>
+		<level>3</level>
+	</item>
+
+
+	<item name = "Leather Gauntlets">
+		<armor>5</armor>
+		<strength>1</strength>
+		<dexterity>0</dexterity>		
+		<stamina>2</stamina>
+		<wrath>1</wrath>
+		<type>arms</type>
+		<level>1</level>
+	</item>
+	<item name = "Steel Gauntlets">
+		<armor>15</armor>
+		<strength>3</strength>
+		<dexterity>1</dexterity>		
+		<stamina>3</stamina>
+		<wrath>3</wrath>
+		<type>arms</type>
+		<level>2</level>
+	</item>
+	<item name = "Obsidian Gauntlets">
+		<armor>35</armor>
+		<strength>5</strength>
+		<dexterity>1</dexterity>		
+		<stamina>5</stamina>
+		<wrath>7</wrath>
+		<type>arms</type>
+		<level>3</level>
+	</item>
+</items>

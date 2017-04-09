@@ -9,6 +9,7 @@
 		<wrath>0</wrath>
 		<twohanded>no</twohanded>
 		<type>sword</type>
+		<level>1</level>
 	</weapon>
 	<weapon name = "Gryphon Sword">
 		<mindamage>4</mindamage>
@@ -19,6 +20,7 @@
 		<wrath>2</wrath>
 		<twohanded>no</twohanded>
 		<type>sword</type>
+		<level>2</level>
 	</weapon>
 	<weapon name = "Ancients Sword">
 		<mindamage>10</mindamage>
@@ -29,34 +31,38 @@
 		<wrath>3</wrath>
 		<twohanded>no</twohanded>
 		<type>sword</type>
+		<level>3</level>
 	</weapon>
 
 	<weapon name = "Shield Of Courage">
-		<defence>10</defence>
+		<armor>10</armor>
 		<strength>0</strength>
 		<dexterity>0</dexterity>		
 		<stamina>2</stamina>
 		<wrath>0</wrath>
 		<twohanded>no</twohanded>
 		<type>shield</type>
+		<level>1</level>
 	</weapon>
 	<weapon name = "Shield Of Gryphon">
-		<defence>30</defence>
+		<armor>30</armor>
 		<strength>1</strength>
 		<dexterity>0</dexterity>		
 		<stamina>4</stamina>
 		<wrath>0</wrath>
 		<twohanded>no</twohanded>
 		<type>shield</type>
+		<level>2</level>
 	</weapon>
 	<weapon name = "Ancients Shield">
-		<defence>50</defence>
+		<armor>50</armor>
 		<strength>2</strength>
 		<dexterity>2</dexterity>		
 		<stamina>5</stamina>
 		<wrath>1</wrath>
 		<twohanded>no</twohanded>
 		<type>shield</type>
+		<level>3</level>
 	</weapon>
 	
 	<weapon name = "Hunter Axe">
@@ -68,6 +74,7 @@
 		<wrath>1</wrath>
 		<twohanded>yes</twohanded>
 		<type>axe</type>
+		<level>1</level>
 	</weapon>
 	<weapon name = "Heavy Axe">
 		<mindamage>5</mindamage>
@@ -78,6 +85,7 @@
 		<wrath>3</wrath>
 		<twohanded>yes</twohanded>
 		<type>axe</type>
+		<level>2</level>
 	</weapon>
 	<weapon name = "Barbarian Battle Axe">
 		<mindamage>15</mindamage>
@@ -88,6 +96,7 @@
 		<wrath>7</wrath>
 		<twohanded>yes</twohanded>
 		<type>axe</type>
+		<level>3</level>
 	</weapon>
 
 	<weapon name = "Northern Wind Blade">
@@ -99,6 +108,7 @@
 		<wrath>0</wrath>
 		<twohanded>no</twohanded>
 		<type>blade</type>
+		<level>1</level>
 	</weapon>
 	<weapon name = "Blade Of The Jaguar">
 		<mindamage>3</mindamage>
@@ -109,6 +119,7 @@
 		<wrath>1</wrath>
 		<twohanded>no</twohanded>
 		<type>blade</type>
+		<level>2</level>
 	</weapon>
 	<weapon name = "Scorpion Blade">
 		<mindamage>7</mindamage>
@@ -119,5 +130,6 @@
 		<wrath>1</wrath>
 		<twohanded>no</twohanded>
 		<type>blade</type>
+		<level>3</level>
 	</weapon>
 </weapons>
