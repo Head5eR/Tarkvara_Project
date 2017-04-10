@@ -274,16 +274,7 @@ public class Hero extends Character {
 						foundSlot = (ArrayList) slot;
 						Item[] innerSlot = (Item[]) foundSlot.get(0); // won't it throw an Exception if array is empty??? i'm not sure
 
-						System.out.println(weaponSlot2.getClass().getTypeName());
-						
-						if(innerSlot.getClass().getComponentType().isAssignableFrom(item.getClass())) {
-							System.out.println("It's instance of " + innerSlot.getClass());
-						} else {
-							System.out.println("It isn't instance of " + innerSlot.getClass());
-						}
-						
 						if(innerSlot[0] == null) { // if doesn't have item then just add it to the slot
-							System.out.println("just equipping item in empty slot");
 							innerSlot[0] = inventory.get(num);
 							inventory.remove(num);
 						} else {
