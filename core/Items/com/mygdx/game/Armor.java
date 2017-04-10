@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,8 +17,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Armor extends Item {
-	private String name;
+public abstract class Armor extends Item {
 	private int armor;
 	private int strength;
 	private int dexterity;
@@ -26,20 +26,18 @@ public class Armor extends Item {
 	private String type;
 	private String level;
 	
-	public Armor() {
-		List <String> armorStats = getArmorFromXML(type, level);
-		
-		this.name = armorStats.get(0);
-		this.strength = Integer.parseInt(armorStats.get(1));
-		this.dexterity = Integer.parseInt(armorStats.get(2));
-		this.stamina = Integer.parseInt(armorStats.get(3));
-		this.wrath = Integer.parseInt(armorStats.get(4));
-		this.type = armorStats.get(5);
-		this.level = armorStats.get(6);
+	public Armor(int str, int dex, int stam, int wrath, String type, String level, String name, int armor) {
+		super(name,true);
+		this.armor = armor;
+		this.strength = str;
+		this.stamina = stam;
+		this.wrath = wrath;
+		this.type = type;
+		this.level = level;
 	}
 	
 
-		public static List <String> getArmorFromXML(String type, String armorLevel) {
+		protected static List <String> getArmorFromXML(String type, String armorLevel) {
 			try {
 		        File file = new File("armor.xml");
 		        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -138,10 +136,6 @@ public class Armor extends Item {
 			return null;
 		}
 						
-		public String getName() {
-			return name;
-		}
-
 		public int getArmor() {
 			return armor;
 		}
@@ -169,9 +163,5 @@ public class Armor extends Item {
 		public String getLevel() {
 			return level;
 		}
-
-		/**public static void main(String argv[]) {
-			getArmorFromXML("random", "random");
-		}**/
 }
 

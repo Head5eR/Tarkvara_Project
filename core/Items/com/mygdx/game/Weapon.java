@@ -16,38 +16,34 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Weapon extends Item {
-	private String name;
+public abstract class Weapon extends Item {
 	private int minDamage;
 	private int maxDamage;
-	private int armor;
 	private int strength;
 	private int dexterity;
 	private int stamina;
 	private int wrath;
-	private String twohanded;
+	private boolean twohanded;
 	private String type;
 	private String level;
 	
-	public Weapon() {
-		List <String> weaponStats = getWeaponFromXML(type, level);
-		
-		this.name = weaponStats.get(0);
-		this.minDamage = Integer.parseInt(weaponStats.get(1));
-		this.maxDamage = Integer.parseInt(weaponStats.get(2));
-		this.strength = Integer.parseInt(weaponStats.get(3));
-		this.dexterity = Integer.parseInt(weaponStats.get(4));
-		this.stamina = Integer.parseInt(weaponStats.get(5));
-		this.wrath = Integer.parseInt(weaponStats.get(6));
-		this.twohanded = weaponStats.get(7);
-		this.type = weaponStats.get(8);
-		this.level = weaponStats.get(9);
+	public Weapon(int minDamage, int maxDamage, int str, int dex, int stam, int wrath, String twohanded, String type, String level, String name) {
+		super(name,true);
+		this.maxDamage = maxDamage;
+		this.minDamage = minDamage;
+		this.strength = str;
+		this.dexterity = dex;
+		this.stamina = stam;
+		this.wrath = wrath;
+		if(twohanded.equals("yes")) { // Robert.setName("Aleksei");
+			this.twohanded = true;
+		} else {
+			this.twohanded = false;
+		}
 	}
 	
-	
 
-   
-		public static List <String> getWeaponFromXML(String type, String weaponLevel) {
+		protected static List <String> getWeaponFromXML(String type, String weaponLevel) {
 			try {
 		        File file = new File("weapons.xml");
 		        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -203,21 +199,17 @@ public class Weapon extends Item {
 		            	
 			return null;
 		}
-						
-		public String getName() {
-			return name;
+		
+		public boolean isTwohanded() {
+			return twohanded;
 		}
-
+						
 		public int getMinDamage() {
 			return minDamage;
 		}
 
 		public int getMaxDamage() {
 			return maxDamage;
-		}
-
-		public int getArmor() {
-			return armor;
 		}
 
 		public int getStrength() {
@@ -236,10 +228,6 @@ public class Weapon extends Item {
 			return wrath;
 		}
 
-		public String getTwohanded() {
-			return twohanded;
-		}
-
 		public String getType() {
 			return type;
 		}
@@ -247,9 +235,5 @@ public class Weapon extends Item {
 		public String getLevel() {
 			return level;
 		}
-
-		/**public static void main(String argv[]) {
-			getWeaponFromXML("shield", "3");
-		}**/
 }
 

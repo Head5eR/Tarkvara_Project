@@ -97,8 +97,8 @@ public class MyGdxGame implements Screen {
 		}
 		//System.out.println(mobnames.toString());
 
-		textures2.add(new Texture("tile texture_0.png"));
-		textures2.add(new Texture("wall texture.png"));
+		textures2.add(new Texture("tile_texture_0.png"));
+		textures2.add(new Texture("wall_texture.png"));
 		textures2.add(new Texture("start.png"));
 		textures2.add(new Texture("exit.png"));
 		textures2.add(new Texture("stick.png"));
@@ -219,6 +219,8 @@ public class MyGdxGame implements Screen {
 		heroSprite = new Rectangle();
 		heroSprite.width = 64;
 		heroSprite.height = 64;
+		
+		System.out.println("Niggerino: " + mapgen.getDistance(new Location(3,4), new Location(1,8)));
 	}
 
 	@Override
@@ -462,6 +464,7 @@ public class MyGdxGame implements Screen {
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		genMob();
 	    		createActionButtons();
+	    		hero.calculateStatsFromItems();
 	    		findTableWithNameContaining(attackAndDefence, "placeholder");
 	    		updateHeroMonsterInfo();
 	    		fightInProgress = true;
@@ -473,16 +476,19 @@ public class MyGdxGame implements Screen {
 	
 	public void chooseEquipMethod(int invItemNumber) {
 		Item item = hero.getInventoryItemFromNumber(invItemNumber);
-		if(item.checkIfMelee(item)) {
-			System.out.println("okay, it's melee, generating window");
-			createChooseWeaponSlot(invItemNumber);
-		} else if(item.checkIfShield(item)) {
-			System.out.println("oaky, it's shield, equipping in weaponslot2");
-			hero.equipShield((Shield) item); // equipped only in second weapon slot
-		} else {
-			System.out.println("okay, it's smth else, equipping in suitable slot");
-			hero.equipFromInv(invItemNumber);
-		}
+		if(item != null) {
+			if(item.checkIfMelee(item)) {
+				System.out.println("okay, it's melee, generating window");
+				createChooseWeaponSlot(invItemNumber);
+			} else if(item.checkIfShield(item)) {
+				System.out.println("oaky, it's shield, equipping in weaponslot2");
+				hero.equipShield((Shield) item); // equipped only in second weapon slot
+			} else {
+				System.out.println("okay, it's smth else, equipping in suitable slot");
+				hero.equipFromInv(invItemNumber);
+			}
+			hero.calculateStatsFromItems();
+		}	
 	}
 	
 	public void createChooseWeaponSlot(int invItemNumber) {
@@ -544,7 +550,6 @@ public class MyGdxGame implements Screen {
 	public void createActionButtons() {
 		int numOfAttacks = FightSystem.howManyAttacksToPick(hero);
 		int numOfDefences = FightSystem.howManyDefencesToPick(hero);
-		//int numOfAttacks = 2;
 		if(numOfAttacks == 1 & numOfDefences == 1) {
 			attackAndDefence.add(createButtonAndText(true));
 			attackAndDefence.row();
