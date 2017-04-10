@@ -59,5 +59,9 @@ public abstract class Item {
 		return rarity + " " + name;
 	}
 	
+	public static boolean isArmorItem(Item item) {
+		return item instanceof Armor;
+	}
+	
 	
 }

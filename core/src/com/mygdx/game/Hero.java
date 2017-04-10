@@ -5,13 +5,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.badlogic.gdx.math.MathUtils;
+
 public class Hero extends Character {
 	private Location loc;
 	final int MOVELEFT = 1;
 	final int MOVEUP = 2;
 	final int MOVERIGHT = 4;
 	final int MOVEDOWN = 8;
-	final int EMPTY = 0;	
+	final int EMPTY = 0;
+	
+	private int extraStr = 0;
+	private int extraStam = 0;
+	private int extraDex = 0;
+	private int extraWrath = 0;
+	private int extraArmor = 0;
+	private int extraMinAttack = 0;
+	private int extraMaxAttack = 0;
 	
 	List<Item> inventory = new ArrayList<Item>();
 	List<Headgear[]> headSlot = new ArrayList<Headgear[]>();
@@ -29,7 +39,6 @@ public class Hero extends Character {
 	
 	public Hero(int strength, int dexterity, int stamina, Location loc) {
 		super(strength, dexterity, stamina, "humanoid", "Hero");
-		setHp(getMaxHp());
 		this.loc = loc;
 
 		// Every slot is an array of certain type with length of 1, 
@@ -50,6 +59,8 @@ public class Hero extends Character {
 			legsSlot.add(ls);
 		Boots[] toes = {new Boots("High boots", true)};
 			toesSlot.add(toes);
+		calculateStatsFromItems();
+		setHp(getMaxHp());
 	}
 	
 	public int getInvSize() {
@@ -149,14 +160,17 @@ public class Hero extends Character {
 	
 	public Item getInventoryItemFromNumber(int itemNumber) {
 		int num = itemNumber-1;
-		return inventory.get(num);
+		if(num < inventory.size()) {
+			return inventory.get(num);
+		} 
+		return null;
 	}
 	
 	public Item getEquipmentItemFromNumber(int itemNumber) {
 		int num = itemNumber-1;
 		List<?> slot;
 		
-		if(num <= slots.length) {
+		if(num < slots.length) {
 			slot = slots[num];
 		} else {
 			slot = null;
@@ -187,8 +201,8 @@ public class Hero extends Character {
 					if(!isSlotEmpty(slot)) {
 						unequipSlot(slot);
 					}
-					System.out.println("Item: " + item + " Slot: " + slot);
 					equip(item, slot);
+					inventory.remove(item);
 				} else if(slot.equals(weaponSlot2)) {
 					System.out.println("isempty " + isSlotEmpty(weaponSlot1));
 					if(!isSlotEmpty(weaponSlot1) && ((MeleeWeapon) getItemFromSlot(weaponSlot1)).isTwohanded()) {
@@ -198,7 +212,6 @@ public class Hero extends Character {
 						unequipSlot(slot);
 					}
 					fillWithMeleeArray(slot);
-					System.out.println("Item: " + item + " Slot: " + slot);
 					equip(item, slot);
 					inventory.remove(item);
 				}
@@ -211,7 +224,6 @@ public class Hero extends Character {
 		
 		if(!isSlotEmpty(weaponSlot2)) {
 			unequipSlot(weaponSlot2);
-			fillWithShieldArray(weaponSlot2);
 		}
 		if(!isSlotEmpty(weaponSlot1)) {
 			MeleeWeapon weapon = (MeleeWeapon) getItemFromSlot(weaponSlot1);
@@ -219,6 +231,7 @@ public class Hero extends Character {
 				unequipSlot(weaponSlot1);
 			}
 		}
+		fillWithShieldArray(weaponSlot2);
 		equip(item, weaponSlot2);
 		inventory.remove(item);
 	}
@@ -231,7 +244,7 @@ public class Hero extends Character {
 		int num = itemNumber-1;
 		List<?> slot;
 		
-		if(num <= slots.length) {
+		if(num < slots.length) {
 			slot = slots[num];
 		} else {
 			slot = null;
@@ -248,7 +261,7 @@ public class Hero extends Character {
 		
 	}
 	
-	public void equipFromInv(int itemNumber) {
+	public void equipFromInv(int itemNumber) { //is used only for armor items :D look MyGdxGame.chooseEquipMethod() for clarifications
 		int num = itemNumber-1;
 		if(inventory.size() >= itemNumber) { // if larger than inventory size then requested item doesn't exist
 			Item item = (inventory.get(num));
@@ -329,6 +342,110 @@ public class Hero extends Character {
 			System.out.println("Hero is dead");
 			hp = 0;
 		}
+	}
+	
+	public void calculateStatsFromItems() { // sry for indian code, Martin, pls don't kill me :c
+		extraStr = 0;
+		extraStam = 0;
+		extraDex = 0;
+		extraWrath = 0;
+		extraArmor = 0;
+		extraMinAttack = 0;
+		extraMaxAttack = 0;
+		for(List slot : slots) {
+			if(!isSlotEmpty(slot)) {
+				Item item = getItemFromSlot(slot);
+				if(item.checkIfWeapon(item)) {
+					Weapon wep = (Weapon) item; 
+					System.out.println("found weapon " + wep);
+					extraStr += wep.getStrength();
+					extraStam += wep.getStamina();
+					extraDex += wep.getDexterity();
+					extraWrath += wep.getWrath();
+					extraMinAttack += wep.getMinDamage();
+					extraMaxAttack += wep.getMaxDamage();
+				} else if (Item.isArmorItem(item)) {
+					Armor arm = (Armor) item; 
+					extraStr += arm.getStrength();
+					extraStam += arm.getStamina();
+					extraDex += arm.getDexterity();
+					extraWrath += arm.getWrath();
+					extraArmor += arm.getArmor();
+				}
+			}
+ 		}
+	}
+	
+	public int getHeroStrength() {
+		return super.getStrength();
+	}
+	
+	public int getHeroDexterity() {
+		return super.getDexterity();
+	}
+	
+	public int getHeroStamina() {
+		return super.getStamina();
+	}
+	
+	public int getHeroWrath() {
+		return super.getWrath();
+	}
+	
+	public int getModArmor() {
+		return getArmor() + extraArmor;
+	}
+	
+	@Override
+	public int getStrength() {
+		return getHeroStrength() + extraStr;
+	}
+	@Override
+	public int getDexterity() {
+		return getHeroDexterity() + extraDex;
+	}
+	@Override
+	public int getStamina() {
+		return getHeroStamina() + extraStam;
+	}
+	@Override
+	public int getWrath() {
+		return getHeroWrath() + extraWrath;
+	}
+	
+	@Override
+	public int getMaxHp() {
+		return getStrength()*13;
+	}
+	
+	@Override
+	public int getHp() {
+		return hp;
+	}
+	
+	@Override
+	public void setHp(int hp) {
+		this.hp = hp;
+	}
+	
+	@Override
+	public int getMinAttackDamage() {
+		return (int) Math.round(getMaxAttackDamage() * 0.7) + extraMinAttack;
+	}
+	
+	@Override
+	public int getMaxAttackDamage() {
+		return (int) Math.round(getStrength()*getStamina()*0.2) + extraMaxAttack;
+	}
+	
+	@Override
+	public int getAttackDamage() {
+		return MathUtils.random(getMinAttackDamage(), getMaxAttackDamage());
+	}
+	
+	@Override
+	public String getAttackDamageStr() {
+		return this.getMinAttackDamage() + "-" + this.getMaxAttackDamage();
 	}
 }
 

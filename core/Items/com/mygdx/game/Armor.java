@@ -175,9 +175,5 @@ public class Armor extends Item {
 		public String getLevel() {
 			return level;
 		}
-
-		/**public static void main(String argv[]) {
-			getArmorFromXML("random", "random");
-		}**/
 }
 

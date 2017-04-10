@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.badlogic.gdx.math.MathUtils;
 
@@ -21,6 +23,7 @@ public class MapGenerator {
 	final int MOVEDOWN = 8;
 	final int EMPTY = 0;
 	final int WALL = 1;
+	List<Location> startLocs = new ArrayList<Location>();
 	
 	public MapGenerator(int length, int width){
 		this.length = length;
@@ -34,15 +37,18 @@ public class MapGenerator {
 	public MapGenerator(int length, int width, boolean randStart, boolean randEnd){
 		this.length = length;
 		this.width = width;
+		startLocs = Arrays.asList(new Location(0,0), new Location(length-1, 0), new Location(length-1, width-1), new Location(0, width-1));
 		if(randStart) {
-			MathUtils.random((int) length/2, length);
-			this.startPos = new Location(MathUtils.random(0, (int) length/2 - 1), MathUtils.random(0, (int) width/2 - 1));
+			this.startPos = startLocs.get(MathUtils.random(0, 3));
 		} else {
 			this.startPos = new Location(0,0);
 		}
 		
 		if(randEnd) {
-			this.endPos = new Location(MathUtils.random(0, length - 1), MathUtils.random((int) width/2, width -1));
+			this.endPos = new Location(MathUtils.random(0, length-1), MathUtils.random(0, width-1));
+			while (getDistance(endPos, startPos) < this.length/2) {
+				this.endPos = new Location(MathUtils.random(0, length-1), MathUtils.random(0, width-1));
+			}
 		} else {
 			this.endPos = new Location(length-1, width-1);
 		}
@@ -51,6 +57,11 @@ public class MapGenerator {
 		
 		addStep(startPos);
 		
+	}
+	
+	public static int getDistance(Location loc1, Location loc2) {
+		return (int) Math.round(Math.sqrt(Math.pow(Math.abs(loc1.getX() - loc2.getX()), 2) 
+				+ Math.pow(Math.abs(loc1.getY() - loc2.getY()), 2)));
 	}
 	
 	public void generateMap() {
