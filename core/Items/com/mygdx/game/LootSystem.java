@@ -3,10 +3,9 @@ package com.mygdx.game;
 import java.util.Random;
 
 public class LootSystem {
-	private String difficulty = Modifier.getName();
 	
-	public void generateLoot(String difficulty) { //insert monster difficulty
-		this.difficulty = difficulty;
+	public void generateLoot(Monster monster) { //insert monster difficulty
+		String difficulty = monster.getMod().getName();
 		
 		Random random = new Random();
 		
@@ -46,9 +45,6 @@ public class LootSystem {
 			}			
 		}
 	}
-
-	public String getDifficulty() {
-		return difficulty;
-	}	
+	
 }
 

@@ -17,36 +17,46 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class Weapon extends Item {
-	private String name;
 	private int minDamage;
 	private int maxDamage;
-	private int armor;
 	private int strength;
 	private int dexterity;
 	private int stamina;
 	private int wrath;
-	private String twohanded;
+	private boolean twohanded;
 	private String type;
 	private String level;
 	
-	public Weapon() {
+	public static Weapon getWeaponRandRarity(String type, String level) {
 		List <String> weaponStats = getWeaponFromXML(type, level);
+		String name = weaponStats.get(0);
+		int  minDamage = Integer.parseInt(weaponStats.get(1));
+		int maxDamage = Integer.parseInt(weaponStats.get(2));
+		int strength = Integer.parseInt(weaponStats.get(3));
+		int dexterity = Integer.parseInt(weaponStats.get(4));
+		int stamina = Integer.parseInt(weaponStats.get(5));
+		int wrath = Integer.parseInt(weaponStats.get(6));
+		String twohanded = weaponStats.get(7);
 		
-		this.name = weaponStats.get(0);
-		this.minDamage = Integer.parseInt(weaponStats.get(1));
-		this.maxDamage = Integer.parseInt(weaponStats.get(2));
-		this.strength = Integer.parseInt(weaponStats.get(3));
-		this.dexterity = Integer.parseInt(weaponStats.get(4));
-		this.stamina = Integer.parseInt(weaponStats.get(5));
-		this.wrath = Integer.parseInt(weaponStats.get(6));
-		this.twohanded = weaponStats.get(7);
-		this.type = weaponStats.get(8);
-		this.level = weaponStats.get(9);
+		return new Weapon(minDamage, maxDamage, strength, dexterity, stamina, wrath, twohanded, type, level, name);
 	}
 	
+	private Weapon(int minDamage, int maxDamage, int str, int dex, int stam, int wrath, String twohanded, String type, String level, String name) {
+		super(name,true);
+		this.maxDamage = maxDamage;
+		this.minDamage = minDamage;
+		this.strength = str;
+		this.dexterity = dex;
+		this.stamina = stam;
+		this.wrath = wrath;
+		if(twohanded.equals("yes")) { // Robert.setName("Aleksei");
+			this.twohanded = true;
+		} else {
+			this.twohanded = false;
+		}
+	}
 	
 
-   
 		public static List <String> getWeaponFromXML(String type, String weaponLevel) {
 			try {
 		        File file = new File("weapons.xml");
@@ -204,20 +214,12 @@ public class Weapon extends Item {
 			return null;
 		}
 						
-		public String getName() {
-			return name;
-		}
-
 		public int getMinDamage() {
 			return minDamage;
 		}
 
 		public int getMaxDamage() {
 			return maxDamage;
-		}
-
-		public int getArmor() {
-			return armor;
 		}
 
 		public int getStrength() {
@@ -236,10 +238,6 @@ public class Weapon extends Item {
 			return wrath;
 		}
 
-		public String getTwohanded() {
-			return twohanded;
-		}
-
 		public String getType() {
 			return type;
 		}
@@ -247,9 +245,5 @@ public class Weapon extends Item {
 		public String getLevel() {
 			return level;
 		}
-
-		/**public static void main(String argv[]) {
-			getWeaponFromXML("shield", "3");
-		}**/
 }
 

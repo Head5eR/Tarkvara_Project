@@ -41,7 +41,7 @@ public class Monster extends Character {
 		
 	}
 	
-	public Monster(int str, int dex, int stam, String bodytype, String name) {
+	private Monster(int str, int dex, int stam, String bodytype, String name) {
 		super(str, dex, stam, bodytype, name);
 		this.mod = new Modifier();
 		this.wrath = Integer.parseInt(monsterStats.get(5));
