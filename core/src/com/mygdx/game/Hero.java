@@ -187,6 +187,7 @@ public class Hero extends Character {
 					if(!isSlotEmpty(slot)) {
 						unequipSlot(slot);
 					}
+					System.out.println("Item: " + item + " Slot: " + slot);
 					equip(item, slot);
 				} else if(slot.equals(weaponSlot2)) {
 					System.out.println("isempty " + isSlotEmpty(weaponSlot1));
@@ -195,8 +196,9 @@ public class Hero extends Character {
 					}
 					if(!isSlotEmpty(slot)) {
 						unequipSlot(slot);
-						fillWithMeleeArray(slot);
 					}
+					fillWithMeleeArray(slot);
+					System.out.println("Item: " + item + " Slot: " + slot);
 					equip(item, slot);
 				}
 			}
