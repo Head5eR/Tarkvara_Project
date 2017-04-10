@@ -29,6 +29,18 @@ public abstract class Item {
 		return equipable;
 	}
 	
+	public boolean checkIfWeapon(Item item) {
+		return item instanceof Weapon;
+	}
+	
+	public boolean checkIfShield(Item item) {
+		return item instanceof Shield;
+	}
+	
+	public boolean checkIfMelee(Item item) {
+		return item instanceof MeleeWeapon;
+	}
+	
 	public String getName() {
 		return name;
 	}

@@ -2,6 +2,8 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.math.MathUtils;
+
 public class MapGenerator {
 	private int length;
 	private int width;
@@ -33,13 +35,14 @@ public class MapGenerator {
 		this.length = length;
 		this.width = width;
 		if(randStart) {
-			this.startPos = new Location((int) Math.floor(Math.random()*length), (int) Math.floor(Math.random()*width));
+			MathUtils.random((int) length/2, length);
+			this.startPos = new Location(MathUtils.random(0, (int) length/2 - 1), MathUtils.random(0, (int) width/2 - 1));
 		} else {
 			this.startPos = new Location(0,0);
 		}
 		
 		if(randEnd) {
-			this.endPos = new Location((int) Math.floor(Math.random()*length), (int) Math.floor(Math.random()*width));
+			this.endPos = new Location(MathUtils.random(0, length - 1), MathUtils.random((int) width/2, width -1));
 		} else {
 			this.endPos = new Location(length-1, width-1);
 		}
