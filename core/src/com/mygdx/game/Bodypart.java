@@ -1,8 +1,8 @@
 package com.mygdx.game;
 
 public class Bodypart {
-	public String name;
-	public boolean isCritical;
+	private String name;
+	private boolean isCritical;
 	
 	public Bodypart(String name, boolean critical) {
 		this.name = name;
@@ -16,5 +16,9 @@ public class Bodypart {
 
 	public String getName() {
 		return name;
+	}
+
+	public boolean isCritical() {
+		return isCritical;
 	}
 }

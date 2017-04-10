@@ -21,21 +21,24 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class Modifier {
-	private static String name;
-	private String strength;
-	private String dexterity;
-	private String stamina;
-	private  String wrath;
+
+	private String name;
+	private int strength;
+	private int dexterity;
+	private int stamina;
+	private int wrath;
+
 	private String expression = "//difficulty[@level]";	        
 	
 	public Modifier() {
 		List<String> stats = readFromXML();
-		
-		Modifier.name = stats.get(0);
-		this.strength = stats.get(1);
-		this.dexterity = stats.get(2);
-		this.stamina = stats.get(3);
-		this.wrath = stats.get(4);
+
+		this.name = stats.get(0);
+		this.strength = Integer.parseInt(stats.get(1));
+		this.dexterity = Integer.parseInt(stats.get(2));
+		this.stamina = Integer.parseInt(stats.get(3));
+		this.wrath = Integer.parseInt(stats.get(4));
+
 	}
 	
 	private List<String> readFromXML() {
@@ -87,38 +90,38 @@ public class Modifier {
 	}
 	
 	
-	
-	public static String getName() {
-		return name;
-	}
 
-	public String getStrength() {
+	public int getStrength() {
 		return strength;
 	}
-	public void setStrength(String strength) {
+	public void setStrength(int strength) {
 		this.strength = strength;
 	}
-	public String getDexterity() {
+	public int getDexterity() {
 		return dexterity;
 	}
-	public void setDexterity(String dexterity) {
+	public void setDexterity(int dexterity) {
 		this.dexterity = dexterity;
 	}
-	public String getStamina() {
+	public int getStamina() {
 		return stamina;
 	}
-	public void setStamina(String stamina) {
+	public void setStamina(int stamina) {
 		this.stamina = stamina;
 	}
-	public String getWrath() {
+	public int getWrath() {
 		return wrath;
 	}
-	public void setWrath(String wrath) {
+	public void setWrath(int wrath) {
 		this.wrath = wrath;
 	}
 	
 	@Override
 	public String toString() {
 		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath;
+	}
+
+	public String getName() {
+		return name;
 	}
 }
