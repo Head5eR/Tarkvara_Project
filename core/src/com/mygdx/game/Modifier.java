@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class Modifier {
-	private String name;
+	private static String name;
 	private String strength;
 	private String dexterity;
 	private String stamina;
@@ -31,7 +31,7 @@ public class Modifier {
 	public Modifier() {
 		List<String> stats = readFromXML();
 		
-		this.name = stats.get(0);
+		Modifier.name = stats.get(0);
 		this.strength = stats.get(1);
 		this.dexterity = stats.get(2);
 		this.stamina = stats.get(3);
@@ -87,6 +87,11 @@ public class Modifier {
 	}
 	
 	
+	
+	public static String getName() {
+		return name;
+	}
+
 	public String getStrength() {
 		return strength;
 	}
