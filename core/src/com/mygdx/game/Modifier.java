@@ -21,11 +21,13 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class Modifier {
+
 	private String name;
 	private int strength;
 	private int dexterity;
 	private int stamina;
 	private int wrath;
+
 	private String expression = "//difficulty[@level]";	        
 	
 	public Modifier() {
@@ -36,6 +38,7 @@ public class Modifier {
 		this.dexterity = Integer.parseInt(stats.get(2));
 		this.stamina = Integer.parseInt(stats.get(3));
 		this.wrath = Integer.parseInt(stats.get(4));
+
 	}
 	
 	private List<String> readFromXML() {
@@ -87,6 +90,7 @@ public class Modifier {
 	}
 	
 	
+
 	public int getStrength() {
 		return strength;
 	}

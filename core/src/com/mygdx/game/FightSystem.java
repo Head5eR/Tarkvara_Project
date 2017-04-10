@@ -27,8 +27,14 @@ public class FightSystem {
 	}
 	
 	public static int howManyAttacksToPick(Hero h) {
-		String weaponSlotClass1 = h.weaponSlot1.get(0).getClass().getComponentType().getSimpleName();
-		String weaponSlotClass2 = h.weaponSlot2.get(0).getClass().getComponentType().getSimpleName();
+		String weaponSlotClass1 = "";
+		String weaponSlotClass2 = "";
+		if(!h.isSlotEmpty(h.weaponSlot1)) {
+			weaponSlotClass1 = h.weaponSlot1.get(0)[0].getClass().getSimpleName();
+		}
+		if(!h.isSlotEmpty(h.weaponSlot2)) {
+			weaponSlotClass2 = h.weaponSlot2.get(0)[0].getClass().getSimpleName();
+		}
 		if(weaponSlotClass1 == weaponSlotClass2 & weaponSlotClass1 == "MeleeWeapon") {
 			return 2;
 		}
@@ -36,10 +42,11 @@ public class FightSystem {
 	}
 	
 	public static int howManyDefencesToPick(Hero h) {
-		String weaponSlotClass1 = h.weaponSlot1.get(0).getClass().getComponentType().getSimpleName();
-		String weaponSlotClass2 = h.weaponSlot2.get(0).getClass().getComponentType().getSimpleName();
+		String weaponSlotClass2 = "";
+		if(!h.isSlotEmpty(h.weaponSlot2)) {
+			weaponSlotClass2 = h.weaponSlot2.get(0)[0].getClass().getSimpleName();
+		}
 		if(weaponSlotClass2.equals("Shield")) {
-			System.out.println("shield found");
 			return 2;
 		}
 		return 1;

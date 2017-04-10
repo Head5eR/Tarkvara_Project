@@ -1,20 +1,24 @@
 package com.mygdx.game;
 
-public class Legarmor extends Item {
+import java.util.List;
 
-	public Legarmor() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+public class Legarmor extends Armor {
 
-	public Legarmor(String name, boolean equipable) {
-		super(name, equipable);
-		// TODO Auto-generated constructor stub
+	public static Legarmor getLegarmorRandRarity(String level) {
+		String type = "legs";
+		List <String> armorStats = getArmorFromXML(type, level);
+		String name = armorStats.get(0);
+		int armor = Integer.parseInt(armorStats.get(1));
+		int strength = Integer.parseInt(armorStats.get(2));
+		int dexterity = Integer.parseInt(armorStats.get(3));
+		int stamina = Integer.parseInt(armorStats.get(4));
+		int wrath = Integer.parseInt(armorStats.get(5));
+		
+		return new Legarmor(strength, dexterity, stamina, wrath, type, level, name, armor);
 	}
-
-	public Legarmor(String name, int rarity, boolean equipable) {
-		super(name, rarity, equipable);
-		// TODO Auto-generated constructor stub
+	
+	private Legarmor(int str, int dex, int stam, int wrath, String type, String level, String name, int armor) {
+		super(str, dex, stam, wrath, type, level, name, armor);
+		
 	}
-	// stat modifiers for legarmor
 }
