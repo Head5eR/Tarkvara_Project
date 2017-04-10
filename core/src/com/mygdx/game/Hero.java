@@ -173,12 +173,12 @@ public class Hero extends Character {
 	}
 	
 	public void equipMelee(MeleeWeapon item, int slotNr) {
-		inventory.remove(item);
 		if(weaponSlots.length > slotNr) {
 			List<?> slot = weaponSlots[slotNr];
 			if(item.isTwohanded()) { // if weapon is twohanded, then both hands should be empty to equip it
-				if(isSlotEmpty(weaponSlot1) & isSlotEmpty(weaponSlot2)) {
+				if(isSlotEmpty(weaponSlot1) && isSlotEmpty(weaponSlot2)) {
 					equip(item, weaponSlot1);
+					inventory.remove(item);
 				} else {
 					System.out.println("Unequip everything from your hands first!");
 				}
@@ -200,18 +200,27 @@ public class Hero extends Character {
 					fillWithMeleeArray(slot);
 					System.out.println("Item: " + item + " Slot: " + slot);
 					equip(item, slot);
+					inventory.remove(item);
 				}
 			}
 		}
+		
 	}
 	
 	public void equipShield(Shield item) {
-		inventory.remove(item);
+		
 		if(!isSlotEmpty(weaponSlot2)) {
 			unequipSlot(weaponSlot2);
 			fillWithShieldArray(weaponSlot2);
 		}
+		if(!isSlotEmpty(weaponSlot1)) {
+			MeleeWeapon weapon = (MeleeWeapon) getItemFromSlot(weaponSlot1);
+			if(weapon.isTwohanded()) {
+				unequipSlot(weaponSlot1);
+			}
+		}
 		equip(item, weaponSlot2);
+		inventory.remove(item);
 	}
 	
 	public Item getItemFromSlot(List slot) {

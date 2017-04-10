@@ -97,8 +97,8 @@ public class MyGdxGame implements Screen {
 		}
 		//System.out.println(mobnames.toString());
 
-		textures2.add(new Texture("tile texture_0.png"));
-		textures2.add(new Texture("wall texture.png"));
+		textures2.add(new Texture("tile_texture_0.png"));
+		textures2.add(new Texture("wall_texture.png"));
 		textures2.add(new Texture("start.png"));
 		textures2.add(new Texture("exit.png"));
 		textures2.add(new Texture("stick.png"));
