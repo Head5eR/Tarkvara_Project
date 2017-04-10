@@ -34,7 +34,7 @@ public class Hero extends Character {
 
 		// Every slot is an array of certain type with length of 1, 
 		// so that it is possible to add only one item to the slot
-		inventory.addAll(Arrays.asList(new MeleeWeapon("SuperStick", true),new Shield("Bronze Shield", true)));
+		inventory.addAll(Arrays.asList(MeleeWeapon.getMeleeWeaponRandRarity("sword", "2"),Shield.getShieldRandRarity("1")));
 		
 		Headgear[] hs = {new Headgear("Helmet", true)};
 			headSlot.add(hs);
@@ -42,9 +42,9 @@ public class Hero extends Character {
 			torsoSlot.add(ts);
 		Gloves[] as = {new Gloves("Gauntlets", true)};
 			armsSlot.add(as);
-		MeleeWeapon[] ws1 = {new MeleeWeapon("Stick", true)};
+		MeleeWeapon[] ws1 = {MeleeWeapon.getMeleeWeaponRandRarity("axe", "1")};
 			weaponSlot1.add(ws1);
-		Shield[] ws2 = {new Shield("Wooden Shield", true)};
+		Shield[] ws2 = {Shield.getShieldRandRarity("1")};
 			weaponSlot2.add(ws2);
 		Legarmor[] ls = {new Legarmor("Pants", true)};
 			legsSlot.add(ls);

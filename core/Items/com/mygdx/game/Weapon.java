@@ -16,7 +16,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Weapon extends Item {
+public abstract class Weapon extends Item {
 	private int minDamage;
 	private int maxDamage;
 	private int strength;
@@ -27,21 +27,7 @@ public class Weapon extends Item {
 	private String type;
 	private String level;
 	
-	public static Weapon getWeaponRandRarity(String type, String level) {
-		List <String> weaponStats = getWeaponFromXML(type, level);
-		String name = weaponStats.get(0);
-		int  minDamage = Integer.parseInt(weaponStats.get(1));
-		int maxDamage = Integer.parseInt(weaponStats.get(2));
-		int strength = Integer.parseInt(weaponStats.get(3));
-		int dexterity = Integer.parseInt(weaponStats.get(4));
-		int stamina = Integer.parseInt(weaponStats.get(5));
-		int wrath = Integer.parseInt(weaponStats.get(6));
-		String twohanded = weaponStats.get(7);
-		
-		return new Weapon(minDamage, maxDamage, strength, dexterity, stamina, wrath, twohanded, type, level, name);
-	}
-	
-	private Weapon(int minDamage, int maxDamage, int str, int dex, int stam, int wrath, String twohanded, String type, String level, String name) {
+	public Weapon(int minDamage, int maxDamage, int str, int dex, int stam, int wrath, String twohanded, String type, String level, String name) {
 		super(name,true);
 		this.maxDamage = maxDamage;
 		this.minDamage = minDamage;
@@ -57,7 +43,7 @@ public class Weapon extends Item {
 	}
 	
 
-		public static List <String> getWeaponFromXML(String type, String weaponLevel) {
+		protected static List <String> getWeaponFromXML(String type, String weaponLevel) {
 			try {
 		        File file = new File("weapons.xml");
 		        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -212,6 +198,10 @@ public class Weapon extends Item {
 	       }
 		            	
 			return null;
+		}
+		
+		public boolean isTwohanded() {
+			return twohanded;
 		}
 						
 		public int getMinDamage() {

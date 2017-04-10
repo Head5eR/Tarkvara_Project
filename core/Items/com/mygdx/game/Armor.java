@@ -18,7 +18,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class Armor extends Item {
-	private String name;
 	private int armor;
 	private int strength;
 	private int dexterity;
@@ -27,16 +26,26 @@ public class Armor extends Item {
 	private String type;
 	private String level;
 	
-	public Armor() {
+	public Armor getArmorRandRarity(String type, String level) {
 		List <String> armorStats = getArmorFromXML(type, level);
+		String name = armorStats.get(0);
+		int strength = Integer.parseInt(armorStats.get(1));
+		int dexterity = Integer.parseInt(armorStats.get(2));
+		int stamina = Integer.parseInt(armorStats.get(3));
+		int wrath = Integer.parseInt(armorStats.get(4));
+		int armor = Integer.parseInt(armorStats.get(7));
 		
-		this.name = armorStats.get(0);
-		this.strength = Integer.parseInt(armorStats.get(1));
-		this.dexterity = Integer.parseInt(armorStats.get(2));
-		this.stamina = Integer.parseInt(armorStats.get(3));
-		this.wrath = Integer.parseInt(armorStats.get(4));
-		this.type = armorStats.get(5);
-		this.level = armorStats.get(6);
+		return new Armor(strength, dexterity, stamina, wrath, type, level, name, armor);
+	}
+	
+	public Armor(int str, int dex, int stam, int wrath, String type, String level, String name, int armor) {
+		super(name,true);
+		this.armor = armor;
+		this.strength = str;
+		this.stamina = stam;
+		this.wrath = wrath;
+		this.type = type;
+		this.level = level;
 	}
 	
 
@@ -139,10 +148,6 @@ public class Armor extends Item {
 			return null;
 		}
 						
-		public String getName() {
-			return name;
-		}
-
 		public int getArmor() {
 			return armor;
 		}
