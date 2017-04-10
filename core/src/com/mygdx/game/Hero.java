@@ -45,19 +45,19 @@ public class Hero extends Character {
 		// so that it is possible to add only one item to the slot
 		inventory.addAll(Arrays.asList(MeleeWeapon.getMeleeWeaponRandRarity("sword", "2"),Shield.getShieldRandRarity("1")));
 		
-		Headgear[] hs = {new Headgear("Helmet", true)};
+		Headgear[] hs = {Headgear.getHeadgearRandRarity("1")};
 			headSlot.add(hs);
-		Bodyarmor[] ts = {new Bodyarmor("Chainmail", true)};
+		Bodyarmor[] ts = {Bodyarmor.getBodyarmorRandRarity("1")};
 			torsoSlot.add(ts);
-		Gloves[] as = {new Gloves("Gauntlets", true)};
+		Gloves[] as = {Gloves.getGlovesRandRarity("1")};
 			armsSlot.add(as);
 		MeleeWeapon[] ws1 = {MeleeWeapon.getMeleeWeaponRandRarity("axe", "1")};
 			weaponSlot1.add(ws1);
 		Shield[] ws2 = {Shield.getShieldRandRarity("1")};
 			weaponSlot2.add(ws2);
-		Legarmor[] ls = {new Legarmor("Pants", true)};
+		Legarmor[] ls = {Legarmor.getLegarmorRandRarity("1")};
 			legsSlot.add(ls);
-		Boots[] toes = {new Boots("High boots", true)};
+		Boots[] toes = {Boots.getBootsRandRarity("1")};
 			toesSlot.add(toes);
 		calculateStatsFromItems();
 		setHp(getMaxHp());
@@ -321,7 +321,7 @@ public class Hero extends Character {
 	}
 	
 	public int getArmor() {
-		return 1; //get armor from equipped items pls
+		return 0 + extraArmor;
 	}
 	
 	@Override
@@ -336,7 +336,7 @@ public class Hero extends Character {
 		dmg = checkIfFatalStrike(dmg, bodypart);
 		int actualDmg = dmg - getArmor();
 		System.out.println(getName() + " has taken " + actualDmg + " DMG");
-		if (actualDmg <= hp) {
+		if (actualDmg <= hp && actualDmg > 0) {
 			hp -= actualDmg;
 		} else {
 			System.out.println("Hero is dead");
@@ -352,18 +352,21 @@ public class Hero extends Character {
 		extraArmor = 0;
 		extraMinAttack = 0;
 		extraMaxAttack = 0;
-		for(List slot : slots) {
+		for(List<?> slot : slots) {
 			if(!isSlotEmpty(slot)) {
 				Item item = getItemFromSlot(slot);
 				if(item.checkIfWeapon(item)) {
 					Weapon wep = (Weapon) item; 
-					System.out.println("found weapon " + wep);
 					extraStr += wep.getStrength();
 					extraStam += wep.getStamina();
 					extraDex += wep.getDexterity();
 					extraWrath += wep.getWrath();
 					extraMinAttack += wep.getMinDamage();
 					extraMaxAttack += wep.getMaxDamage();
+					if(wep.checkIfShield(item)) {
+						Shield shl = (Shield) wep;
+						extraArmor += shl.getArmor();
+					}
 				} else if (Item.isArmorItem(item)) {
 					Armor arm = (Armor) item; 
 					extraStr += arm.getStrength();
@@ -392,10 +395,6 @@ public class Hero extends Character {
 		return super.getWrath();
 	}
 	
-	public int getModArmor() {
-		return getArmor() + extraArmor;
-	}
-	
 	@Override
 	public int getStrength() {
 		return getHeroStrength() + extraStr;
@@ -415,7 +414,7 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMaxHp() {
-		return getStrength()*13;
+		return getStrength()*10;
 	}
 	
 	@Override
@@ -435,7 +434,7 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMaxAttackDamage() {
-		return (int) Math.round(getStrength()*getStamina()*0.2) + extraMaxAttack;
+		return (int) Math.round(getStrength()*0.2) + extraMaxAttack;
 	}
 	
 	@Override

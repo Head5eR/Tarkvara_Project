@@ -47,7 +47,6 @@ public class FightSystem {
 			weaponSlotClass2 = h.weaponSlot2.get(0)[0].getClass().getSimpleName();
 		}
 		if(weaponSlotClass2.equals("Shield")) {
-			System.out.println("shield found");
 			return 2;
 		}
 		return 1;

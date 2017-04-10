@@ -24,4 +24,8 @@ public class Shield extends Weapon {
 		String twohanded = weaponStats.get(6);
 		return new Shield(0,0, strength, dexterity, stamina, wrath, twohanded, type, level, name, armor);
 	}
+
+	protected int getArmor() {
+		return armor;
+	}
 }

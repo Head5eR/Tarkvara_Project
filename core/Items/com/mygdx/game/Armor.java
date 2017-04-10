@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Armor extends Item {
+public abstract class Armor extends Item {
 	private int armor;
 	private int strength;
 	private int dexterity;
@@ -25,18 +25,6 @@ public class Armor extends Item {
 	private int wrath;
 	private String type;
 	private String level;
-	
-	public Armor getArmorRandRarity(String type, String level) {
-		List <String> armorStats = getArmorFromXML(type, level);
-		String name = armorStats.get(0);
-		int strength = Integer.parseInt(armorStats.get(1));
-		int dexterity = Integer.parseInt(armorStats.get(2));
-		int stamina = Integer.parseInt(armorStats.get(3));
-		int wrath = Integer.parseInt(armorStats.get(4));
-		int armor = Integer.parseInt(armorStats.get(7));
-		
-		return new Armor(strength, dexterity, stamina, wrath, type, level, name, armor);
-	}
 	
 	public Armor(int str, int dex, int stam, int wrath, String type, String level, String name, int armor) {
 		super(name,true);
@@ -49,7 +37,7 @@ public class Armor extends Item {
 	}
 	
 
-		public static List <String> getArmorFromXML(String type, String armorLevel) {
+		protected static List <String> getArmorFromXML(String type, String armorLevel) {
 			try {
 		        File file = new File("armor.xml");
 		        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
