@@ -16,9 +16,42 @@ public class AmbushSystem {
 		this.hero = hero;
 		this.mapG = mapG;
 		this.end = new Location(mapG.getMap().getLength()-1, mapG.getMap().getWidth()-1);
-		//this.maxDistance = MapGenerator.getDistance(start, end);
-		this.maxDistance = MapGenerator.getDistance(mapG.getStartPos(), mapG.getEndPos());
+		this.maxDistance = MapGenerator.getDistance(start, end);
+		//this.maxDistance = MapGenerator.getDistance(mapG.getStartPos(), mapG.getEndPos());
 		this.chancePerTurn = maxChance/((double) maxDistance);
+	}
+	
+	public int monsterLevel() {
+		java.util.Random rand = new java.util.Random();
+		Double dist = (double) distance;
+		Double maxdist = (double) maxDistance;
+		System.out.println("current dist " + dist + " max dist " + maxdist);
+		if(dist < maxdist/3) {
+			if(rand.nextFloat() <= 0.6) {
+				return 0;
+			} else {
+				return 1;
+			}
+		} else if(dist > maxdist/3 & dist < (maxdist*2)/3) {
+			float r = rand.nextFloat();
+			if(r <= 0.3) {
+				return 1;
+			} else if(r > 0.3 & r < 0.5) {
+				return 2;
+			} else {
+				return 3;
+			}
+		} else if(dist > (maxdist*2)/3) {
+			float r = rand.nextFloat();
+			if(r <= 0.3) {
+				return 2;
+			} else if(r > 0.3 & r < 0.5) {
+				return 3;
+			} else {
+				return 4;
+			}
+		}
+		return -1;
 	}
 	
 	

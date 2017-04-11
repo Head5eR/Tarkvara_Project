@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -28,7 +29,7 @@ public class Modifier {
 	private int stamina;
 	private int wrath;
 
-	private String expression = "//difficulty[@level]";	        
+	private String expression = "//difficulty[@level]";
 	
 	public Modifier() {
 		List<String> stats = readFromXML();
@@ -40,6 +41,104 @@ public class Modifier {
 		this.wrath = Integer.parseInt(stats.get(4));
 
 	}
+	
+	public Modifier(int modNumber) {
+		List<String> modifiers = readAllModifiers();
+		if(modNumber < modifiers.size()) {
+			String pickedMod = modifiers.get(modNumber);
+			List<String> stats = readParticularModifier(pickedMod);
+
+			Modifier.name = stats.get(0);
+			this.strength = Integer.parseInt(stats.get(1));
+			this.dexterity = Integer.parseInt(stats.get(2));
+			this.stamina = Integer.parseInt(stats.get(3));
+			this.wrath = Integer.parseInt(stats.get(4));
+		}
+	}
+	
+	private List<String> readParticularModifier(String name) {
+		try {
+			File inputFile = new File("stats.xml");
+			
+			DocumentBuilderFactory dbFactory 
+				= DocumentBuilderFactory.newInstance();
+			 DocumentBuilder dBuilder;
+
+			 dBuilder = dbFactory.newDocumentBuilder();
+			 
+			 Document doc = dBuilder.parse(inputFile);
+			 doc.getDocumentElement().normalize();
+			 
+			 XPath xPath =  XPathFactory.newInstance().newXPath();
+			 
+			 NodeList nodeList = doc.getElementsByTagName("difficulty");
+			 
+			 List<String> stats = new ArrayList<String>();
+			 stats.add(name);
+
+			 for(int i=0; i<nodeList.getLength(); i++) {
+			     Element e = (Element) nodeList.item(i);
+			     String value = e.getAttribute("level");
+			     if(value.equals(name)) {
+			    	 NodeList listOfAttributes = e.getElementsByTagName("*");
+					for(int j=0; j<listOfAttributes.getLength(); j++) {
+						stats.add(listOfAttributes.item(j).getTextContent());					
+					}
+			     }
+			 }
+			 System.out.println(stats);
+			 return stats;
+	
+		}
+		catch (ParserConfigurationException e) {
+         e.printStackTrace();
+      } catch (SAXException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+	  return null;
+	}
+	
+	private List<String> readAllModifiers() {
+		try {
+			File inputFile = new File("stats.xml");
+			
+			DocumentBuilderFactory dbFactory 
+				= DocumentBuilderFactory.newInstance();
+			 DocumentBuilder dBuilder;
+
+			 dBuilder = dbFactory.newDocumentBuilder();
+			 
+			 Document doc = dBuilder.parse(inputFile);
+			 doc.getDocumentElement().normalize();
+			 
+			 XPath xPath =  XPathFactory.newInstance().newXPath();
+			 
+			 NodeList nodeList = doc.getElementsByTagName("difficulty");
+			 
+			 List<String> modifiers = new ArrayList<String>();
+
+			 int length = nodeList.getLength();
+			 for( int i=0; i<length; i++) {
+			     Element e = (Element) nodeList.item(i);
+			     String value = e.getAttribute("level");
+			     modifiers.add(value);
+			 }
+			 
+			 return modifiers;
+	
+		}
+		catch (ParserConfigurationException e) {
+         e.printStackTrace();
+      } catch (SAXException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+	  return null;
+	}
+	
 	
 	private List<String> readFromXML() {
 		try {

@@ -87,9 +87,11 @@ public class MyGdxGame implements Screen {
 	private static TextButton log;
 	private Table logTable;
 	private boolean pendingChooseTheSlotAction = false;
+	private java.util.Random rand;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
+		rand = new java.util.Random();
 		
 		mobtextures.add(new Texture("skeleton.png"));
 		mobtextures.add(new Texture("zombie.png"));
@@ -299,7 +301,7 @@ public class MyGdxGame implements Screen {
 	}
 	
 	private void genMob() {
-		activeMob = Monster.getMonster();
+		activeMob = Monster.getMonsterWithModifier(ambSystem.monsterLevel());
 		int randInt = (int) Math.floor(Math.random()*4);
 		Cell imgcell = fightTable.getCells().get(1);
 		int foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
@@ -348,7 +350,11 @@ public class MyGdxGame implements Screen {
 	    
 	    Location newHeroLoc = hero.getLoc();
 	    if(!oldHeroLoc.equals(newHeroLoc)) {
-	    	System.out.println("chance to get attacked: " + ambSystem.generateAttackChance());
+	    	double ambushChance = ambSystem.generateAttackChance();
+	    	System.out.println(ambushChance);
+	    	if(rand.nextDouble() <= ambushChance) {
+	    		startTheFight();
+	    	}
 	    }
 	    camera.update();
 	}
@@ -485,18 +491,22 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-	    		genMob();
-	    		createActionButtons();
-	    		createFightLog();
-	    		hero.calculateStatsFromItems();
-	    		findTableWithNameContaining(attackAndDefence, "placeholder");
-	    		updateHeroMonsterInfo();
-	    		fightInProgress = true;
-	    		fightTable.setVisible(true);
+	    		startTheFight();
 	    }
 	    
 	    camera.update();
 	 }
+	
+	public void startTheFight() {
+		genMob();
+		createActionButtons();
+		createFightLog();
+		hero.calculateStatsFromItems();
+		findTableWithNameContaining(attackAndDefence, "placeholder");
+		updateHeroMonsterInfo();
+		fightInProgress = true;
+		fightTable.setVisible(true);
+	}
 	
 	public void dialogTest() { // will look into it later
 		Dialog dialog = new Dialog("Some Dialog", skin, "dialog") {

@@ -41,9 +41,30 @@ public class Monster extends Character {
 		
 	}
 	
+	public static Monster getMonsterWithModifier(int modNumber) {
+		
+		monsterStats = readFromXML();
+		String bodytype = monsterStats.get(1);
+		
+		int str = Integer.parseInt(monsterStats.get(2));
+		int dex = Integer.parseInt(monsterStats.get(3));
+		int stam =  Integer.parseInt(monsterStats.get(4));
+		String name = monsterStats.get(0);	
+		return new Monster(str, dex, stam, bodytype, name, modNumber);
+		
+		
+	}
+	
 	private Monster(int str, int dex, int stam, String bodytype, String name) {
 		super(str, dex, stam, bodytype, name);
 		this.mod = new Modifier();
+		this.wrath = Integer.parseInt(monsterStats.get(5));
+		setHp(getMaxHp());
+	}
+	
+	private Monster(int str, int dex, int stam, String bodytype, String name, int modNumber) {
+		super(str, dex, stam, bodytype, name);
+		this.mod = new Modifier(modNumber);
 		this.wrath = Integer.parseInt(monsterStats.get(5));
 		setHp(getMaxHp());
 	}
