@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.btree.decorator.Random;
 import com.badlogic.gdx.graphics.Color;
@@ -15,9 +16,13 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
@@ -55,8 +60,8 @@ public class MyGdxGame implements Screen {
 	private TextArea mobinfo;
 	private TextArea invinfo;
 	private TextArea equipinfo;
-	private final int MAP_WIDTH = 40;
-	private final int MAP_HEIGHT = 40;
+	private final int MAP_WIDTH = 12;
+	private final int MAP_HEIGHT = 10;
 	private boolean fightInProgress = false;
 	private Table fightTable;
 	private TextButton btn1;
@@ -78,7 +83,13 @@ public class MyGdxGame implements Screen {
 	private TextField mapHeightTextField;
 	private Table attackAndDefence;
 	private Table chooseSlot;
+<<<<<<< HEAD
 	private AmbushSystem ambSystem;
+=======
+	private static TextButton log;
+	private Table logTable;
+	private boolean pendingChooseTheSlotAction = false;
+>>>>>>> refs/remotes/origin/master
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -188,6 +199,7 @@ public class MyGdxGame implements Screen {
 		fightTable.add(mobFwin).fill().expand();
 		
 		attackAndDefence = new Table(skin);
+		logTable = new Table(skin);
 		
 		fightTable.row();
 		fightTable.add(attackAndDefence);
@@ -203,6 +215,7 @@ public class MyGdxGame implements Screen {
 		stage.addActor(fightTable);
 		stage.addActor(uitable);
 		stage.addActor(bodyPartsTable);
+		stage.addActor(logTable);
 
 		/////////////////////////////////////////////////////////////////////
 		
@@ -222,8 +235,6 @@ public class MyGdxGame implements Screen {
 		heroSprite = new Rectangle();
 		heroSprite.width = 64;
 		heroSprite.height = 64;
-		
-		System.out.println("Niggerino: " + mapgen.getDistance(new Location(3,4), new Location(1,8)));
 	}
 
 	@Override
@@ -231,15 +242,16 @@ public class MyGdxGame implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		if(!fightInProgress) {
-			movementUpdate();
-			handleInput();
-		} else {
-			handleFightInput();
-			//fight(hero, new Monster());
+		if(!pendingChooseTheSlotAction) {
+			if(!fightInProgress) {
+				movementUpdate();
+				handleInput();
+			} else {
+				handleFightInput();
+				//fight(hero, new Monster());
+			}
 		}
-		
-		
+
 		game.batch.setProjectionMatrix(camera.combined);
 		game.batch.begin();
 		
@@ -307,13 +319,18 @@ public class MyGdxGame implements Screen {
 	private void handleFightInput() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    	if(fightTable.isVisible()) {
-	    		fightInProgress = false;
-	    		fightTable.setVisible(false);
-	    		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
-	    		attackAndDefence.clear();
+	    		endFight();
 	    	}
 	    }
 		
+	}
+	
+	private void endFight() {
+		logTable.setVisible(false);
+		fightInProgress = false;
+		fightTable.setVisible(false);
+		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
+		attackAndDefence.clear();
 	}
 	
 	private void movementUpdate() {
@@ -464,15 +481,16 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-	    	if(options.isVisible()) {
-	    		options.setVisible(false);
+	    	if(logTable.isVisible()) {
+	    		logTable.setVisible(false);
 	    	} else {
-	    		options.setVisible(true);
+	    		logTable.setVisible(true);
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		genMob();
 	    		createActionButtons();
+	    		createFightLog();
 	    		hero.calculateStatsFromItems();
 	    		findTableWithNameContaining(attackAndDefence, "placeholder");
 	    		updateHeroMonsterInfo();
@@ -482,6 +500,37 @@ public class MyGdxGame implements Screen {
 	    
 	    camera.update();
 	 }
+	
+	public void dialogTest() { // will look into it later
+		Dialog dialog = new Dialog("Some Dialog", skin, "dialog") {
+			protected void result (Object object) {
+				System.out.println("Chosen: " + object);
+			}
+		}.text("Are you enjoying this demo?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
+			.key(Keys.ESCAPE, false).show(stage);
+	}
+
+	
+	public void createFightLog() {
+		logTable.clear();
+		logTable.setVisible(true);
+		log = new TextButton("	Fight log: ", skin);
+		ScrollPane logPane = new ScrollPane(log,skin);
+		logPane.setFillParent(true);
+		log.setFillParent(true);
+		log.setTouchable(Touchable.disabled);
+		log.getLabel().setAlignment(Align.topLeft);
+		logTable.add(logPane).expand().bottom().left();
+		logTable.setHeight(Gdx.graphics.getHeight());
+		logTable.setWidth(215);
+		logTable.setPosition(0, 0);
+	}
+	
+	public static void addToLog(String newText) {
+		if(log != null) {
+			log.setText(log.getText() + "\n" +newText);
+		}
+	}
 	
 	public void chooseEquipMethod(int invItemNumber) {
 		Item item = hero.getInventoryItemFromNumber(invItemNumber);
@@ -496,7 +545,6 @@ public class MyGdxGame implements Screen {
 				System.out.println("okay, it's smth else, equipping in suitable slot");
 				hero.equipFromInv(invItemNumber);
 			}
-			hero.calculateStatsFromItems();
 		}	
 	}
 	
@@ -519,11 +567,13 @@ public class MyGdxGame implements Screen {
 		        	hero.equipMelee((MeleeWeapon) item, Integer.parseInt(actor.getName()));
 		        	updateInvEquip();
 		        	chooseSlot.remove();
+		        	pendingChooseTheSlotAction = false;
 		        }
 		    });
 			chooseSlot.add(btn);
 		}
 		stage.addActor(chooseSlot);
+		pendingChooseTheSlotAction = true;
 	}
 	
 	public void updateHeroMonsterInfo() {
@@ -670,7 +720,15 @@ public class MyGdxGame implements Screen {
 			lootbtn.addListener(new ChangeListener() {
 		        @Override
 		        public void changed (ChangeEvent event, Actor actor) {
-		            System.out.println("HERE COMES THE LOOT!");
+		        	Item item = LootSystem.generateLoot(activeMob);
+		        	if(item != null) {
+		        		addToLog(item.getName() + " acquired!");
+		        		hero.inventory.add(item);
+		        	} else {
+		        		System.out.println("smth bad happened during loot generation");
+		        	}
+		        	updateInvEquip();
+		            endFight();
 		        }
 		    });
 			mobFwin.add(lootbtn);
@@ -722,6 +780,7 @@ public class MyGdxGame implements Screen {
 		invPage.setText(invPageNr + "/" + numOfPages); 
 		numOfPages = (int) Math.round(Math.ceil((double) hero.getSlotsArraySize() / 5));
 		equipPage.setText(equipPageNr + "/" + numOfPages); 
+		hero.calculateStatsFromItems();
 	}
 	
 	public void fillBodypartsTable(boolean isAttacking, int serialNr) { //serialNr is number which indicated what button exactly triggered this method

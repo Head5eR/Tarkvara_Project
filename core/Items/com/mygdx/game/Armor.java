@@ -36,27 +36,65 @@ public abstract class Armor extends Item {
 		this.level = level;
 	}
 	
-
-		protected static List <String> getArmorFromXML(String type, String armorLevel) {
-			try {
-		        File file = new File("armor.xml");
-		        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		        Document doc = dBuilder.parse(file);         
-		        doc.getDocumentElement().normalize(); 
-		        System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-		        NodeList nList = doc.getElementsByTagName("item");
-		        System.out.println("----------------------------");
-		        
-		        List <String> armorList = new ArrayList<String>();
-		        
-		        if(type.equals("random") && armorLevel.equals("random")) {
-		        	int getArmor = new Random().nextInt(nList.getLength());
-		        	
-		        	Node nNode = nList.item(getArmor);
-	                System.out.println("\nCurrent Element :" + nNode.getNodeName());
-	                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-	                	Element eElement = (Element) nNode;
+	protected static List <String> getArmorFromXML(String type, String armorLevel) {
+		try {
+	        File file = new File("armor.xml");
+	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	        Document doc = dBuilder.parse(file);         
+	        doc.getDocumentElement().normalize(); 
+	        System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+	        NodeList nList = doc.getElementsByTagName("item");
+	        System.out.println("----------------------------");
+	        
+	        List <String> armorList = new ArrayList<String>();
+	        
+	        if(type.equals("random") && armorLevel.equals("random")) {
+	        	int getArmor = new Random().nextInt(nList.getLength());
+	        	
+	        	Node nNode = nList.item(getArmor);
+                System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                	Element eElement = (Element) nNode;
+                	
+                	String name = eElement.getAttribute("name");            	           	
+                	String strength = eElement.getElementsByTagName("strength").item(0).getTextContent();
+                	String dexterity = eElement.getElementsByTagName("dexterity").item(0).getTextContent();
+                	String stamina = eElement.getElementsByTagName("stamina").item(0).getTextContent();
+                	String wrath = eElement.getElementsByTagName("wrath").item(0).getTextContent();
+                	String armorType = eElement.getElementsByTagName("type").item(0).getTextContent();
+                	String level = eElement.getElementsByTagName("level").item(0).getTextContent();
+                	String armor = eElement.getElementsByTagName("armor").item(0).getTextContent();     
+                		
+            		armorList.add(name);
+            		System.out.println("Name : " + name); 
+            		armorList.add(armor);
+                	System.out.println("Armor : " + armor);
+                	armorList.add(strength);
+                	System.out.println("STR : " + strength);
+                	armorList.add(dexterity);
+                	System.out.println("DEX : " + dexterity);
+                	armorList.add(stamina);
+                	System.out.println("STA : " + stamina);
+                	armorList.add(wrath);
+                	System.out.println("WTH : " + wrath);
+                	armorList.add(armorType);
+                	System.out.println("Type : " + armorType);
+                	armorList.add(level);
+                	System.out.println("Level : " + level);
+                	
+                	return armorList;
+                }
+	        }else {
+	        	try {
+	        		XPath xPath =  XPathFactory.newInstance().newXPath();
+	        		String expression = "/items/item[type='"+type+"' and ./level/text()='"+armorLevel+"']";
+	        		javax.xml.xpath.XPathExpression expr = xPath.compile(expression);
+	        		NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+	        		System.out.println(nodes.getLength());
+	        		Node selectedArmor = nodes.item(0);
+	        		if (selectedArmor.getNodeType() == Node.ELEMENT_NODE) {
+	                	Element eElement = (Element) selectedArmor;
 	                	
 	                	String name = eElement.getAttribute("name");            	           	
 	                	String strength = eElement.getElementsByTagName("strength").item(0).getTextContent();
@@ -83,85 +121,65 @@ public abstract class Armor extends Item {
                     	System.out.println("Type : " + armorType);
                     	armorList.add(level);
                     	System.out.println("Level : " + level);
-	                	
-	                	return armorList;
-	                }
-		        }else {
-		        	try {
-		        		XPath xPath =  XPathFactory.newInstance().newXPath();
-		        		String expression = "/items/item[type='"+type+"' and ./level/text()='"+armorLevel+"']";
-		        		javax.xml.xpath.XPathExpression expr = xPath.compile(expression);
-		        		NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-		        		System.out.println(nodes.getLength());
-		        		Node selectedArmor = nodes.item(0);
-		        		if (selectedArmor.getNodeType() == Node.ELEMENT_NODE) {
-		                	Element eElement = (Element) selectedArmor;
-		                	
-		                	String name = eElement.getAttribute("name");            	           	
-		                	String strength = eElement.getElementsByTagName("strength").item(0).getTextContent();
-		                	String dexterity = eElement.getElementsByTagName("dexterity").item(0).getTextContent();
-		                	String stamina = eElement.getElementsByTagName("stamina").item(0).getTextContent();
-		                	String wrath = eElement.getElementsByTagName("wrath").item(0).getTextContent();
-		                	String armorType = eElement.getElementsByTagName("type").item(0).getTextContent();
-		                	String level = eElement.getElementsByTagName("level").item(0).getTextContent();
-		                	String armor = eElement.getElementsByTagName("armor").item(0).getTextContent();     
-		                		
-	                		armorList.add(name);
-	                		System.out.println("Name : " + name); 
-	                		armorList.add(armor);
-	                    	System.out.println("Armor : " + armor);
-	                    	armorList.add(strength);
-	                    	System.out.println("STR : " + strength);
-	                    	armorList.add(dexterity);
-	                    	System.out.println("DEX : " + dexterity);
-	                    	armorList.add(stamina);
-	                    	System.out.println("STA : " + stamina);
-	                    	armorList.add(wrath);
-	                    	System.out.println("WTH : " + wrath);
-	                    	armorList.add(armorType);
-	                    	System.out.println("Type : " + armorType);
-	                    	armorList.add(level);
-	                    	System.out.println("Level : " + level);
-		        		} 
-		        		return armorList;
-		        		
-		        	}catch (Exception e) {
-		    	        e.printStackTrace();
-		 	       	}
-		        }	
-	       } catch (Exception e) {
-	        e.printStackTrace();
-	       }
-		            	
-			return null;
-		}
-						
-		public int getArmor() {
-			return armor;
-		}
+	        		} 
+	        		return armorList;
+	        		
+	        	}catch (Exception e) {
+	    	        e.printStackTrace();
+	 	       	}
+	        }	
+       } catch (Exception e) {
+        e.printStackTrace();
+       }
+	            	
+		return null;
+	}
 
-		public int getStrength() {
-			return strength;
+	public static Armor getRandomArmor(String type, String armorLevel) { // BEWARE INDIAN CODE!!! (or mby not?)
+		if(type == "feet") {
+			return Boots.getBootsRandRarity(armorLevel);
 		}
+		else if(type == "body") {
+			return Bodyarmor.getBodyarmorRandRarity(armorLevel);
+		}
+		else if(type == "arms") {
+			return Gloves.getGlovesRandRarity(armorLevel);
+		}
+		else if(type == "legs") {
+			return Legarmor.getLegarmorRandRarity(armorLevel);
+		}
+		else if(type == "head") {
+			return Headgear.getHeadgearRandRarity(armorLevel);
+		}
+		return null;
+	}
+	
+	public int getArmor() {
+		return armor;
+	}
 
-		public int getDexterity() {
-			return dexterity;
-		}
+	public int getStrength() {
+		return strength;
+	}
 
-		public int getStamina() {
-			return stamina;
-		}
+	public int getDexterity() {
+		return dexterity;
+	}
 
-		public int getWrath() {
-			return wrath;
-		}
+	public int getStamina() {
+		return stamina;
+	}
 
-		public String getType() {
-			return type;
-		}
-		
-		public String getLevel() {
-			return level;
-		}
+	public int getWrath() {
+		return wrath;
+	}
+
+	public String getType() {
+		return type;
+	}
+	
+	public String getLevel() {
+		return level;
+	}
 }
 
