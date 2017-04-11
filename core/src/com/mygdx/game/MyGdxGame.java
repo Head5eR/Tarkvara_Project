@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.btree.decorator.Random;
 import com.badlogic.gdx.graphics.Color;
@@ -15,9 +16,13 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
@@ -55,8 +60,8 @@ public class MyGdxGame implements Screen {
 	private TextArea mobinfo;
 	private TextArea invinfo;
 	private TextArea equipinfo;
-	private final int MAP_WIDTH = 40;
-	private final int MAP_HEIGHT = 40;
+	private final int MAP_WIDTH = 12;
+	private final int MAP_HEIGHT = 10;
 	private boolean fightInProgress = false;
 	private Table fightTable;
 	private TextButton btn1;
@@ -78,6 +83,8 @@ public class MyGdxGame implements Screen {
 	private TextField mapHeightTextField;
 	private Table attackAndDefence;
 	private Table chooseSlot;
+	private static TextButton log;
+	private Table logTable;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -187,6 +194,7 @@ public class MyGdxGame implements Screen {
 		fightTable.add(mobFwin).fill().expand();
 		
 		attackAndDefence = new Table(skin);
+		logTable = new Table(skin);
 		
 		fightTable.row();
 		fightTable.add(attackAndDefence);
@@ -202,6 +210,7 @@ public class MyGdxGame implements Screen {
 		stage.addActor(fightTable);
 		stage.addActor(uitable);
 		stage.addActor(bodyPartsTable);
+		stage.addActor(logTable);
 
 		/////////////////////////////////////////////////////////////////////
 		
@@ -219,8 +228,6 @@ public class MyGdxGame implements Screen {
 		heroSprite = new Rectangle();
 		heroSprite.width = 64;
 		heroSprite.height = 64;
-		
-		System.out.println("Niggerino: " + mapgen.getDistance(new Location(3,4), new Location(1,8)));
 	}
 
 	@Override
@@ -304,6 +311,7 @@ public class MyGdxGame implements Screen {
 	private void handleFightInput() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    	if(fightTable.isVisible()) {
+	    		logTable.setVisible(false);
 	    		fightInProgress = false;
 	    		fightTable.setVisible(false);
 	    		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
@@ -455,15 +463,16 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-	    	if(options.isVisible()) {
-	    		options.setVisible(false);
+	    	if(logTable.isVisible()) {
+	    		logTable.setVisible(false);
 	    	} else {
-	    		options.setVisible(true);
+	    		logTable.setVisible(true);
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		genMob();
 	    		createActionButtons();
+	    		createFightLog();
 	    		hero.calculateStatsFromItems();
 	    		findTableWithNameContaining(attackAndDefence, "placeholder");
 	    		updateHeroMonsterInfo();
@@ -473,6 +482,36 @@ public class MyGdxGame implements Screen {
 	    
 	    camera.update();
 	 }
+	
+	public void dialogTest() { // will look into it later
+		Dialog dialog = new Dialog("Some Dialog", skin, "dialog") {
+			protected void result (Object object) {
+				System.out.println("Chosen: " + object);
+			}
+		}.text("Are you enjoying this demo?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
+			.key(Keys.ESCAPE, false).show(stage);
+	}
+
+	
+	public void createFightLog() {
+		logTable.clear();
+		log = new TextButton("	Fight log: ", skin);
+		ScrollPane logPane = new ScrollPane(log,skin);
+		logPane.setFillParent(true);
+		log.setFillParent(true);
+		log.setTouchable(Touchable.disabled);
+		log.getLabel().setAlignment(Align.topLeft);
+		logTable.add(logPane).expand().bottom().left();
+		logTable.setHeight(Gdx.graphics.getHeight());
+		logTable.setWidth(215);
+		logTable.setPosition(0, 0);
+	}
+	
+	public static void addToLog(String newText) {
+		if(log != null) {
+			log.setText(log.getText() + "\n" +newText);
+		}
+	}
 	
 	public void chooseEquipMethod(int invItemNumber) {
 		Item item = hero.getInventoryItemFromNumber(invItemNumber);

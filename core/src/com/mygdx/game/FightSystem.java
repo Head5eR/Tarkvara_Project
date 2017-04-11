@@ -61,7 +61,7 @@ public class FightSystem {
 				if(!isDead(m)) {
 					attack(m, h);
 				} else {
-					System.out.println("Monster has been struck to death!");
+					MyGdxGame.addToLog("Monster has been struck to death!");
 				}
 			}
 			
@@ -70,7 +70,7 @@ public class FightSystem {
 			if(!isDead(h)) {
 				attack(h, m);
 			} else {
-				System.out.println("GAME OVER");
+				MyGdxGame.addToLog("GAME OVER");
 			}
 			
 		}
@@ -82,7 +82,7 @@ public class FightSystem {
 		for(int attackMove : attacker.getPickedAttacks()) {
 			if(target.canDefend(attackMove)) {
 				target.getPickedDefs().remove(target.getPickedDefs().indexOf(attackMove));
-				System.out.println(target.getName() + " has blocked the attack!");
+				MyGdxGame.addToLog(target.getName() + " has blocked the attack!");
 			} else {
 				float bodypartExtraEvasion = 0; // probably need to implement bodyparts' own hit chances
 				if(target.getBody().getBodyParts().get(attackMove).isCritical()) {
@@ -90,14 +90,14 @@ public class FightSystem {
 				}
 				
 				if(randomizer.nextFloat() <= target.getEvasion()/10 + bodypartExtraEvasion) {
-					System.out.println(target.getName() + " DODGED THE ATTACK!");
+					MyGdxGame.addToLog(target.getName() + " DODGED THE ATTACK!");
 				} else {
 					int dealtDamage = attacker.getAttackDamage();
 					if(randomizer.nextFloat() <= attacker.getWrath()/1000) {
-						System.out.println("CRITICAL STRIKE!");
+						MyGdxGame.addToLog("CRITICAL STRIKE!");
 						dealtDamage += dealtDamage*0.3;
 					}
-					System.out.println(attacker.getName() + " deals " + dealtDamage + " dmg");
+					MyGdxGame.addToLog(attacker.getName() + " deals " + dealtDamage + " dmg");
 					target.takeDmg(dealtDamage, attackMove);
 				}
 			}

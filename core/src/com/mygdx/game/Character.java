@@ -117,8 +117,8 @@ public abstract class Character {
 	
 	public void takeDmg(int dmg, int bodypart) {
 		dmg = checkIfFatalStrike(dmg, bodypart);
-		System.out.println(this.name + " has taken " + dmg + " DMG");
-		if (dmg <= hp) {
+		//System.out.println(this.name + " has taken " + dmg + " DMG");
+		if (dmg < hp) {
 			hp -= dmg;
 		} else {
 			hp = 0;
