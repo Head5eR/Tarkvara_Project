@@ -233,5 +233,15 @@ public class MapGenerator {
 	public Matrix getMap(){
 		return map;
 	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+	
+	
 	
 }
