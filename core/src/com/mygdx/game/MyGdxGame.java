@@ -83,13 +83,10 @@ public class MyGdxGame implements Screen {
 	private TextField mapHeightTextField;
 	private Table attackAndDefence;
 	private Table chooseSlot;
-<<<<<<< HEAD
 	private AmbushSystem ambSystem;
-=======
 	private static TextButton log;
 	private Table logTable;
 	private boolean pendingChooseTheSlotAction = false;
->>>>>>> refs/remotes/origin/master
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
