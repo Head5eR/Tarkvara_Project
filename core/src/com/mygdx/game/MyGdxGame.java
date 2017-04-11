@@ -284,7 +284,6 @@ public class MyGdxGame implements Screen {
 		
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
-		stage.setDebugAll(true);
 	}
 	
 	@Override
@@ -489,6 +488,12 @@ public class MyGdxGame implements Screen {
 	    	} else {
 	    		logTable.setVisible(true);
 	    	}
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+	    	stage.setDebugAll(false);
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+	    	stage.setDebugAll(true);
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		startTheFight();
