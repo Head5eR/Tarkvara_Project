@@ -85,6 +85,7 @@ public class MyGdxGame implements Screen {
 	private Table chooseSlot;
 	private static TextButton log;
 	private Table logTable;
+	private boolean pendingChooseTheSlotAction = false;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -235,15 +236,16 @@ public class MyGdxGame implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		if(!fightInProgress) {
-			movementUpdate();
-			handleInput();
-		} else {
-			handleFightInput();
-			//fight(hero, new Monster());
+		if(!pendingChooseTheSlotAction) {
+			if(!fightInProgress) {
+				movementUpdate();
+				handleInput();
+			} else {
+				handleFightInput();
+				//fight(hero, new Monster());
+			}
 		}
-		
-		
+
 		game.batch.setProjectionMatrix(camera.combined);
 		game.batch.begin();
 		
@@ -311,14 +313,18 @@ public class MyGdxGame implements Screen {
 	private void handleFightInput() {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    	if(fightTable.isVisible()) {
-	    		logTable.setVisible(false);
-	    		fightInProgress = false;
-	    		fightTable.setVisible(false);
-	    		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
-	    		attackAndDefence.clear();
+	    		endFight();
 	    	}
 	    }
 		
+	}
+	
+	private void endFight() {
+		logTable.setVisible(false);
+		fightInProgress = false;
+		fightTable.setVisible(false);
+		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
+		attackAndDefence.clear();
 	}
 	
 	private void movementUpdate() {
@@ -495,6 +501,7 @@ public class MyGdxGame implements Screen {
 	
 	public void createFightLog() {
 		logTable.clear();
+		logTable.setVisible(true);
 		log = new TextButton("	Fight log: ", skin);
 		ScrollPane logPane = new ScrollPane(log,skin);
 		logPane.setFillParent(true);
@@ -526,7 +533,6 @@ public class MyGdxGame implements Screen {
 				System.out.println("okay, it's smth else, equipping in suitable slot");
 				hero.equipFromInv(invItemNumber);
 			}
-			hero.calculateStatsFromItems();
 		}	
 	}
 	
@@ -549,11 +555,13 @@ public class MyGdxGame implements Screen {
 		        	hero.equipMelee((MeleeWeapon) item, Integer.parseInt(actor.getName()));
 		        	updateInvEquip();
 		        	chooseSlot.remove();
+		        	pendingChooseTheSlotAction = false;
 		        }
 		    });
 			chooseSlot.add(btn);
 		}
 		stage.addActor(chooseSlot);
+		pendingChooseTheSlotAction = true;
 	}
 	
 	public void updateHeroMonsterInfo() {
@@ -700,7 +708,15 @@ public class MyGdxGame implements Screen {
 			lootbtn.addListener(new ChangeListener() {
 		        @Override
 		        public void changed (ChangeEvent event, Actor actor) {
-		            System.out.println("HERE COMES THE LOOT!");
+		        	Item item = LootSystem.generateLoot(activeMob);
+		        	if(item != null) {
+		        		addToLog(item.getName() + " acquired!");
+		        		hero.inventory.add(item);
+		        	} else {
+		        		System.out.println("smth bad happened during loot generation");
+		        	}
+		        	updateInvEquip();
+		            endFight();
 		        }
 		    });
 			mobFwin.add(lootbtn);
@@ -752,6 +768,7 @@ public class MyGdxGame implements Screen {
 		invPage.setText(invPageNr + "/" + numOfPages); 
 		numOfPages = (int) Math.round(Math.ceil((double) hero.getSlotsArraySize() / 5));
 		equipPage.setText(equipPageNr + "/" + numOfPages); 
+		hero.calculateStatsFromItems();
 	}
 	
 	public void fillBodypartsTable(boolean isAttacking, int serialNr) { //serialNr is number which indicated what button exactly triggered this method

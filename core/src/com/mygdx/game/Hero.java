@@ -368,6 +368,9 @@ public class Hero extends Character {
 				}
 			}
  		}
+		if(getHp() > getMaxHp()) {
+			hp = getMaxHp();
+		}
 	}
 	
 	public int getHeroStrength() {
