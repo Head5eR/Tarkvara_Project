@@ -78,6 +78,7 @@ public class MyGdxGame implements Screen {
 	private TextField mapHeightTextField;
 	private Table attackAndDefence;
 	private Table chooseSlot;
+	private AmbushSystem ambSystem;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -212,6 +213,8 @@ public class MyGdxGame implements Screen {
 		startPos = mapgen.getStartPos();
 		hero = new Hero(10,10,10,startPos);
 		
+		ambSystem = new AmbushSystem(mapgen, hero);
+		
 		tile = new Rectangle();
 		tile.width = 64;
 		tile.height = 64;
@@ -314,6 +317,7 @@ public class MyGdxGame implements Screen {
 	}
 	
 	private void movementUpdate() {
+		Location oldHeroLoc = hero.getLoc();
 		
 		if (Gdx.input.isKeyJustPressed(Input.Keys.W)) {
 	    	hero.move(map,2);
@@ -326,6 +330,11 @@ public class MyGdxGame implements Screen {
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
 	    	hero.move(map,4);
+	    }
+	    
+	    Location newHeroLoc = hero.getLoc();
+	    if(!oldHeroLoc.equals(newHeroLoc)) {
+	    	System.out.println("chance to get attacked: " + ambSystem.generateAttackChance());
 	    }
 	    camera.update();
 	}

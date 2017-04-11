@@ -53,8 +53,7 @@ public class Location {
 		if (!(o instanceof Location)) {
 			return false;
 		}
-		
-		System.out.println("equals " + o);
+	
 		Location l = (Location) o;
 		
 		return ((x == l.getX()) && (y == l.getY()));

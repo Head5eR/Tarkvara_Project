@@ -1,8 +1,8 @@
 package com.mygdx.game;
 
 public class AmbushSystem {
-	private double basicChance = 0.1;
-	private double maxChance = 0.3;
+	private final double  basicChance = 0.1;
+	private final double  maxChance = 0.3;
 	private MapGenerator mapG;
 	private Hero hero;
 	private int distance;
@@ -10,38 +10,32 @@ public class AmbushSystem {
 	private double chancePerTurn;
 	private double attackChance;
 	Location start = new Location(0,0);
-	Location end = new Location(mapG.getLength()-1, mapG.getWidth()-1);
+	Location end;
 	
 	public AmbushSystem(MapGenerator mapG, Hero hero) {
 		this.hero = hero;
 		this.mapG = mapG;
+		this.end = new Location(mapG.getMap().getLength()-1, mapG.getMap().getWidth()-1);
+		//this.maxDistance = MapGenerator.getDistance(start, end);
+		this.maxDistance = MapGenerator.getDistance(mapG.getStartPos(), mapG.getEndPos());
+		this.chancePerTurn = maxChance/((double) maxDistance);
 	}
 	
 	
-	public int getDestanceFromEntrance() {
+	public int getDistanceFromEntrance() {
 		Location locS = mapG.getStartPos();
 		Location locH = hero.getLoc();
 		this.distance = MapGenerator.getDistance(locS, locH);
-		System.out.println(distance);
 		return distance;
 	}
 	
-	public void getMapMaxDistance() {
-		this.maxDistance = MapGenerator.getDistance(start, end);
-		System.out.println(maxDistance);		
-	}
-	
-	public double getChancePerTurn() {
-		chancePerTurn = maxChance/maxDistance;
-		System.out.println(chancePerTurn);
-		return chancePerTurn;
-	}
-	
-	public double generateAttackChance(Location herolocation, Location mapstart) {
-		distance = getDestanceFromEntrance();
-		chancePerTurn = getChancePerTurn();
-		attackChance = basicChance + chancePerTurn*distance;
-		System.out.println(attackChance);
+	public double generateAttackChance() {
+		System.out.println("chance per turn: " + chancePerTurn);
+		distance = getDistanceFromEntrance();
+		attackChance = basicChance + chancePerTurn*(double) distance;
+		if(attackChance > basicChance+maxChance) {
+			attackChance = basicChance+maxChance;
+		}
 		return attackChance;		
 	}
 	
