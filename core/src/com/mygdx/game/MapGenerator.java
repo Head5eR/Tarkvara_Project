@@ -233,5 +233,4 @@ public class MapGenerator {
 	public Matrix getMap(){
 		return map;
 	}
-	
 }

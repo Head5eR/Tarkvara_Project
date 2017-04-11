@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
 
 public class Modifier {
 
-	private String name;
+	private static String name;
 	private int strength;
 	private int dexterity;
 	private int stamina;
@@ -33,7 +33,7 @@ public class Modifier {
 	public Modifier() {
 		List<String> stats = readFromXML();
 
-		this.name = stats.get(0);
+		Modifier.name = stats.get(0);
 		this.strength = Integer.parseInt(stats.get(1));
 		this.dexterity = Integer.parseInt(stats.get(2));
 		this.stamina = Integer.parseInt(stats.get(3));
@@ -121,7 +121,7 @@ public class Modifier {
 		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath;
 	}
 
-	public String getName() {
+	public static String getName() {
 		return name;
 	}
 }
