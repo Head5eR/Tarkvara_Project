@@ -621,6 +621,7 @@ public class MyGdxGame implements Screen {
 	public void createActionButtons() {
 		int numOfAttacks = FightSystem.howManyAttacksToPick(hero);
 		int numOfDefences = FightSystem.howManyDefencesToPick(hero);
+		System.out.println("num of attacks: " + numOfAttacks + " num of defs: " + numOfDefences);
 		if(numOfAttacks == 1 & numOfDefences == 1) {
 			attackAndDefence.add(createButtonAndText(true));
 			attackAndDefence.row();

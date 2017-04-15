@@ -86,7 +86,6 @@ public class Modifier {
 					}
 			     }
 			 }
-			 System.out.println(stats);
 			 return stats;
 	
 		}

@@ -25,7 +25,6 @@ public class AmbushSystem {
 		java.util.Random rand = new java.util.Random();
 		Double dist = (double) distance;
 		Double maxdist = (double) maxDistance;
-		System.out.println("current dist " + dist + " max dist " + maxdist);
 		if(dist < maxdist/3) {
 			if(rand.nextFloat() <= 0.6) {
 				return 0;
@@ -63,7 +62,6 @@ public class AmbushSystem {
 	}
 	
 	public double generateAttackChance() {
-		System.out.println("chance per turn: " + chancePerTurn);
 		distance = getDistanceFromEntrance();
 		attackChance = basicChance + chancePerTurn*(double) distance;
 		if(attackChance > basicChance+maxChance) {

@@ -43,7 +43,11 @@ public class Hero extends Character {
 
 		// Every slot is an array of certain type with length of 1, 
 		// so that it is possible to add only one item to the slot
-		inventory.addAll(Arrays.asList(MeleeWeapon.getMeleeWeaponRandRarity("sword", "2"),Shield.getShieldRandRarity("1")));
+		inventory.addAll(Arrays.asList(
+				MeleeWeapon.getMeleeWeaponRandRarity("sword", "2"),
+				Shield.getShieldRandRarity("1"), 
+				MeleeWeapon.getMeleeWeaponRandRarity("sword", "3")
+				));
 		
 		Headgear[] hs = {Headgear.getHeadgearRandRarity("1")};
 			headSlot.add(hs);
@@ -423,12 +427,12 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMinAttackDamage() {
-		return (int) Math.round(getMaxAttackDamage() * 0.7) + extraMinAttack;
+		return (int) Math.round(super.getMaxAttackDamage() * 0.7) + extraMinAttack;
 	}
 	
 	@Override
 	public int getMaxAttackDamage() {
-		return (int) Math.round(getStrength()*0.2) + extraMaxAttack;
+		return (int) super.getMaxAttackDamage() + extraMaxAttack;
 	}
 	
 	@Override
@@ -438,7 +442,7 @@ public class Hero extends Character {
 	
 	@Override
 	public String getAttackDamageStr() {
-		return this.getMinAttackDamage() + "-" + this.getMaxAttackDamage();
+		return getMinAttackDamage() + "-" + getMaxAttackDamage();
 	}
 }
 

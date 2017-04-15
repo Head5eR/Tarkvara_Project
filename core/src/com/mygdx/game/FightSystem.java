@@ -31,11 +31,13 @@ public class FightSystem {
 		String weaponSlotClass2 = "";
 		if(!h.isSlotEmpty(h.weaponSlot1)) {
 			weaponSlotClass1 = h.weaponSlot1.get(0)[0].getClass().getSimpleName();
+			System.out.println(weaponSlotClass1);
 		}
 		if(!h.isSlotEmpty(h.weaponSlot2)) {
 			weaponSlotClass2 = h.weaponSlot2.get(0)[0].getClass().getSimpleName();
+			System.out.println(weaponSlotClass2);
 		}
-		if(weaponSlotClass1 == weaponSlotClass2 & weaponSlotClass1 == "MeleeWeapon") {
+		if(weaponSlotClass1.equals(weaponSlotClass2) & weaponSlotClass1.equals("MeleeWeapon")) {
 			return 2;
 		}
 		return 1;
