@@ -1,15 +1,15 @@
 # Aruanne aka changelog
 
-2 iteratsioon
-  - By priority:
-    - Ambush-system (Denis)
-    - Fight-system + fight log (Gleb) (DONE)
-    - Loot-system (Robert) (DONE)
+
    
 Current state:
   ![Screenshot](screenshots/progress05_04.PNG?raw=true)
   ![Screenshot](screenshots/progress11_04.PNG?raw=true)
   
+2. iteratsioon
+    - Ambush-system
+    - Fight-system + fight log
+    - Loot-system
 
 1.iteratsioon
    - Kaarti random-generaator
