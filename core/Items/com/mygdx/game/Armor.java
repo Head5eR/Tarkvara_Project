@@ -43,17 +43,16 @@ public abstract class Armor extends Item {
 	        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 	        Document doc = dBuilder.parse(file);         
 	        doc.getDocumentElement().normalize(); 
-	        System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+//	        System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 	        NodeList nList = doc.getElementsByTagName("item");
-	        System.out.println("----------------------------");
+//	        System.out.println("----------------------------");
 	        
 	        List <String> armorList = new ArrayList<String>();
 	        
 	        if(type.equals("random") && armorLevel.equals("random")) {
 	        	int getArmor = new Random().nextInt(nList.getLength());
 	        	
-	        	Node nNode = nList.item(getArmor);
-                System.out.println("\nCurrent Element :" + nNode.getNodeName());
+	        	Node nNode = nList.item(getArmor);               
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 	Element eElement = (Element) nNode;
                 	
@@ -66,22 +65,23 @@ public abstract class Armor extends Item {
                 	String level = eElement.getElementsByTagName("level").item(0).getTextContent();
                 	String armor = eElement.getElementsByTagName("armor").item(0).getTextContent();     
                 		
-            		armorList.add(name);
-            		System.out.println("Name : " + name); 
-            		armorList.add(armor);
-                	System.out.println("Armor : " + armor);
-                	armorList.add(strength);
-                	System.out.println("STR : " + strength);
-                	armorList.add(dexterity);
-                	System.out.println("DEX : " + dexterity);
-                	armorList.add(stamina);
-                	System.out.println("STA : " + stamina);
-                	armorList.add(wrath);
-                	System.out.println("WTH : " + wrath);
-                	armorList.add(armorType);
-                	System.out.println("Type : " + armorType);
+            		armorList.add(name);           		
+            		armorList.add(armor);               	
+                	armorList.add(strength);                	
+                	armorList.add(dexterity);              	
+                	armorList.add(stamina);                	
+                	armorList.add(wrath);               	
+                	armorList.add(armorType);                	
                 	armorList.add(level);
-                	System.out.println("Level : " + level);
+                	
+//                	System.out.println("Name : " + name); 
+//                	System.out.println("Armor : " + armor);
+//                	System.out.println("STR : " + strength);
+//                	System.out.println("DEX : " + dexterity);
+//                	System.out.println("STA : " + stamina);
+//                	System.out.println("WTH : " + wrath);
+//                	System.out.println("Type : " + armorType);
+//                	System.out.println("Level : " + level);
                 	
                 	return armorList;
                 }
@@ -91,7 +91,6 @@ public abstract class Armor extends Item {
 	        		String expression = "/items/item[type='"+type+"' and ./level/text()='"+armorLevel+"']";
 	        		javax.xml.xpath.XPathExpression expr = xPath.compile(expression);
 	        		NodeList nodes = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
-	        		System.out.println(nodes.getLength());
 	        		Node selectedArmor = nodes.item(0);
 	        		if (selectedArmor.getNodeType() == Node.ELEMENT_NODE) {
 	                	Element eElement = (Element) selectedArmor;
@@ -104,23 +103,25 @@ public abstract class Armor extends Item {
 	                	String armorType = eElement.getElementsByTagName("type").item(0).getTextContent();
 	                	String level = eElement.getElementsByTagName("level").item(0).getTextContent();
 	                	String armor = eElement.getElementsByTagName("armor").item(0).getTextContent();     
-	                		
-                		armorList.add(name);
-                		System.out.println("Name : " + name); 
-                		armorList.add(armor);
-                    	System.out.println("Armor : " + armor);
-                    	armorList.add(strength);
-                    	System.out.println("STR : " + strength);
-                    	armorList.add(dexterity);
-                    	System.out.println("DEX : " + dexterity);
-                    	armorList.add(stamina);
-                    	System.out.println("STA : " + stamina);
+
+                		armorList.add(name);              		
+                		armorList.add(armor);                    	
+                    	armorList.add(strength);                  	
+                    	armorList.add(dexterity);                   	
+                    	armorList.add(stamina);                    	
                     	armorList.add(wrath);
-                    	System.out.println("WTH : " + wrath);
-                    	armorList.add(armorType);
-                    	System.out.println("Type : " + armorType);
+                    	armorList.add(armorType);                    	
                     	armorList.add(level);
-                    	System.out.println("Level : " + level);
+                    	
+//	                	System.out.println("Name : " + name); 
+//	                	System.out.println("Armor : " + armor);
+//	                	System.out.println("STR : " + strength);
+//	                	System.out.println("DEX : " + dexterity);
+//	                	System.out.println("STA : " + stamina);
+//	                	System.out.println("WTH : " + wrath);
+//	                	System.out.println("Type : " + armorType);
+//	                	System.out.println("Level : " + level);
+                    	
 	        		} 
 	        		return armorList;
 	        		

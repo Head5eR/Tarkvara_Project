@@ -4,9 +4,37 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MainMenuScreen implements Screen {
 	
+	private Skin skin;
+	private Stage stage;
+	private TextButton newGame;
+	private TextButton loadGame;
+	private TextButton exitGame;
+	private Window mapSize;
+	private TextArea customMapLen;
+	private TextArea customMapWidth;
+	private Button tenXten;
+	private Button twentyXtwenty;
+	private Button fiftyXfifty;
+	private Table logoTable;
+	private Table menuItems;
+	private Table rootTable;
+
 	final GameLauncher game;
 	
 	OrthographicCamera camera;
@@ -14,7 +42,56 @@ public class MainMenuScreen implements Screen {
 	public MainMenuScreen(final GameLauncher game) {
 		this.game = game;
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 800);
+		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		
+		skin = new Skin(Gdx.files.internal("uiskin.json"));
+		stage = new Stage(new ScreenViewport(camera));
+		Gdx.input.setInputProcessor(stage); // IMPORTANT
+		
+		Image logo = new Image(new Texture("pixel_m.jpeg"));
+		
+		rootTable = new Table();
+		rootTable.setFillParent(true);
+		
+		logoTable = new Table();
+		menuItems = new Table();
+		
+		newGame = new TextButton("New Game", skin);
+		loadGame = new TextButton("Load Game", skin);
+		exitGame = new TextButton("Exit", skin);
+		
+		mapSize = new Window("Map sizes", skin);
+		mapSize.setVisible(false);
+		mapSize.debug();
+		mapSize.setFillParent(true);
+		
+		tenXten = new Button(skin);
+		twentyXtwenty = new Button(skin);
+		fiftyXfifty = new Button(skin);
+				
+		newGame.pad(5f).addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				 mapSize.setVisible(true);
+				 //game.setScreen(new MyGdxGame(game));
+				// dispose();
+			}
+		});
+		
+		
+		
+		menuItems.add(newGame).expand().fill().space(5f).size(200f, 50f);
+		menuItems.row();
+		menuItems.add(loadGame).expand().fill().space(5f).size(200f, 50f);
+		menuItems.row();
+		menuItems.add(exitGame).expand().fill().space(5f).size(200f, 50f);
+
+		stage.addActor(rootTable);
+		//stage.setDebugAll(true);
+
+		rootTable.add(logoTable).expandY().top().row();
+		rootTable.add(menuItems).expand().top().row();
+		logoTable.add(logo);
+		rootTable.add(mapSize);
 	}
 	
 	@Override
@@ -23,18 +100,9 @@ public class MainMenuScreen implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		camera.update();
-		game.batch.setProjectionMatrix(camera.combined);
-		
-		game.batch.begin();
-		game.font.draw(game.batch, "Welcome to our Tarkvaratehnika project", 400, 400);
-		game.font.draw(game.batch, "Tap anywhere to begin!", 400, 420);
-        game.batch.end();
-        
-        if (Gdx.input.isTouched()) {
-            game.setScreen(new MyGdxGame(game));
-            dispose();
-        }
-
+		game.batch.setProjectionMatrix(camera.combined);       
+		stage.act(Gdx.graphics.getDeltaTime());
+		stage.draw();
 	}
 
 	@Override
@@ -45,8 +113,7 @@ public class MainMenuScreen implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		camera.viewportHeight = height;
-		camera.viewportWidth = width;
+		stage.getViewport().update(width, height, true);
 	}
 
 	@Override

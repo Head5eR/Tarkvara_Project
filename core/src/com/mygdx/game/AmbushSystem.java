@@ -15,7 +15,8 @@ public class AmbushSystem {
 	public AmbushSystem(MapGenerator mapG, Hero hero) {
 		this.hero = hero;
 		this.mapG = mapG;
-		this.end = new Location(mapG.getMap().getLength()-1, mapG.getMap().getWidth()-1);
+		//this.end = new Location(mapG.getMap().getLength()-1, mapG.getMap().getWidth()-1);
+		this.end = mapG.getEndPos();
 		this.maxDistance = MapGenerator.getDistance(start, end);
 		//this.maxDistance = MapGenerator.getDistance(mapG.getStartPos(), mapG.getEndPos());
 		this.chancePerTurn = maxChance/((double) maxDistance);
@@ -25,7 +26,7 @@ public class AmbushSystem {
 		java.util.Random rand = new java.util.Random();
 		Double dist = (double) distance;
 		Double maxdist = (double) maxDistance;
-		if(dist < maxdist/3) {
+		if(dist <= maxdist/3) {
 			if(rand.nextFloat() <= 0.6) {
 				return 0;
 			} else {
@@ -40,7 +41,7 @@ public class AmbushSystem {
 			} else {
 				return 3;
 			}
-		} else if(dist > (maxdist*2)/3) {
+		} else if(dist >= (maxdist*2)/3) {
 			float r = rand.nextFloat();
 			if(r <= 0.3) {
 				return 2;

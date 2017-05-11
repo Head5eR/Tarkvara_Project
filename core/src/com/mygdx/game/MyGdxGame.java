@@ -34,6 +34,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
@@ -52,7 +53,6 @@ public class MyGdxGame implements Screen {
 	private MapGenerator mapgen;
 	private Stage stage;
 	private Table uitable;
-	private Table mobtable;
 	private Skin skin;
 	private Window mobwin;
 	private Window invwin;
@@ -61,11 +61,9 @@ public class MyGdxGame implements Screen {
 	private TextArea invinfo;
 	private TextArea equipinfo;
 	private final int MAP_WIDTH = 12;
-	private final int MAP_HEIGHT = 10;
+	private final int MAP_HEIGHT = 14;
 	private boolean fightInProgress = false;
 	private Table fightTable;
-	private TextButton btn1;
-	private TextButton btn2;
 	private Window mobFwin;
 	private Window heroFwin;
 	private TextArea heroinfo;
@@ -75,8 +73,6 @@ public class MyGdxGame implements Screen {
 	private TextArea equipPage;
 	private Table bodyPartsTable;
 	private Monster activeMob;
-	private TextArea pickedAttack;
-	private TextArea pickedDefence;
 	private TextButton startTheFight;
 	private Window options;
 	private TextField mapWidthTextField;
@@ -88,6 +84,8 @@ public class MyGdxGame implements Screen {
 	private Table logTable;
 	private boolean pendingChooseTheSlotAction = false;
 	private java.util.Random rand;
+	private ArrayList<Location> deadends;
+	private boolean showMap = false;
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
@@ -148,7 +146,7 @@ public class MyGdxGame implements Screen {
 		equipPage = new TextArea("",skin);
 		equipwin.add(equipPage);
 		
-		stage = new Stage();
+		stage = new Stage(new ScreenViewport(camera));
 		Gdx.input.setInputProcessor(stage); // IMPORTANT
 		uitable = new Table();
 		//uitable.setFillParent(true);
@@ -218,14 +216,7 @@ public class MyGdxGame implements Screen {
 
 		/////////////////////////////////////////////////////////////////////
 		
-		mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
-		mapgen.generateMap();
-		map = mapgen.getMap();
-		endPos = mapgen.getEndPos();
-		startPos = mapgen.getStartPos();
-		hero = new Hero(10,10,10,startPos);
-		
-		ambSystem = new AmbushSystem(mapgen, hero);
+		initialize();
 		
 		tile = new Rectangle();
 		tile.width = 64;
@@ -256,29 +247,48 @@ public class MyGdxGame implements Screen {
 		
 		tile.setX(0);
 		tile.setY(winHeight);
-
-		for(int y=0; y<map.getWidth(); y++) {
-			tile.setX(0);
-			tile.setY(tile.y-tile.getHeight());
-			
-			for(int x=0; x<map.getLength(); x++) {
-				int value = map.getCell(x, y);
-				game.batch.draw(textures2.get(value), tile.x, tile.y);
-				if(startPos.getX() == x && startPos.getY() == y) {
-					game.batch.draw(textures2.get(2), tile.x, tile.y);
+		
+		if(showMap) {
+			for(int y=0; y<map.getWidth(); y++) {
+				tile.setX(0);
+				tile.setY(tile.y-tile.getHeight());
+				
+				for(int x=0; x<map.getLength(); x++) {
+					int value = map.getCell(x, y);
+					game.batch.draw(textures2.get(value), tile.x, tile.y);
+					if(startPos.getX() == x && startPos.getY() == y) {
+						game.batch.draw(textures2.get(2), tile.x, tile.y);
+					}
+					if(endPos.getX() == x && endPos.getY() == y) {
+						game.batch.draw(textures2.get(3), tile.x, tile.y);
+					}
+					
+					if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
+						heroSprite.x = tile.x;
+						heroSprite.y = tile.y;
+						game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
+					}
+					if(deadends.contains(new Location(x,y))) {
+						game.batch.draw(textures2.get(2), tile.x, tile.y);
+					}
+					tile.setX(tile.x + tile.getWidth());
 				}
-				if(endPos.getX() == x && endPos.getY() == y) {
-					game.batch.draw(textures2.get(3), tile.x, tile.y);
+			}
+		} else { // work in progress
+			for(int y=0; y<map.getWidth(); y++) {
+				tile.setX(0);
+				tile.setY(tile.y-tile.getHeight());
+				
+				for(int x=0; x<map.getLength(); x++) {
+					int value = map.getCell(x, y);
+					game.batch.draw(textures2.get(value), tile.x, tile.y);
+					tile.setX(tile.x + tile.getWidth());
 				}
 				
-				if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
-					heroSprite.x = tile.x;
-					heroSprite.y = tile.y;
-					game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
-				}
-				tile.setX(tile.x + tile.getWidth());
 			}
 		}
+
+		
 		
 		game.batch.end();
 		
@@ -462,14 +472,7 @@ public class MyGdxGame implements Screen {
 	    }
 	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-	    	 mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
-	 		 mapgen.generateMap();
-	 		 map = mapgen.getMap();
-	 		 endPos = mapgen.getEndPos();
-	 		 startPos = mapgen.getStartPos();
-	 		 hero = new Hero(10,10,10,startPos);
-	 		 hero.setLoc(startPos);
-
+	    	initialize();
 	    }
 	   
 	    if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
@@ -497,6 +500,15 @@ public class MyGdxGame implements Screen {
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		startTheFight();
+	    		createLoot();
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+    		if(showMap) {
+    			showMap = false;
+    		} else {
+    			showMap = true;
+    		}
+    		
 	    }
 	    
 	    camera.update();
@@ -889,6 +901,19 @@ public class MyGdxGame implements Screen {
 		}
 		return null;
 	}
+	
+	private void initialize() {	
+		mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
+		mapgen.generateMap();
+		map = mapgen.getMap();
+		deadends = mapgen.getDeadends();
+		endPos = mapgen.getEndPos();
+		startPos = mapgen.getStartPos();
+		hero = new Hero(10,10,10,startPos);
+		
+		ambSystem = new AmbushSystem(mapgen, hero);
+	}
+	
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub

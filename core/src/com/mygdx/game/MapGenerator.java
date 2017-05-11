@@ -24,6 +24,7 @@ public class MapGenerator {
 	final int EMPTY = 0;
 	final int WALL = 1;
 	List<Location> startLocs = new ArrayList<Location>();
+	private ArrayList<Location> deadends;
 	
 	public MapGenerator(int length, int width){
 		this.length = length;
@@ -56,17 +57,19 @@ public class MapGenerator {
 		this.map = new Matrix(length,width, WALL);
 		
 		addStep(startPos);
-		
 	}
 	
 	public static int getDistance(Location loc1, Location loc2) {
-		return (int) Math.round(Math.sqrt(Math.pow(Math.abs(loc1.getX() - loc2.getX()), 2) 
-				+ Math.pow(Math.abs(loc1.getY() - loc2.getY()), 2)));
+		return (int) Math.round(
+				Math.sqrt(
+						Math.pow(loc1.getX() - loc2.getX(), 2) 
+				+ Math.pow(loc1.getY() - loc2.getY(), 2)));
 	}
 	
 	public void generateMap() {
 		
-		//printer.printMap(map, false);
+		deadends = new ArrayList<Location>();
+		printer.printMap(map, false);
 		while(move());
 		
 //		if(map.getCell(endPos) != 0) { // there is a rare alghorithm fault, when it never reaches the end position
@@ -75,6 +78,7 @@ public class MapGenerator {
 //		}
 		printer.printMap(map, false);
 		//printer.printMapImproved(map);
+		System.out.println(deadends.toString());
 	}
 	
 	public void addStep(Location newLoc) {
@@ -95,22 +99,20 @@ public class MapGenerator {
 	
 	public boolean move() {
 		if(route.size() == 0){ return false;}
-//		System.out.println(route.toString());
+		System.out.println(route.toString());
 		Location currentLoc = route.get(currentStep);
-//		System.out.println("my currentLoc is: " + currentLoc);
-//		System.out.println("way left: " + (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))));
-//		System.out.println("way up: " + (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))));
-//		System.out.println("way right: " + (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))));
-//		System.out.println("way down: " + (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
-		wayExists = ((canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))) ||  // check it
-				(canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))) || 
-				(canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))) || 
-				(canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
-//		System.out.println("way exists? " + wayExists);
+		System.out.println("my currentLoc is: " + currentLoc);
+		System.out.println("way left: " + (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))));
+		System.out.println("way up: " + (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))));
+		System.out.println("way right: " + (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))));
+		System.out.println("way down: " + (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
+		wayExists = wayExists(currentLoc);
+		System.out.println("way exists? " + wayExists);
 		if(wayExists) {
 			int direction = (int) Math.floor(Math.random() * 4);
 			
 			if(map.getCell(endPos) != 0 && searchForExit(currentLoc) > 0) {
+				System.out.println("I'M NEAR THE EXIT, GOING THERE");
 				switch(searchForExit(currentLoc)) {
 					case 1: { direction = 0; } break;
 					case 2: { direction = 1; } break;
@@ -121,7 +123,7 @@ public class MapGenerator {
 			
 			switch(direction) {
 				case 0: if (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))) {
-					
+				
 					Location newLoc = new Location(currentLoc.getX()-1, currentLoc.getY());
 					addStep(newLoc);
 				}	break;
@@ -145,8 +147,12 @@ public class MapGenerator {
 			currentStep = route.size() - 1;
 			
 		} else {
+			if(isDeadend(route.get(currentStep))) {
+				deadends.add(route.get(currentStep));
+			}
 			route.remove(currentStep); // removing route point from which it's impossible to continue moving 
 			currentStep = 0; // taking next cell
+			//currentStep = route.size() - 1;
 			return (route.size() > 0); // will return false when array of possible route points will be empty
 		}
 		return true;
@@ -167,6 +173,19 @@ public class MapGenerator {
 		boolean diagonals = false;
 		boolean directed = false; //checking next tile if possible (so there is no crossroads)
 		//System.out.println("wanna go: " + loc);
+		
+		/////////
+		// 10.05.17 i suddenly realised that it doesn't check diagonals i wanted to check
+		//  i'd rather say it preserves route from intersecting and making crossroads
+		//  to make it also check the diagonals i need to go one more tile in the given direction 
+		//  and then check tiles on the sides
+		//  So that if we go left, i need to go left once more and check upper and bottom tiles
+		//  if we go down, i need to go down once more and check left and right tiles
+		//  of course we need to be aware of all the borders and "on edge conditions"
+		//  Will that improve overall algorithm? Ye, it will make maze look prettier, 
+		// but it's not really worth the time
+		//////////
+		
 		if (direction == MOVELEFT || direction == MOVERIGHT) {
 			if (loc.getY() > 0) {
 				if (loc.getY() < width-1) {
@@ -232,5 +251,58 @@ public class MapGenerator {
 	}
 	public Matrix getMap(){
 		return map;
+	}
+	
+	private boolean wayExists(Location currentLoc) {
+		return ((canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))) ||
+				(canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))) || 
+				(canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))) || 
+				(canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
+	}
+
+	private boolean isDeadend(Location loc) { // so we basically consider tiles surrounded by 3 walls as deadends
+		int wallcounter = 0;
+		if(loc.getX()> 0) {
+			//can check on the left
+			if(map.getCell(loc.goLeft(1)) == WALL) {
+				wallcounter++;
+			}
+		} else {
+			wallcounter++;
+		}
+		if(loc.getX() < map.getLength()-1) {
+			//can check on the right
+			if(map.getCell(loc.goRight(1)) == WALL) {
+				wallcounter++;
+			}
+		} else {
+			wallcounter++;
+		}
+		if(loc.getY() > 0) {
+			//can check up
+			if(map.getCell(loc.goUp(1)) == WALL) {
+				wallcounter++;
+			}
+		} else {
+			wallcounter++;
+		}
+		if(loc.getY() < map.getWidth()-1) {
+			//can check down
+			if(map.getCell(loc.goDown(1)) == WALL) {
+				wallcounter++;
+			}
+		} else {
+			wallcounter++;
+		}
+		
+		if(wallcounter == 3) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public ArrayList<Location> getDeadends() {
+		return deadends;
 	}
 }
