@@ -106,9 +106,9 @@ public class MyGdxGame implements Screen {
 	private ShaderProgram defaultShader;
 	private Texture light;
 	private FrameBuffer fbo;
-	final String pixelShader =  new FileHandle("C://Users//FireFox//GameProjectJavaGit//Tarkvara_Project//core//assets//pixelShader.glsl").readString();
-	final String vertexShader = new FileHandle("C://Users//FireFox//GameProjectJavaGit//Tarkvara_Project//core//assets//vertexShader.glsl").readString();
-	final String defaultPixelShader = new FileHandle("C://Users//FireFox//GameProjectJavaGit//Tarkvara_Project//core//assets//defaultPixelShader.glsl").readString();
+	final String pixelShader =  Gdx.files.internal("pixelShader.glsl").readString();
+	final String vertexShader = Gdx.files.internal("vertexShader.glsl").readString();
+	final String defaultPixelShader = Gdx.files.internal("defaultPixelShader.glsl").readString();
 	
 	private boolean lightOscillate = false;
 	//used to make the light flicker
