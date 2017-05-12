@@ -58,7 +58,7 @@ public abstract class Character {
 	}
 	
 	public int getMaxAttackDamage() {
-		return (int) Math.round(getStrength()*0.2);
+		return (int) Math.round(getStrength()*getStamina()*0.2);
 	}
 	
 	public int getAttackDamage() {
@@ -132,4 +132,6 @@ public abstract class Character {
 	public void setPickedAttacks(ArrayList<Integer> pickedAttacks) {
 		this.pickedAttacks = pickedAttacks;
 	}
+	
+	
 }
