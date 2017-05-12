@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -7,13 +8,18 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.btree.decorator.Random;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FileTextureData;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -86,10 +92,37 @@ public class MyGdxGame implements Screen {
 	private java.util.Random rand;
 	private ArrayList<Location> deadends;
 	private boolean showMap = false;
+	private Texture darkness;
+	private boolean test = true;
+	
+	// here comes the light magic
+	// used shader light making tutorial - www.alcove-games.com/opengl-es-2-tutorials/lightmap-shader-fire-effect-glsl/
+	//	
+	
+	public static final float ambientIntensity = .7f;
+	public static final Vector3 ambientColor = new Vector3(0.01f, 0.01f, 0.01f);
+	private ShaderProgram shader;
+	private ShaderProgram lightShader;
+	private ShaderProgram defaultShader;
+	private Texture light;
+	private FrameBuffer fbo;
+	final String pixelShader =  new FileHandle("C://Users//FireFox//GameProjectJavaGit//Tarkvara_Project//core//assets//pixelShader.glsl").readString();
+	final String vertexShader = new FileHandle("C://Users//FireFox//GameProjectJavaGit//Tarkvara_Project//core//assets//vertexShader.glsl").readString();
+	final String defaultPixelShader = new FileHandle("C://Users//FireFox//GameProjectJavaGit//Tarkvara_Project//core//assets//defaultPixelShader.glsl").readString();
+	
+	private boolean lightOscillate = false;
+	//used to make the light flicker
+		public float zAngle;
+		public static final float zSpeed = 15.0f;
+		public static final float PI2 = 3.1415926535897932384626433832795f * 2.0f;
+	
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
 		rand = new java.util.Random();
+		
+		light = new Texture("light.png");
+		darkness = new Texture("darkness.png");
 		
 		mobtextures.add(new Texture("skeleton.png"));
 		mobtextures.add(new Texture("zombie.png"));
@@ -146,7 +179,7 @@ public class MyGdxGame implements Screen {
 		equipPage = new TextArea("",skin);
 		equipwin.add(equipPage);
 		
-		stage = new Stage(new ScreenViewport(camera));
+		stage = new Stage();
 		Gdx.input.setInputProcessor(stage); // IMPORTANT
 		uitable = new Table();
 		//uitable.setFillParent(true);
@@ -225,6 +258,15 @@ public class MyGdxGame implements Screen {
 		heroSprite = new Rectangle();
 		heroSprite.width = 64;
 		heroSprite.height = 64;
+		
+		////////////////////////////////SHADERS INIT//////////////////////////
+		defaultShader = new ShaderProgram(vertexShader, defaultPixelShader);		
+		shader = new ShaderProgram(vertexShader, pixelShader);
+		shader.begin();
+		shader.setUniformi("u_lightmap", 1);
+		shader.setUniformf("ambientColor", ambientColor.x, ambientColor.y,
+				ambientColor.z, ambientIntensity);
+		shader.end();
 	}
 
 	@Override
@@ -238,17 +280,103 @@ public class MyGdxGame implements Screen {
 				handleInput();
 			} else {
 				handleFightInput();
-				//fight(hero, new Monster());
 			}
 		}
-
-		game.batch.setProjectionMatrix(camera.combined);
-		game.batch.begin();
 		
+		//camera.position.set(heroSprite.x, heroSprite.y, 0);
+		
+		zAngle += delta * zSpeed;
+		while(zAngle > PI2)
+			zAngle -= PI2;
+
 		tile.setX(0);
 		tile.setY(winHeight);
 		
-		if(showMap) {
+		if(!showMap) {
+			fbo.begin();
+			game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setShader(defaultShader);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			game.batch.begin();
+			float lightSize = lightOscillate? (237.5f + 12.5f * (float)Math.sin(zAngle) + .2f*MathUtils.random()):250f;
+			game.batch.draw(light, heroSprite.x +32 - lightSize*0.5f, heroSprite.y +32 + 0.5f - lightSize*0.5f, lightSize, lightSize);
+			game.batch.end();
+			fbo.end();
+			
+			
+			game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setShader(shader);
+			game.batch.begin();
+			fbo.getColorBufferTexture().bind(1); //this is important! bind the FBO to the 2nd texture unit
+			light.bind(0); //we force the binding of a texture on first texture unit to avoid artifacts
+						   //this is because our default and ambient shader dont use multi texturing...
+						   //you can basically bind anything, it doesnt matter
+			
+			int heroX = hero.getLoc().getX();
+			int heroY = hero.getLoc().getY();
+			
+			int nearbyXone;
+			int nearbyXtwo;
+			int nearbyYone;
+			int nearbyYtwo;
+			
+			for(int y=heroY-1; y<=heroY+1; y++) {
+				tile.setX(0);
+				tile.setY(tile.y-tile.getHeight());
+				for(int x=heroX-1; x<=heroX+1; x++) {					
+					if(y < map.getWidth() && y >= 0 && x < map.getLength() && x >= 0) {
+						int value = map.getCell(x, y);
+						if(Math.abs(y-heroY) == 1 && (Math.abs(x-heroX) == 1)) {
+							//means corner
+							nearbyXone = x;
+							if(x > heroX) {
+								nearbyXtwo = x-1;
+							} else {
+								nearbyXtwo = x+1;
+							}
+							nearbyYtwo = y;
+							if(y > heroY) {
+								nearbyYone = y-1;
+							} else {
+								nearbyYone = y+1;
+							}
+							if(map.getCell(nearbyXone, nearbyYone) == 1 && map.getCell(nearbyXtwo, nearbyYtwo) == 1) {
+								game.batch.draw(darkness, tile.x, tile.y);
+							} else {
+								game.batch.draw(textures2.get(value), tile.x, tile.y);
+							}
+						} else {
+							game.batch.draw(textures2.get(value), tile.x, tile.y);
+						}
+						
+						if(startPos.getX() == x && startPos.getY() == y) {
+							game.batch.draw(textures2.get(2), tile.x, tile.y);
+						}
+						if(endPos.getX() == x && endPos.getY() == y) {
+							game.batch.draw(textures2.get(3), tile.x, tile.y);
+						}
+						
+						if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
+							heroSprite.x = tile.x;
+							heroSprite.y = tile.y;
+							game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
+							camera.position.set(heroSprite.x, heroSprite.y, 0);
+							camera.update();
+						}
+//						if(deadends.contains(new Location(x,y))) {
+//							game.batch.draw(textures2.get(2), tile.x, tile.y);
+//						}
+					} else {
+						game.batch.draw(darkness, tile.x, tile.y);
+					}
+					tile.setX(tile.x + tile.getWidth());
+				}
+			}
+			
+		} else {
+			game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setShader(defaultShader);
+			game.batch.begin();
 			for(int y=0; y<map.getWidth(); y++) {
 				tile.setX(0);
 				tile.setY(tile.y-tile.getHeight());
@@ -267,6 +395,8 @@ public class MyGdxGame implements Screen {
 						heroSprite.x = tile.x;
 						heroSprite.y = tile.y;
 						game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
+						camera.position.set(heroSprite.x, heroSprite.y, 0);
+						camera.update();
 					}
 					if(deadends.contains(new Location(x,y))) {
 						game.batch.draw(textures2.get(2), tile.x, tile.y);
@@ -274,39 +404,36 @@ public class MyGdxGame implements Screen {
 					tile.setX(tile.x + tile.getWidth());
 				}
 			}
-		} else { // work in progress
-			for(int y=0; y<map.getWidth(); y++) {
-				tile.setX(0);
-				tile.setY(tile.y-tile.getHeight());
-				
-				for(int x=0; x<map.getLength(); x++) {
-					int value = map.getCell(x, y);
-					game.batch.draw(textures2.get(value), tile.x, tile.y);
-					tile.setX(tile.x + tile.getWidth());
-				}
-				
-			}
 		}
-
-		
-		
 		game.batch.end();
 		
-		stage.act(Gdx.graphics.getDeltaTime());
+		stage.act(delta);
 		stage.draw();
 	}
 	
 	@Override
 	public void dispose () {
 		game.batch.dispose();
+		skin.dispose();
+		stage.dispose();
+		shader.dispose();
+		defaultShader.dispose();
+		fbo.dispose();
+		
 	}
 	
 	@Override
 	public void resize(int width, int height) {
+		fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
 		camera.viewportHeight = height;
 		camera.viewportWidth = width;
-		camera.update();	
+		
+		camera.update();
 		stage.getViewport().update(width, height);
+
+		shader.begin();
+		shader.setUniformf("resolution", width, height);
+		shader.end();
 	}
 	
 	private void genMob() {
@@ -362,10 +489,9 @@ public class MyGdxGame implements Screen {
 	    	double ambushChance = ambSystem.generateAttackChance();
 	    	System.out.println(ambushChance);
 	    	if(rand.nextDouble() <= ambushChance) {
-	    		startTheFight();
+	    		//startTheFight();
 	    	}
 	    }
-	    camera.update();
 	}
 
 	private void handleInput() {
@@ -500,7 +626,6 @@ public class MyGdxGame implements Screen {
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		startTheFight();
-	    		createLoot();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
     		if(showMap) {
@@ -509,6 +634,13 @@ public class MyGdxGame implements Screen {
     			showMap = true;
     		}
     		
+	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+	    	if(lightOscillate) {
+	    		lightOscillate = false;
+    		} else {
+    			lightOscillate = true;
+    		}
 	    }
 	    
 	    camera.update();

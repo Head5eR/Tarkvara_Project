@@ -11,9 +11,9 @@ public class MatrixPrinter {
 		for(int i=0; i<matrix.get(0).size(); i++) {
 			for(int j=0; j<matrix.size(); j++) {
 				if((int) matrix.get(j).get(i)>128) {
-					//System.out.print((int) matrix.get(j).get(i)-128 + "|");
+					System.out.print((int) matrix.get(j).get(i)-128 + "|");
 				} else { 
-					//System.out.print((int) matrix.get(j).get(i) + "|");
+					System.out.print((int) matrix.get(j).get(i) + "|");
 				}
 				
 			}

@@ -69,7 +69,6 @@ public class MapGenerator {
 	public void generateMap() {
 		
 		deadends = new ArrayList<Location>();
-		printer.printMap(map, false);
 		while(move());
 		
 //		if(map.getCell(endPos) != 0) { // there is a rare alghorithm fault, when it never reaches the end position
@@ -99,20 +98,19 @@ public class MapGenerator {
 	
 	public boolean move() {
 		if(route.size() == 0){ return false;}
-		System.out.println(route.toString());
 		Location currentLoc = route.get(currentStep);
-		System.out.println("my currentLoc is: " + currentLoc);
-		System.out.println("way left: " + (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))));
-		System.out.println("way up: " + (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))));
-		System.out.println("way right: " + (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))));
-		System.out.println("way down: " + (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
+//		System.out.println("my currentLoc is: " + currentLoc);
+//		System.out.println("way left: " + (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))));
+//		System.out.println("way up: " + (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))));
+//		System.out.println("way right: " + (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))));
+//		System.out.println("way down: " + (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
 		wayExists = wayExists(currentLoc);
-		System.out.println("way exists? " + wayExists);
+//		System.out.println("way exists? " + wayExists);
 		if(wayExists) {
 			int direction = (int) Math.floor(Math.random() * 4);
 			
 			if(map.getCell(endPos) != 0 && searchForExit(currentLoc) > 0) {
-				System.out.println("I'M NEAR THE EXIT, GOING THERE");
+//				System.out.println("I'M NEAR THE EXIT, GOING THERE");
 				switch(searchForExit(currentLoc)) {
 					case 1: { direction = 0; } break;
 					case 2: { direction = 1; } break;

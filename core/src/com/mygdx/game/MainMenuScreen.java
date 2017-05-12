@@ -77,6 +77,14 @@ public class MainMenuScreen implements Screen {
 			}
 		});
 		
+		exitGame.pad(5f).addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				Gdx.app.exit();
+			}
+		});
+		
+		
+		
 		
 		
 		menuItems.add(newGame).expand().fill().space(5f).size(200f, 50f);
@@ -136,8 +144,8 @@ public class MainMenuScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		stage.dispose();
+		skin.dispose();
 	}
 
 }
