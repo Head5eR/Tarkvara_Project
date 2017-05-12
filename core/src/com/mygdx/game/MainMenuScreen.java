@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -71,22 +73,31 @@ public class MainMenuScreen implements Screen {
 				
 		newGame.pad(5f).addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				 mapSize.setVisible(true);
-				 //game.setScreen(new MyGdxGame(game));
-				// dispose();
+				 //mapSize.setVisible(true);
+				 game.setScreen(new MyGdxGame(game));
+				 dispose();
 			}
 		});
+		
+		loadGame.pad(5f).addListener(new ChangeListener() {
+			public void changed (ChangeEvent event, Actor actor) {
+				 // show all save files in game folder, load buttons near each save filename
+				ArrayList<Object> heroAndMapgen = SaveSystem.loadGame("../test.ser");
+				Hero hero = (Hero) heroAndMapgen.get(0);
+				MapGenerator mg = (MapGenerator) heroAndMapgen.get(1);
+				if(!hero.equals(null) && !mg.equals(null)) {
+					game.setScreen(new MyGdxGame(game, hero, mg));
+				}
+			}
+		});
+		
 		
 		exitGame.pad(5f).addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
 				Gdx.app.exit();
 			}
 		});
-		
-		
-		
-		
-		
+
 		menuItems.add(newGame).expand().fill().space(5f).size(200f, 50f);
 		menuItems.row();
 		menuItems.add(loadGame).expand().fill().space(5f).size(200f, 50f);

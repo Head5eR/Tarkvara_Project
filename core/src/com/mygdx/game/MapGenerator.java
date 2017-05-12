@@ -23,8 +23,19 @@ public class MapGenerator {
 	final int MOVEDOWN = 8;
 	final int EMPTY = 0;
 	final int WALL = 1;
-	List<Location> startLocs = new ArrayList<Location>();
+	private List<Location> startLocs = new ArrayList<Location>();
 	private ArrayList<Location> deadends;
+	
+	public MapGenerator(int length, int width, Matrix map, ArrayList<Location> deadends, 
+			List<Location> startLocs, Location startPos, Location endPos){
+		this.length = length;
+		this.width = width;
+		this.startPos = startPos;
+		this.endPos = endPos;
+		this.map = map;
+		this.deadends = deadends;
+		this.startLocs = startLocs;
+	}
 	
 	public MapGenerator(int length, int width){
 		this.length = length;
@@ -38,7 +49,10 @@ public class MapGenerator {
 	public MapGenerator(int length, int width, boolean randStart, boolean randEnd){
 		this.length = length;
 		this.width = width;
-		startLocs = Arrays.asList(new Location(0,0), new Location(length-1, 0), new Location(length-1, width-1), new Location(0, width-1));
+		startLocs = Arrays.asList(new Location(0,0), 
+				new Location(length-1, 0), 
+				new Location(length-1, width-1), 
+				new Location(0, width-1));
 		if(randStart) {
 			this.startPos = startLocs.get(MathUtils.random(0, 3));
 		} else {
@@ -302,5 +316,9 @@ public class MapGenerator {
 	
 	public ArrayList<Location> getDeadends() {
 		return deadends;
+	}
+
+	public List<Location> getStartLocs() {
+		return startLocs;
 	}
 }

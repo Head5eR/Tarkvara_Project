@@ -110,7 +110,7 @@ public class MyGdxGame implements Screen {
 	final String vertexShader = Gdx.files.internal("vertexShader.glsl").readString();
 	final String defaultPixelShader = Gdx.files.internal("defaultPixelShader.glsl").readString();
 	
-	private boolean lightOscillate = false;
+	private boolean lightOscillate = true;
 	//used to make the light flicker
 		public float zAngle;
 		public static final float zSpeed = 15.0f;
@@ -119,155 +119,16 @@ public class MyGdxGame implements Screen {
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
-		rand = new java.util.Random();
-		
-		light = new Texture("light.png");
-		darkness = new Texture("darkness.png");
-		
-		mobtextures.add(new Texture("skeleton.png"));
-		mobtextures.add(new Texture("zombie.png"));
-		mobtextures.add(new Texture("orc.png"));
-		mobtextures.add(new Texture("goblin.png"));
-		mobtextures.add(new Texture("vampire.png"));
-		mobtextures.add(new Texture("spider.png"));
-		
-		
-		for(Texture tex : mobtextures) {
-			String filename = ((FileTextureData) tex.getTextureData()).getFileHandle().name();
-			String name = filename.replace(".png", "");
-			mobnames.add(name);
-		}
-		//System.out.println(mobnames.toString());
-
-		textures2.add(new Texture("tile_texture_0.png"));
-		textures2.add(new Texture("wall_texture.png"));
-		textures2.add(new Texture("start.png"));
-		textures2.add(new Texture("exit.png"));
-		textures2.add(new Texture("stick.png"));
-		
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 800);
-		
-		///////////////////////// UI ////////////////////////////////////////
-		
-		skin = new Skin(Gdx.files.internal("uiskin.json"));
-		
-		
-		invinfo = new TextArea("Inventory contents", skin);
-		invinfo.setPrefRows(13);
-		equipinfo = new TextArea("Contents", skin);
-		equipinfo.setPrefRows(13);
-		
-		equipPageNr = 1;
-		invPageNr = 1;
-
-		invwin = new Window("Inventory", skin);
-		invwin.setWidth(50);
-		invwin.setHeight(50);
-		invwin.add(invinfo);
-		invwin.setVisible(false);
-		invwin.row();
-		invPage = new TextArea("", skin);
-		invwin.add(invPage);
-		
-		equipwin = new Window("Equipment", skin);
-		equipwin.setWidth(50);
-		//equipwin.setHeight(50);
-		equipwin.add(equipinfo);
-		equipwin.setVisible(false);
-		equipwin.row();
-		equipPage = new TextArea("",skin);
-		equipwin.add(equipPage);
-		
-		stage = new Stage();
-		Gdx.input.setInputProcessor(stage); // IMPORTANT
-		uitable = new Table();
-		//uitable.setFillParent(true);
-		uitable.align(Align.topRight);
-		uitable.setPosition(Gdx.graphics.getWidth()/2, 0);
-		uitable.setHeight(Gdx.graphics.getHeight());
-		uitable.setWidth(Gdx.graphics.getWidth()/2);
-		
-		
-		uitable.add(mobwin);
-		uitable.row();
-		uitable.add(equipwin);
-		uitable.add(invwin);
-		uitable.getCell(equipwin).prefWidth(160);
-		uitable.getCell(invwin).prefWidth(160);
-		
-		options = new Window("Options", skin);
-		options.setVisible(false);
-		mapHeightTextField = new TextField("Height: ", skin);
-		mapWidthTextField = new TextField("Height: ", skin);
-		options.add(mapHeightTextField);
-		options.add(mapWidthTextField);
-		//uitable.row();
-		//uitable.add(options);
-		
-		fightTable = new Table(skin);
-		fightTable.setVisible(false);
-		mobFwin = new Window("Monster statistics", skin);
-		mobinfo = new TextArea("", skin);
-		mobinfo.setPrefRows(3);
-		mobFwin.add(mobinfo);
-		
-		heroFwin = new Window("Hero statistics", skin);
-		heroinfo = new TextArea("", skin);
-		heroFwin.add(heroinfo).fill().expand();
-		heroFwin.row();
-		
-		fightTable.setBackground("textfield");
-		fightTable.setHeight(Gdx.graphics.getHeight()/2);
-		fightTable.setWidth(Gdx.graphics.getWidth()/2);
-		fightTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
-		fightTable.add(new Image(textures2.get(4))).expandX();
-		
-		fightTable.add(new Image(textures2.get(3))).expandX();
-		fightTable.row();
-		fightTable.add(heroFwin).fill().expand();
-		fightTable.add(mobFwin).fill().expand();
-		
-		attackAndDefence = new Table(skin);
-		logTable = new Table(skin);
-		
-		fightTable.row();
-		fightTable.add(attackAndDefence);
-		fightTable.row();
-		
-		bodyPartsTable = new Table(skin);
-		bodyPartsTable.setVisible(false);
-		bodyPartsTable.setBackground("textfield");
-		bodyPartsTable.setHeight(Gdx.graphics.getHeight()/2);
-		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
-		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
-		
-		stage.addActor(fightTable);
-		stage.addActor(uitable);
-		stage.addActor(bodyPartsTable);
-		stage.addActor(logTable);
-
-		/////////////////////////////////////////////////////////////////////
-		
-		initialize();
-		
-		tile = new Rectangle();
-		tile.width = 64;
-		tile.height = 64;
-		
-		heroSprite = new Rectangle();
-		heroSprite.width = 64;
-		heroSprite.height = 64;
-		
-		////////////////////////////////SHADERS INIT//////////////////////////
-		defaultShader = new ShaderProgram(vertexShader, defaultPixelShader);		
-		shader = new ShaderProgram(vertexShader, pixelShader);
-		shader.begin();
-		shader.setUniformi("u_lightmap", 1);
-		shader.setUniformf("ambientColor", ambientColor.x, ambientColor.y,
-				ambientColor.z, ambientIntensity);
-		shader.end();
+		load();
+		initialize();	
 	}
+	
+	public MyGdxGame (final GameLauncher game, Hero hero, MapGenerator mapgen) {
+		this.game = game;
+		load();
+		initialize(mapgen, hero);	
+	}
+	
 
 	@Override
 	public void render (float delta) {
@@ -612,6 +473,12 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+	    	SaveSystem.saveGame(this, "test"); // REMOVE LATER
+	    	System.out.println();
+	    	Hero h = ((Hero) SaveSystem.loadGame("../test.ser").get(0));
+	    	System.out.println(h);
+	    	System.out.println(((Headgear[]) h.slots[0].get(0))[0].getName() + ((Headgear[]) h.slots[0].get(0))[0].getRarity());
+	    	System.out.println(h.inventory);
 	    	if(logTable.isVisible()) {
 	    		logTable.setVisible(false);
 	    	} else {
@@ -1034,16 +901,170 @@ public class MyGdxGame implements Screen {
 		return null;
 	}
 	
-	private void initialize() {	
-		mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
-		mapgen.generateMap();
+	private void initialize() {
+		MapGenerator mg = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
+		mg.generateMap();
+		initialize(mg, new Hero(10,10,10,mg.getStartPos()));
+		
+	}
+	
+	private void initialize(MapGenerator mapgen, Hero hero) {
+		this.mapgen = mapgen;
+		this.hero = hero;	
 		map = mapgen.getMap();
 		deadends = mapgen.getDeadends();
 		endPos = mapgen.getEndPos();
 		startPos = mapgen.getStartPos();
-		hero = new Hero(10,10,10,startPos);
-		
 		ambSystem = new AmbushSystem(mapgen, hero);
+	}
+	
+	private void load() {
+		rand = new java.util.Random();
+		
+		light = new Texture("light.png");
+		darkness = new Texture("darkness.png");
+		
+		mobtextures.add(new Texture("skeleton.png"));
+		mobtextures.add(new Texture("zombie.png"));
+		mobtextures.add(new Texture("orc.png"));
+		mobtextures.add(new Texture("goblin.png"));
+		mobtextures.add(new Texture("vampire.png"));
+		mobtextures.add(new Texture("spider.png"));
+		
+		
+		for(Texture tex : mobtextures) {
+			String filename = ((FileTextureData) tex.getTextureData()).getFileHandle().name();
+			String name = filename.replace(".png", "");
+			mobnames.add(name);
+		}
+		//System.out.println(mobnames.toString());
+
+		textures2.add(new Texture("tile_texture_0.png"));
+		textures2.add(new Texture("wall_texture.png"));
+		textures2.add(new Texture("start.png"));
+		textures2.add(new Texture("exit.png"));
+		textures2.add(new Texture("stick.png"));
+		
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, 800, 800);
+		
+		///////////////////////// UI ////////////////////////////////////////
+		
+		skin = new Skin(Gdx.files.internal("uiskin.json"));
+		
+		
+		invinfo = new TextArea("Inventory contents", skin);
+		invinfo.setPrefRows(13);
+		equipinfo = new TextArea("Contents", skin);
+		equipinfo.setPrefRows(13);
+		
+		equipPageNr = 1;
+		invPageNr = 1;
+
+		invwin = new Window("Inventory", skin);
+		invwin.setWidth(50);
+		invwin.setHeight(50);
+		invwin.add(invinfo);
+		invwin.setVisible(false);
+		invwin.row();
+		invPage = new TextArea("", skin);
+		invwin.add(invPage);
+		
+		equipwin = new Window("Equipment", skin);
+		equipwin.setWidth(50);
+		//equipwin.setHeight(50);
+		equipwin.add(equipinfo);
+		equipwin.setVisible(false);
+		equipwin.row();
+		equipPage = new TextArea("",skin);
+		equipwin.add(equipPage);
+		
+		stage = new Stage();
+		Gdx.input.setInputProcessor(stage); // IMPORTANT
+		uitable = new Table();
+		//uitable.setFillParent(true);
+		uitable.align(Align.topRight);
+		uitable.setPosition(Gdx.graphics.getWidth()/2, 0);
+		uitable.setHeight(Gdx.graphics.getHeight());
+		uitable.setWidth(Gdx.graphics.getWidth()/2);
+		
+		
+		uitable.add(mobwin);
+		uitable.row();
+		uitable.add(equipwin);
+		uitable.add(invwin);
+		uitable.getCell(equipwin).prefWidth(160);
+		uitable.getCell(invwin).prefWidth(160);
+		
+		options = new Window("Options", skin);
+		options.setVisible(false);
+		mapHeightTextField = new TextField("Height: ", skin);
+		mapWidthTextField = new TextField("Height: ", skin);
+		options.add(mapHeightTextField);
+		options.add(mapWidthTextField);
+		//uitable.row();
+		//uitable.add(options);
+		
+		fightTable = new Table(skin);
+		fightTable.setVisible(false);
+		mobFwin = new Window("Monster statistics", skin);
+		mobinfo = new TextArea("", skin);
+		mobinfo.setPrefRows(3);
+		mobFwin.add(mobinfo);
+		
+		heroFwin = new Window("Hero statistics", skin);
+		heroinfo = new TextArea("", skin);
+		heroFwin.add(heroinfo).fill().expand();
+		heroFwin.row();
+		
+		fightTable.setBackground("textfield");
+		fightTable.setHeight(Gdx.graphics.getHeight()/2);
+		fightTable.setWidth(Gdx.graphics.getWidth()/2);
+		fightTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		fightTable.add(new Image(textures2.get(4))).expandX();
+		
+		fightTable.add(new Image(textures2.get(3))).expandX();
+		fightTable.row();
+		fightTable.add(heroFwin).fill().expand();
+		fightTable.add(mobFwin).fill().expand();
+		
+		attackAndDefence = new Table(skin);
+		logTable = new Table(skin);
+		
+		fightTable.row();
+		fightTable.add(attackAndDefence);
+		fightTable.row();
+		
+		bodyPartsTable = new Table(skin);
+		bodyPartsTable.setVisible(false);
+		bodyPartsTable.setBackground("textfield");
+		bodyPartsTable.setHeight(Gdx.graphics.getHeight()/2);
+		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
+		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		
+		stage.addActor(fightTable);
+		stage.addActor(uitable);
+		stage.addActor(bodyPartsTable);
+		stage.addActor(logTable);
+
+		/////////////////////////////////////////////////////////////////////
+		
+		tile = new Rectangle();
+		tile.width = 64;
+		tile.height = 64;
+		
+		heroSprite = new Rectangle();
+		heroSprite.width = 64;
+		heroSprite.height = 64;
+		
+		////////////////////////////////SHADERS INIT//////////////////////////
+		defaultShader = new ShaderProgram(vertexShader, defaultPixelShader);		
+		shader = new ShaderProgram(vertexShader, pixelShader);
+		shader.begin();
+		shader.setUniformi("u_lightmap", 1);
+		shader.setUniformf("ambientColor", ambientColor.x, ambientColor.y,
+				ambientColor.z, ambientIntensity);
+		shader.end();
 	}
 	
 	@Override
@@ -1069,6 +1090,38 @@ public class MyGdxGame implements Screen {
 	public void hide() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Hero getHero() {
+		return hero;
+	}
+
+	public int getMAP_WIDTH() {
+		return MAP_WIDTH;
+	}
+
+	public int getMAP_HEIGHT() {
+		return MAP_HEIGHT;
+	}
+
+	public ArrayList<Location> getDeadends() {
+		return deadends;
+	}
+
+	public Matrix getMap() {
+		return map;
+	}
+
+	public void setMap(Matrix map) {
+		this.map = map;
+	}
+
+	public MapGenerator getMapgen() {
+		return mapgen;
+	}
+
+	public void setMapgen(MapGenerator mapgen) {
+		this.mapgen = mapgen;
 	}
 
 }
