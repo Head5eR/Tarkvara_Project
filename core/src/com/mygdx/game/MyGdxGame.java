@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -37,6 +38,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -50,8 +52,6 @@ public class MyGdxGame implements Screen {
 	private OrthographicCamera camera;
 	private Rectangle tile;
 	private Matrix map;
-	private int winWidth = 800;
-	private int winHeight = 800;
 	private Location endPos;
 	private Location startPos;
 	private Hero hero;
@@ -66,8 +66,8 @@ public class MyGdxGame implements Screen {
 	private TextArea mobinfo;
 	private TextArea invinfo;
 	private TextArea equipinfo;
-	private final int MAP_WIDTH = 12;
-	private final int MAP_HEIGHT = 14;
+	private int MAP_WIDTH = 12;
+	private int MAP_HEIGHT = 14;
 	private boolean fightInProgress = false;
 	private Table fightTable;
 	private Window mobFwin;
@@ -80,9 +80,6 @@ public class MyGdxGame implements Screen {
 	private Table bodyPartsTable;
 	private Monster activeMob;
 	private TextButton startTheFight;
-	private Window options;
-	private TextField mapWidthTextField;
-	private TextField mapHeightTextField;
 	private Table attackAndDefence;
 	private Table chooseSlot;
 	private AmbushSystem ambSystem;
@@ -93,11 +90,19 @@ public class MyGdxGame implements Screen {
 	private ArrayList<Location> deadends;
 	private boolean showMap = false;
 	private Texture darkness;
-	private boolean test = true;
+	private Window menu;
+	private Table pauseMenuTable;
+	private boolean paused = false;
+	private TextButton exitButton;
+	private TextButton saveButton;
+	private Window saves;
+	private Table saveTable;
+	private TextArea saveTo;
 	
 	// here comes the light magic
-	// used shader light making tutorial - www.alcove-games.com/opengl-es-2-tutorials/lightmap-shader-fire-effect-glsl/
-	//	
+	// used shader light making tutorial - 
+	//www.alcove-games.com/opengl-es-2-tutorials/lightmap-shader-fire-effect-glsl/
+
 	
 	public static final float ambientIntensity = .7f;
 	public static final Vector3 ambientColor = new Vector3(0.01f, 0.01f, 0.01f);
@@ -110,14 +115,22 @@ public class MyGdxGame implements Screen {
 	final String vertexShader = Gdx.files.internal("vertexShader.glsl").readString();
 	final String defaultPixelShader = Gdx.files.internal("defaultPixelShader.glsl").readString();
 	
-	private boolean lightOscillate = true;
 	//used to make the light flicker
-		public float zAngle;
-		public static final float zSpeed = 15.0f;
-		public static final float PI2 = 3.1415926535897932384626433832795f * 2.0f;
+	private boolean lightOscillate = true;
+	public float zAngle;
+	public static final float zSpeed = 15.0f;
+	public static final float PI2 = 3.1415926535897932384626433832795f * 2.0f;
 	
 	
 	public MyGdxGame (final GameLauncher game) {
+		this.game = game;
+		load();
+		initialize();	
+	}
+	
+	public MyGdxGame (final GameLauncher game, int width, int height) {
+		this.MAP_WIDTH = width;
+		this.MAP_HEIGHT = height;
 		this.game = game;
 		load();
 		initialize();	
@@ -134,13 +147,17 @@ public class MyGdxGame implements Screen {
 	public void render (float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		checkIfPaused();
 
-		if(!pendingChooseTheSlotAction) {
-			if(!fightInProgress) {
-				movementUpdate();
-				handleInput();
-			} else {
-				handleFightInput();
+		if(!paused) {
+			if(!pendingChooseTheSlotAction) {
+				if(!fightInProgress) {
+					movementUpdate();
+					handleInput();
+				} else {
+					handleFightInput();
+				}
 			}
 		}
 		
@@ -151,7 +168,7 @@ public class MyGdxGame implements Screen {
 			zAngle -= PI2;
 
 		tile.setX(0);
-		tile.setY(winHeight);
+		tile.setY(Gdx.graphics.getHeight());
 		
 		if(!showMap) {
 			fbo.begin();
@@ -288,9 +305,9 @@ public class MyGdxGame implements Screen {
 		fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
 		camera.viewportHeight = height;
 		camera.viewportWidth = width;
-		
 		camera.update();
-		stage.getViewport().update(width, height);
+
+		stage.getViewport().update(width, height, true);
 
 		shader.begin();
 		shader.setUniformf("resolution", width, height);
@@ -473,12 +490,6 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-	    	SaveSystem.saveGame(this, "test"); // REMOVE LATER
-	    	System.out.println();
-	    	Hero h = ((Hero) SaveSystem.loadGame("../test.ser").get(0));
-	    	System.out.println(h);
-	    	System.out.println(((Headgear[]) h.slots[0].get(0))[0].getName() + ((Headgear[]) h.slots[0].get(0))[0].getRarity());
-	    	System.out.println(h.inventory);
 	    	if(logTable.isVisible()) {
 	    		logTable.setVisible(false);
 	    	} else {
@@ -513,6 +524,18 @@ public class MyGdxGame implements Screen {
 	    camera.update();
 	 }
 	
+	private void checkIfPaused() {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+	    	if(paused && menu.isVisible()) {
+	    		paused = false;
+	    		menu.setVisible(false);
+	    	} else if (!saves.isVisible()){
+	    		paused = true;
+	    		menu.setVisible(true);
+	    	}
+	    }
+	}
+	
 	public void startTheFight() {
 		genMob();
 		createActionButtons();
@@ -524,12 +547,16 @@ public class MyGdxGame implements Screen {
 		fightTable.setVisible(true);
 	}
 	
-	public void dialogTest() { // will look into it later
-		Dialog dialog = new Dialog("Some Dialog", skin, "dialog") {
+	public void sureAboutClosingDialog() { // will look into it later
+		Dialog dialog = new Dialog("Close the game?", skin, "dialog") {
 			protected void result (Object object) {
-				System.out.println("Chosen: " + object);
+				if(object.equals(true)) {
+					Gdx.app.exit();
+				} else {
+					this.hide();
+				}
 			}
-		}.text("Are you enjoying this demo?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
+		}.text("Are you sure?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
 			.key(Keys.ESCAPE, false).show(stage);
 	}
 
@@ -545,7 +572,7 @@ public class MyGdxGame implements Screen {
 		log.getLabel().setAlignment(Align.topLeft);
 		logTable.add(logPane).expand().bottom().left();
 		logTable.setHeight(Gdx.graphics.getHeight());
-		logTable.setWidth(215);
+		logTable.setWidth(256);
 		logTable.setPosition(0, 0);
 	}
 	
@@ -918,6 +945,36 @@ public class MyGdxGame implements Screen {
 		ambSystem = new AmbushSystem(mapgen, hero);
 	}
 	
+	
+	private void saveOption(FileHandle file, String date) {
+		String name = file.name();
+		if(name != "" && date != "") { 
+			Date d = new Date(Long.parseLong(date));
+			TextArea text = new TextArea(name+ " " + d.toGMTString(), skin);
+			text.setDisabled(true);
+			TextButton save = new TextButton("Save", skin);
+			save.setName(file.nameWithoutExtension());
+			save.addListener(new ChangeListener() {
+		        @Override
+		        public void changed (ChangeEvent event, Actor actor) {
+		        	saveGame(actor.getName());
+		        	System.out.println("saving to file " + actor.getName()); 
+		        	saves.setVisible(false);
+		        	menu.setVisible(true);
+		        }
+		    });
+			saveTable.add(text).minWidth(256);
+			saveTable.add(save).row();
+		} else {
+			System.out.println("Came empty string");
+		}
+	}
+	
+	private void saveGame(String saveName) {
+		System.out.println("saving to: " + saveName);
+		SaveSystem.saveGame(this, saveName);
+	}
+	
 	private void load() {
 		rand = new java.util.Random();
 		
@@ -946,12 +1003,10 @@ public class MyGdxGame implements Screen {
 		textures2.add(new Texture("stick.png"));
 		
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 800);
+		camera.setToOrtho(false);
 		
-		///////////////////////// UI ////////////////////////////////////////
-		
-		skin = new Skin(Gdx.files.internal("uiskin.json"));
-		
+		///////////////////////// UI ////////////////////////////////////////		
+		skin = new Skin(Gdx.files.internal("uiskin.json"));		
 		
 		invinfo = new TextArea("Inventory contents", skin);
 		invinfo.setPrefRows(13);
@@ -986,8 +1041,7 @@ public class MyGdxGame implements Screen {
 		uitable.align(Align.topRight);
 		uitable.setPosition(Gdx.graphics.getWidth()/2, 0);
 		uitable.setHeight(Gdx.graphics.getHeight());
-		uitable.setWidth(Gdx.graphics.getWidth()/2);
-		
+		uitable.setWidth(Gdx.graphics.getWidth()/2);	
 		
 		uitable.add(mobwin);
 		uitable.row();
@@ -995,15 +1049,6 @@ public class MyGdxGame implements Screen {
 		uitable.add(invwin);
 		uitable.getCell(equipwin).prefWidth(160);
 		uitable.getCell(invwin).prefWidth(160);
-		
-		options = new Window("Options", skin);
-		options.setVisible(false);
-		mapHeightTextField = new TextField("Height: ", skin);
-		mapWidthTextField = new TextField("Height: ", skin);
-		options.add(mapHeightTextField);
-		options.add(mapWidthTextField);
-		//uitable.row();
-		//uitable.add(options);
 		
 		fightTable = new Table(skin);
 		fightTable.setVisible(false);
@@ -1042,11 +1087,82 @@ public class MyGdxGame implements Screen {
 		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
 		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
 		
+		
+		///////////////////PAUSE MENU//////////////////////
+		menu = new Window("Menu", skin);
+		menu.setVisible(false);
+		pauseMenuTable = new Table();
+		
+		saveButton = new TextButton("Save game", skin);
+		exitButton = new TextButton("Exit game", skin);
+		
+		exitButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	sureAboutClosingDialog();
+	        }
+	    });	
+		
+		saveButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	saveTable.clear();
+	        	FileHandle[] files = Gdx.files.local("../").list();
+	        	for(FileHandle file: files) {
+	        		if(file.extension().equals("ser")) {
+	        			saveOption(file, ""+file.lastModified());
+	        		}
+	        	}
+	        	menu.setVisible(false);
+	        	saves.setVisible(true);
+	        }
+	    });	
+		pauseMenuTable.add(saveButton).row();
+		pauseMenuTable.add(exitButton);
+		menu.add(pauseMenuTable);
+		menu.setPosition(Gdx.graphics.getWidth()/2-menu.getWidth()/2, Gdx.graphics.getHeight()/2-menu.getHeight()/2);
+		
+		saves = new Window("Saving the game", skin);
+		saves.setSize(Gdx.graphics.getWidth()/3, Gdx.graphics.getHeight()/3);
+		saves.setPosition(Gdx.graphics.getWidth()/2-saves.getWidth()/2, Gdx.graphics.getHeight()/2-saves.getHeight()/2);
+		
+		saves.setVisible(false);
+		saveTable = new Table();
+		Table saveToNewFile = new Table();
+		
+		saveTo = new TextArea("",skin);
+		saveTo.setMessageText("type new save name");
+		
+		TextButton saveToButton = new TextButton("Save", skin);
+		
+		saveToButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	String text = saveTo.getText();
+	        	System.out.println(text);
+	        	if(text.matches("^[a-zA-Z0-9]*$")) {
+	        		saveGame(text);
+	        	} else {
+	        		System.out.println("Wrong save name");
+	        	}
+	        	saves.setVisible(false);
+	        	menu.setVisible(true);
+	        }
+	    });	
+		saveToNewFile.add(saveTo, saveToButton);
+		saves.add(saveToNewFile).row();
+		saves.add(saveTable);
+
+		
+		////////////////////////////////////////////////////////
+
 		stage.addActor(fightTable);
 		stage.addActor(uitable);
 		stage.addActor(bodyPartsTable);
 		stage.addActor(logTable);
-
+		stage.addActor(menu);
+		stage.addActor(saves);
+		
 		/////////////////////////////////////////////////////////////////////
 		
 		tile = new Rectangle();

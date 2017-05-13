@@ -34,7 +34,7 @@ public abstract class SaveSystem {
 		data.put("stam", hero.getHeroStamina());
 		data.put("wrath", hero.getHeroWrath());
 		
-		if(name.length() > 0 && !name.matches("\\b")) {
+		if(name.length() > 0 && name.matches("^[a-zA-Z0-9]*$")) {
 			try {
 		         FileOutputStream fileOut =
 		         new FileOutputStream("../" + name+ ".ser");
@@ -65,7 +65,6 @@ public abstract class SaveSystem {
 	        		 (Integer) data.get("stam"), (Location) data.get("loc"), (Integer) data.get("hp"),
 	        		 (List<?>[]) data.get("slots"), (List<?>[]) data.get("weaponSlots"), 
 	        		 (List<Item>) data.get("inv"));
-	         System.out.println(((MeleeWeapon[]) hero.slots[3].get(0))[0]);
 	         MapGenerator mg = new MapGenerator((Integer) data.get("mapWidth"), 
 	        		 (Integer) data.get("mapHeight"), (Matrix) data.get("map"), (ArrayList<Location>) data.get("deadends"), 
 	        		 (List<Location>) data.get("startLocs"), (Location) data.get("startPos"), (Location) data.get("endPos"));

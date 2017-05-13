@@ -89,9 +89,8 @@ public class MapGenerator {
 //			this.map = new Matrix(length,width, WALL);
 //			generateMap();
 //		}
-		printer.printMap(map, false);
+		//printer.printMap(map, false);
 		//printer.printMapImproved(map);
-		System.out.println(deadends.toString());
 	}
 	
 	public void addStep(Location newLoc) {
