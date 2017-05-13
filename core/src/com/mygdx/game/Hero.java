@@ -23,6 +23,8 @@ public class Hero extends Character {
 	private int extraMinAttack = 0;
 	private int extraMaxAttack = 0;
 	
+	private int potionAmount = 1;
+	
 	List<Item> inventory = new ArrayList<Item>();
 	List<Headgear[]> headSlot = new ArrayList<Headgear[]>();
 	List<Bodyarmor[]> torsoSlot = new ArrayList<Bodyarmor[]>();
@@ -57,11 +59,7 @@ public class Hero extends Character {
 
 		// Every slot is an array of certain type with length of 1, 
 		// so that it is possible to add only one item to the slot
-		inventory.addAll(Arrays.asList(
-				MeleeWeapon.getMeleeWeaponRandRarity("sword", "2"),
-				Shield.getShieldRandRarity("1"), 
-				MeleeWeapon.getMeleeWeaponRandRarity("sword", "3")
-				));
+		inventory.addAll(Arrays.asList(MeleeWeapon.getMeleeWeaponRandRarity("sword", "2"),Shield.getShieldRandRarity("1")));
 		
 		Headgear[] hs = {Headgear.getHeadgearRandRarity("1")};
 			headSlot.add(hs);
@@ -343,7 +341,7 @@ public class Hero extends Character {
 	@Override
 	public void takeDmg(int dmg, int bodypart) {
 		dmg = checkIfFatalStrike(dmg, bodypart);
-		int actualDmg = dmg - getArmor();
+		int actualDmg = (int) Math.round(dmg - getArmor()*0.1);
 		//System.out.println(getName() + " has taken " + actualDmg + " DMG");
 		if (actualDmg > 0  && actualDmg < hp) {
 			hp -= actualDmg;
@@ -391,6 +389,26 @@ public class Hero extends Character {
 		}
 	}
 	
+	public int getPotionAmount() {
+		return potionAmount;
+	}		
+	
+	public void setPotionAmount(int potionAmount) {
+		this.potionAmount = potionAmount;
+	}
+
+	public int restoreHp(int potionAmount, int currentHp, int maxHp) {
+		potionAmount = getPotionAmount();
+		currentHp = getHp();
+		maxHp = getMaxHp();
+		if(potionAmount > 0) {
+			potionAmount -= 1;
+			currentHp = currentHp + (int) Math.round(0.3 * maxHp);
+			return currentHp;
+		}
+		return currentHp;
+	}
+	
 	public int getHeroStrength() {
 		return super.getStrength();
 	}
@@ -426,7 +444,7 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMaxHp() {
-		return getStrength()*10;
+		return getStamina()*10;
 	}
 	
 	@Override
@@ -441,12 +459,12 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMinAttackDamage() {
-		return (int) Math.round(super.getMaxAttackDamage() * 0.7) + extraMinAttack;
+		return (int) Math.round(getMaxAttackDamage() * 0.7) + extraMinAttack;
 	}
 	
 	@Override
 	public int getMaxAttackDamage() {
-		return (int) super.getMaxAttackDamage() + extraMaxAttack;
+		return (int) Math.round(getStrength()*3) + extraMaxAttack;
 	}
 	
 	@Override
@@ -456,7 +474,7 @@ public class Hero extends Character {
 	
 	@Override
 	public String getAttackDamageStr() {
-		return getMinAttackDamage() + "-" + getMaxAttackDamage();
+		return this.getMinAttackDamage() + "-" + this.getMaxAttackDamage();
 	}
 }
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bosses>
+	<boss name ="Minotaur">
+		<bodytype>humanoid</bodytype>
+		<level>1</level>
+		<strength>40</strength>
+		<dexterity>25</dexterity>
+		<stamina>35</stamina>
+		<wrath>25</wrath>
+	</boss>
+	<boss name ="Lich">
+		<bodytype>humanoid</bodytype>
+		<level>2</level>
+		<strength>35</strength>
+		<dexterity>35</dexterity>
+		<stamina>40</stamina>
+		<wrath>25</wrath>
+	</boss>
+	<boss name ="Dead Knight">
+		<bodytype>humanoid</bodytype>
+		<level>3</level>
+		<strength>50</strength>
+		<dexterity>50</dexterity>
+		<stamina>50</stamina>
+		<wrath>50</wrath>
+	</boss>
+</bosses>

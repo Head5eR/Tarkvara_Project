@@ -68,7 +68,16 @@ public class LootSystem {
 				item = Armor.getRandomArmor(armorType, itemLvl);
 			}
 		}
-		return item;
+		return item;				
+	}
+	
+	public int dropPotion() {
+		Random rand = new Random();
+		float chance = rand.nextFloat();
+		if(chance >= 0.5) {
+			return 1;
+		}		
+		return 0;
 	}
 	
 }
