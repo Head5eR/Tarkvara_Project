@@ -327,7 +327,7 @@ public class Hero extends Character {
 	@Override
 	public void takeDmg(int dmg, int bodypart) {
 		dmg = checkIfFatalStrike(dmg, bodypart);
-		int actualDmg = dmg - getArmor();
+		int actualDmg = (int) Math.round(dmg - getArmor()*0.1);
 		//System.out.println(getName() + " has taken " + actualDmg + " DMG");
 		if (actualDmg > 0  && actualDmg < hp) {
 			hp -= actualDmg;
@@ -430,7 +430,7 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMaxHp() {
-		return getStrength()*10;
+		return getStamina()*10;
 	}
 	
 	@Override
@@ -450,7 +450,7 @@ public class Hero extends Character {
 	
 	@Override
 	public int getMaxAttackDamage() {
-		return (int) Math.round(getStrength()*0.2) + extraMaxAttack;
+		return (int) Math.round(getStrength()*3) + extraMaxAttack;
 	}
 	
 	@Override

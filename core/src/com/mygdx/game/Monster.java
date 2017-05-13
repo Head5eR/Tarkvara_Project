@@ -56,7 +56,7 @@ public class Monster extends Character {
 		
 	}
 	
-	private Monster(int str, int dex, int stam, String bodytype, String name) {
+	protected Monster(int str, int dex, int stam, String bodytype, String name) {
 		super(str, dex, stam, bodytype, name);
 		this.mod = new Modifier();
 		this.wrath = Integer.parseInt(monsterStats.get(5));
@@ -124,7 +124,7 @@ public class Monster extends Character {
 	
 	@Override
 	public int getMaxHp() {
-		return getModStrength()*13;
+		return getModStamina()*10;
 	}
 	
 	@Override
@@ -167,7 +167,7 @@ public class Monster extends Character {
 	
 	@Override
 	public int getMaxAttackDamage() {
-		return (int) Math.round(getModStrength()*getModStamina()*0.2);
+		return (int) Math.round(getModStrength()*3);
 	}
 
 	@Override

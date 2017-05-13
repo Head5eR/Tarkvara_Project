@@ -42,7 +42,7 @@ public abstract class Character {
 	}
 	
 	public int getMaxHp() {
-		return strength*13;
+		return stamina*10;
 	}
 
 	public Body getBody() {
@@ -58,7 +58,7 @@ public abstract class Character {
 	}
 	
 	public int getMaxAttackDamage() {
-		return (int) Math.round(getStrength()*getStamina()*0.2);
+		return (int) Math.round(getStrength()*3);
 	}
 	
 	public int getAttackDamage() {
