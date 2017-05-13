@@ -59,4 +59,13 @@ public class Location implements Serializable {
 		
 		return ((x == l.getX()) && (y == l.getY()));
 	}
+	
+	@Override
+    public int hashCode() {
+		int result = 17;
+		result = 31 * result + x;
+		result = 31 * result + y;
+		return result;
+    }
+
 }

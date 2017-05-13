@@ -25,9 +25,10 @@ public class MapGenerator {
 	final int WALL = 1;
 	private List<Location> startLocs = new ArrayList<Location>();
 	private ArrayList<Location> deadends;
+	private Location bossLoc;
 	
 	public MapGenerator(int length, int width, Matrix map, ArrayList<Location> deadends, 
-			List<Location> startLocs, Location startPos, Location endPos){
+			List<Location> startLocs, Location startPos, Location endPos, Location bossLoc){
 		this.length = length;
 		this.width = width;
 		this.startPos = startPos;
@@ -35,6 +36,7 @@ public class MapGenerator {
 		this.map = map;
 		this.deadends = deadends;
 		this.startLocs = startLocs;
+		this.bossLoc = bossLoc;
 	}
 	
 	public MapGenerator(int length, int width){
@@ -124,6 +126,7 @@ public class MapGenerator {
 			
 			if(map.getCell(endPos) != 0 && searchForExit(currentLoc) > 0) {
 //				System.out.println("I'M NEAR THE EXIT, GOING THERE");
+				bossLoc = currentLoc;
 				switch(searchForExit(currentLoc)) {
 					case 1: { direction = 0; } break;
 					case 2: { direction = 1; } break;
@@ -159,7 +162,9 @@ public class MapGenerator {
 			
 		} else {
 			if(isDeadend(route.get(currentStep))) {
-				deadends.add(route.get(currentStep));
+				if(!route.get(currentStep).equals(startPos)) {
+					deadends.add(route.get(currentStep));
+				}
 			}
 			route.remove(currentStep); // removing route point from which it's impossible to continue moving 
 			currentStep = 0; // taking next cell
@@ -319,5 +324,13 @@ public class MapGenerator {
 
 	public List<Location> getStartLocs() {
 		return startLocs;
+	}
+
+	public Location getBossLoc() {
+		return bossLoc;
+	}
+
+	public void setBossLoc(Location bossLoc) {
+		this.bossLoc = bossLoc;
 	}
 }

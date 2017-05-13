@@ -1,20 +1,21 @@
 package com.mygdx.game;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.ai.btree.decorator.Random;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FileTextureData;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -24,25 +25,21 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
@@ -98,6 +95,10 @@ public class MyGdxGame implements Screen {
 	private Window saves;
 	private Table saveTable;
 	private TextArea saveTo;
+	private Label potionAmount;
+	private ImageButton potionButton;
+	private HashMap<String, Integer> statistics;
+	private HashMap<Location, Monster> staticMonsters;
 	
 	// here comes the light magic
 	// used shader light making tutorial - 
@@ -125,6 +126,7 @@ public class MyGdxGame implements Screen {
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
 		load();
+		createStatistics();
 		initialize();	
 	}
 	
@@ -133,11 +135,16 @@ public class MyGdxGame implements Screen {
 		this.MAP_HEIGHT = height;
 		this.game = game;
 		load();
+		createStatistics();
 		initialize();	
+		generateStaticMobs();
 	}
 	
-	public MyGdxGame (final GameLauncher game, Hero hero, MapGenerator mapgen) {
+	public MyGdxGame (final GameLauncher game, Hero hero, MapGenerator mapgen, 
+			HashMap<String, Integer> stat, HashMap<Location,Monster> staticMonsters) {
 		this.game = game;
+		this.statistics = stat;
+		this.staticMonsters = staticMonsters;
 		load();
 		initialize(mapgen, hero);	
 	}
@@ -204,6 +211,28 @@ public class MyGdxGame implements Screen {
 				for(int x=heroX-1; x<=heroX+1; x++) {					
 					if(y < map.getWidth() && y >= 0 && x < map.getLength() && x >= 0) {
 						int value = map.getCell(x, y);
+						Location currentLoc = new Location(x,y);
+						
+						game.batch.draw(textures2.get(value), tile.x, tile.y);
+						
+						if(staticMonsters.containsKey(currentLoc)) {
+							int randInt = (int) Math.floor(Math.random()*4);
+							int foundindex = mobnames.indexOf(staticMonsters.get(currentLoc).getName().toLowerCase());
+							if (foundindex >= 0) {
+								game.batch.draw(mobtextures.get(foundindex), tile.x, tile.y);
+							} else {
+								foundindex = randInt;
+								game.batch.draw(textures2.get(foundindex), tile.x, tile.y);
+							}
+							
+						}
+						if(startPos.getX() == x && startPos.getY() == y) {
+							game.batch.draw(textures2.get(2), tile.x, tile.y);
+						}
+						if(endPos.getX() == x && endPos.getY() == y) {
+							game.batch.draw(textures2.get(3), tile.x, tile.y);
+						}
+						
 						if(Math.abs(y-heroY) == 1 && (Math.abs(x-heroX) == 1)) {
 							//means corner
 							nearbyXone = x;
@@ -220,19 +249,9 @@ public class MyGdxGame implements Screen {
 							}
 							if(map.getCell(nearbyXone, nearbyYone) == 1 && map.getCell(nearbyXtwo, nearbyYtwo) == 1) {
 								game.batch.draw(darkness, tile.x, tile.y);
-							} else {
-								game.batch.draw(textures2.get(value), tile.x, tile.y);
 							}
-						} else {
-							game.batch.draw(textures2.get(value), tile.x, tile.y);
 						}
 						
-						if(startPos.getX() == x && startPos.getY() == y) {
-							game.batch.draw(textures2.get(2), tile.x, tile.y);
-						}
-						if(endPos.getX() == x && endPos.getY() == y) {
-							game.batch.draw(textures2.get(3), tile.x, tile.y);
-						}
 						
 						if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
 							heroSprite.x = tile.x;
@@ -267,6 +286,20 @@ public class MyGdxGame implements Screen {
 					}
 					if(endPos.getX() == x && endPos.getY() == y) {
 						game.batch.draw(textures2.get(3), tile.x, tile.y);
+					}
+					
+					Location currentLoc = new Location(x,y);
+					
+					if(staticMonsters.containsKey(currentLoc)) {
+						int randInt = (int) Math.floor(Math.random()*4);
+						int foundindex = mobnames.indexOf(staticMonsters.get(currentLoc).getName().toLowerCase());
+						if (foundindex >= 0) {
+							game.batch.draw(mobtextures.get(foundindex), tile.x, tile.y);
+						} else {
+							foundindex = randInt;
+							game.batch.draw(textures2.get(foundindex), tile.x, tile.y);
+						}
+						
 					}
 					
 					if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
@@ -315,7 +348,7 @@ public class MyGdxGame implements Screen {
 	}
 	
 	private void genMob() {
-		activeMob = Monster.getMonsterWithModifier(ambSystem.monsterLevel());
+		activeMob = Monster.getMonsterWithModifier(ambSystem.monsterLevel(hero.getLoc()));
 		int randInt = (int) Math.floor(Math.random()*4);
 		Cell imgcell = fightTable.getCells().get(1);
 		int foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
@@ -364,9 +397,11 @@ public class MyGdxGame implements Screen {
 	    
 	    Location newHeroLoc = hero.getLoc();
 	    if(!oldHeroLoc.equals(newHeroLoc)) {
+	    	statistics.put("steps", statistics.get("steps"));
 	    	double ambushChance = ambSystem.generateAttackChance();
-	    	System.out.println(ambushChance);
+	    	System.out.println("ambush chance: " + ambushChance);
 	    	if(rand.nextDouble() <= ambushChance) {
+	    		System.out.println("fighting is off");
 	    		//startTheFight();
 	    	}
 	    }
@@ -627,19 +662,29 @@ public class MyGdxGame implements Screen {
 	}
 	
 	public void updateHeroMonsterInfo() {
-		heroinfo.setText("Health: " + hero.getHp() + "/" + hero.getMaxHp() + "\n" + "Armor: " + hero.getArmor() + "\n" + "Attack: " + hero.getAttackDamageStr());
+		heroinfo.setText("Health: " + hero.getHp() + "/" + hero.getMaxHp() + 
+				"\n" + "Armor: " + hero.getArmor() + 
+				" (reduces " + hero.getArmor()*0.1 + " dmg)" +
+				"\n" + "Attack: " + hero.getAttackDamageStr());
 		mobinfo.setText(activeMob.toString());
+		int amount = hero.getPotionAmount();
+		potionAmount.setText("" + amount);
+		if(amount <= 0) {
+			potionButton.setDisabled(true);
+			potionButton.setChecked(true);
+		} else {
+			potionButton.setChecked(false);
+		}
 		if(FightSystem.isDead(hero)) {
 			heroinfo.appendText("\n DEAD");
 		}
 		if(FightSystem.isDead(activeMob)) {
 			mobinfo.appendText("\n DEAD");
 			createLoot();
+			statistics.put(activeMob.getMod().getName(), statistics.get(activeMob.getMod().getName()) +1);
 		}
 		
 	}
-	
-	
 	
 	public boolean attackAndDefenceIsComplete() {
 		Array<Cell> cells = attackAndDefence.getCells();
@@ -728,6 +773,7 @@ public class MyGdxGame implements Screen {
 		
 		table.add(btn);
 		TextArea btnAlliedText = new TextArea("",skin);
+		btnAlliedText.setDisabled(true);
 		table.add(btnAlliedText);
 		return table;
 	}
@@ -756,6 +802,7 @@ public class MyGdxGame implements Screen {
 		});
 		table.add(attackButton);
 		TextArea text = new TextArea(" or ", skin);
+		text.setDisabled(true);
 		table.add(text);
 		table.add(defenceButton);
 		return table;
@@ -775,6 +822,7 @@ public class MyGdxGame implements Screen {
 		        	if(item != null) {
 		        		addToLog(item.getName() + " acquired!");
 		        		hero.inventory.add(item);
+		        		hero.setPotionAmount(hero.getPotionAmount() + LootSystem.dropPotion());
 		        	} else {
 		        		System.out.println("smth bad happened during loot generation");
 		        	}
@@ -1010,8 +1058,10 @@ public class MyGdxGame implements Screen {
 		
 		invinfo = new TextArea("Inventory contents", skin);
 		invinfo.setPrefRows(13);
+		invinfo.setDisabled(true);
 		equipinfo = new TextArea("Contents", skin);
 		equipinfo.setPrefRows(13);
+		equipinfo.setDisabled(true);
 		
 		equipPageNr = 1;
 		invPageNr = 1;
@@ -1052,13 +1102,16 @@ public class MyGdxGame implements Screen {
 		
 		fightTable = new Table(skin);
 		fightTable.setVisible(false);
+		fightTable.debug();
 		mobFwin = new Window("Monster statistics", skin);
 		mobinfo = new TextArea("", skin);
+		mobinfo.setDisabled(true);
 		mobinfo.setPrefRows(3);
 		mobFwin.add(mobinfo);
 		
 		heroFwin = new Window("Hero statistics", skin);
 		heroinfo = new TextArea("", skin);
+		heroinfo.setDisabled(true);
 		heroFwin.add(heroinfo).fill().expand();
 		heroFwin.row();
 		
@@ -1078,6 +1131,21 @@ public class MyGdxGame implements Screen {
 		
 		fightTable.row();
 		fightTable.add(attackAndDefence);
+		Table potionTable = new Table();
+		potionAmount = new Label("", skin);
+		TextureRegionDrawable potionUp = new TextureRegionDrawable(new TextureRegion(new Texture("potionUp.png")));
+		TextureRegionDrawable potionDown = new TextureRegionDrawable(new TextureRegion(new Texture("potionDown.png")));
+		TextureRegionDrawable potionZero = new TextureRegionDrawable(new TextureRegion(new Texture("potionZero.png")));
+		potionButton = new ImageButton(potionUp, potionDown, potionZero);
+		potionButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	hero.restoreHp();
+	        	updateHeroMonsterInfo();
+	        }
+	    });	
+		potionTable.add(potionButton, potionAmount);
+		fightTable.add(potionTable);
 		fightTable.row();
 		
 		bodyPartsTable = new Table(skin);
@@ -1183,6 +1251,47 @@ public class MyGdxGame implements Screen {
 		shader.end();
 	}
 	
+	private void createStatistics() {
+		statistics = new HashMap<String, Integer>();
+		statistics.put("steps", 0);
+		statistics.put("weak", 0);
+		statistics.put("normal", 0);
+		statistics.put("strong", 0);
+		statistics.put("dangerous", 0);
+		statistics.put("deadly", 0);
+		statistics.put("boss", 0);
+	}
+	
+	private Boss getBoss() {
+		int level;
+		if(getMAP_WIDTH() < 15 && getMAP_HEIGHT() < 15) {
+			level = 1;
+		} else if(getMAP_WIDTH() < 30 && getMAP_HEIGHT() < 30) {
+			level = 2;
+		} else {
+			level = 3;
+		}
+		// need Boss static factory method which takes level as argument
+		return null;
+	}
+	
+	private void generateStaticMobs() {
+		List<Location> arr = mapgen.getDeadends();
+		Collections.shuffle(arr);
+		Monster monster;
+		arr = (List<Location>) arr.subList(0, arr.size()/2);
+		staticMonsters = new HashMap<Location,Monster>();
+		for(Location loc : arr) {
+			//MapGenerator.getDistance(loc, mapgen.getStartPos())
+			 monster = Monster.getMonsterWithModifier(ambSystem.monsterLevel(loc));
+			staticMonsters.put(loc, monster);
+			System.out.println(monster.getMod());
+		}
+		System.out.println("deadends size: " + mapgen.getDeadends().size() + " static: " + staticMonsters.size());
+		System.out.println(staticMonsters);
+		//System.out.println(staticMonsters);
+	}
+
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
@@ -1238,6 +1347,18 @@ public class MyGdxGame implements Screen {
 
 	public void setMapgen(MapGenerator mapgen) {
 		this.mapgen = mapgen;
+	}
+
+	public HashMap<String, Integer> getStatistics() {
+		return statistics;
+	}
+
+	public void setStatistics(HashMap<String, Integer> statistics) {
+		this.statistics = statistics;
+	}
+
+	public HashMap<Location, Monster> getStaticMonsters() {
+		return staticMonsters;
 	}
 
 }

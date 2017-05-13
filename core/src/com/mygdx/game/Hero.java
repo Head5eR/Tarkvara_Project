@@ -1,6 +1,5 @@
 package com.mygdx.game;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +39,7 @@ public class Hero extends Character {
 	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObjectReference
 	
 	public Hero(int strength, int dexterity, int stamina, Location loc, int hp, 
-			List<?>[] slots, List<?>[] weaponSlots, List<Item> inventory) {
+			List<?>[] slots, List<?>[] weaponSlots, List<Item> inventory, int potionAmount) {
 		super(strength, dexterity, stamina, "humanoid", "Hero");
 		this.loc = loc;
 		this.slots = slots;
@@ -49,6 +48,7 @@ public class Hero extends Character {
 		weaponSlot2 = (List<Weapon[]>) weaponSlots[1];
 		this.inventory = inventory;
 		this.hp = hp;
+		this.potionAmount = potionAmount;
 		calculateStatsFromItems();
 		
 	}
@@ -397,16 +397,14 @@ public class Hero extends Character {
 		this.potionAmount = potionAmount;
 	}
 
-	public int restoreHp(int potionAmount, int currentHp, int maxHp) {
-		potionAmount = getPotionAmount();
-		currentHp = getHp();
-		maxHp = getMaxHp();
+	public void restoreHp() {
 		if(potionAmount > 0) {
 			potionAmount -= 1;
-			currentHp = currentHp + (int) Math.round(0.3 * maxHp);
-			return currentHp;
+			setHp(getHp() + (int) Math.round(0.3 * getMaxHp()));
+			if(getHp() > getMaxHp()) {
+				setHp(getMaxHp());
+			}
 		}
-		return currentHp;
 	}
 	
 	public int getHeroStrength() {

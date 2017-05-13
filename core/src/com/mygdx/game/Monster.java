@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,11 +21,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-public class Monster extends Character {
+public class Monster extends Character implements Serializable {
 	private int wrath;
 	private Modifier mod;
-	private static String expression = "//monster[@name]";
-	private static List<String> monsterStats;
+	private transient static String expression = "//monster[@name]";
+	private transient static List<String> monsterStats;
 	private ArrayList<Integer> pickedDefs = new ArrayList<Integer>();
 	
 	public static Monster getMonster() {
@@ -37,8 +38,6 @@ public class Monster extends Character {
 		int stam =  Integer.parseInt(monsterStats.get(4));
 		String name = monsterStats.get(0);	
 		return new Monster(str, dex, stam, bodytype, name);
-		
-		
 	}
 	
 	public static Monster getMonsterWithModifier(int modNumber) {
@@ -68,6 +67,13 @@ public class Monster extends Character {
 		this.mod = new Modifier(modNumber);
 		this.wrath = Integer.parseInt(monsterStats.get(5));
 		setHp(getMaxHp());
+	}
+	
+	private Monster(int str, int dex, int stam, int wrath, 
+			Modifier mod, String bodytype, String name) {
+		super(str, dex, stam, bodytype, name);
+		this.mod = mod;
+		this.wrath = wrath;
 	}
 	
 	private static List<String> readFromXML() {

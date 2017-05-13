@@ -22,6 +22,9 @@ public abstract class SaveSystem {
 		data.put("startLocs", game.getMapgen().getStartLocs());
 		data.put("startPos", game.getMapgen().getStartPos());
 		data.put("endPos", game.getMapgen().getEndPos());
+		data.put("stat", game.getStatistics());
+		data.put("bossLoc", game.getMapgen().getBossLoc());
+		data.put("static", game.getStaticMonsters());
 		
 		// hero attributes
 		data.put("hp", hero.getHp());
@@ -33,6 +36,7 @@ public abstract class SaveSystem {
 		data.put("dex", hero.getHeroDexterity());
 		data.put("stam", hero.getHeroStamina());
 		data.put("wrath", hero.getHeroWrath());
+		data.put("potionAmount", hero.getPotionAmount());
 		
 		if(name.length() > 0 && name.matches("^[a-zA-Z0-9]*$")) {
 			try {
@@ -60,17 +64,20 @@ public abstract class SaveSystem {
 	         HashMap data = (HashMap) in.readObject();
 	         in.close();
 	         fileIn.close();
-	         ArrayList<Object> heroAndMapgen = new ArrayList<Object>();
+	         ArrayList<Object> heroMapgenStat = new ArrayList<Object>();
 	         Hero hero = new Hero((Integer) data.get("str"),(Integer) data.get("dex"), 
 	        		 (Integer) data.get("stam"), (Location) data.get("loc"), (Integer) data.get("hp"),
 	        		 (List<?>[]) data.get("slots"), (List<?>[]) data.get("weaponSlots"), 
-	        		 (List<Item>) data.get("inv"));
+	        		 (List<Item>) data.get("inv"), (Integer) data.get("potionAmount"));
 	         MapGenerator mg = new MapGenerator((Integer) data.get("mapWidth"), 
 	        		 (Integer) data.get("mapHeight"), (Matrix) data.get("map"), (ArrayList<Location>) data.get("deadends"), 
-	        		 (List<Location>) data.get("startLocs"), (Location) data.get("startPos"), (Location) data.get("endPos"));
-	         heroAndMapgen.add(hero);
-	         heroAndMapgen.add(mg);
-	         return heroAndMapgen;
+	        		 (List<Location>) data.get("startLocs"), (Location) data.get("startPos"), (Location) data.get("endPos"),
+	        		 (Location) data.get("bossLoc"));
+	         heroMapgenStat.add(hero);
+	         heroMapgenStat.add(mg);
+	         heroMapgenStat.add(data.get("stat"));
+	         heroMapgenStat.add(data.get("static"));
+	         return heroMapgenStat;
 	      }catch(IOException i) {
 	         i.printStackTrace();
 	         return null;

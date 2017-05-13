@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -14,27 +15,34 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-public class Modifier {
+public class Modifier implements Serializable {
 
-	private static String name;
+	private String name;
 	private int strength;
 	private int dexterity;
 	private int stamina;
 	private int wrath;
 
-	private String expression = "//difficulty[@level]";
+	private transient String expression = "//difficulty[@level]";
+	
+	private Modifier(String name, int str, int dex, int stam, int wrath) {
+		this.strength = str;
+		this.name = name;
+		this.dexterity = dex;
+		this.stamina = stam;
+		this.wrath = wrath;
+	}
 	
 	public Modifier() {
 		List<String> stats = readFromXML();
 
-		Modifier.name = stats.get(0);
+		this.name = stats.get(0);
 		this.strength = Integer.parseInt(stats.get(1));
 		this.dexterity = Integer.parseInt(stats.get(2));
 		this.stamina = Integer.parseInt(stats.get(3));
@@ -48,7 +56,7 @@ public class Modifier {
 			String pickedMod = modifiers.get(modNumber);
 			List<String> stats = readParticularModifier(pickedMod);
 
-			Modifier.name = stats.get(0);
+			this.name = stats.get(0);
 			this.strength = Integer.parseInt(stats.get(1));
 			this.dexterity = Integer.parseInt(stats.get(2));
 			this.stamina = Integer.parseInt(stats.get(3));
@@ -219,7 +227,7 @@ public class Modifier {
 		return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath;
 	}
 
-	public static String getName() {
+	public String getName() {
 		return name;
 	}
 }

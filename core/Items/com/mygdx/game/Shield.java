@@ -2,8 +2,6 @@ package com.mygdx.game;
 
 import java.util.List;
 
-import com.badlogic.gdx.math.MathUtils;
-
 public class Shield extends Weapon {
 	int armor;
 	private Shield(int minDamage, int maxDamage, int str, int dex, int stam, int wrath, String twohanded, String type,

@@ -71,10 +71,8 @@ public class LootSystem {
 		return item;				
 	}
 	
-	public int dropPotion() {
-		Random rand = new Random();
-		float chance = rand.nextFloat();
-		if(chance >= 0.5) {
+	public static int dropPotion() {
+		if(MathUtils.random(1) == 0) {
 			return 1;
 		}		
 		return 0;

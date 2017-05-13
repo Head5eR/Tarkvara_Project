@@ -1,22 +1,24 @@
 package com.mygdx.game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.math.MathUtils;
 
-public abstract class Character {
+public abstract class Character implements Serializable {
 	private int strength;
 	private int dexterity;
 	private int stamina;
 	private String name;
 	protected int hp;
-	private int attackMove;
+	private transient int attackMove;
 	private Body body;
 	private ArrayList<Integer> pickedDefs = new ArrayList<Integer>();
 	private ArrayList<Integer> pickedAttacks = new ArrayList<Integer>();
 	
-	public Character(int strength, int dexterity, int stamina, String bodytype, String name) {
+	public Character(int strength, int dexterity, int stamina, 
+			String bodytype, String name) {
 		this.strength = strength;
 		this.dexterity = dexterity;
 		this.stamina = stamina;

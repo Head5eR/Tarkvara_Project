@@ -2,10 +2,8 @@ package com.mygdx.game;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,10 +18,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class Body {
+public class Body implements Serializable {
 	private String type;
 	private ArrayList<Bodypart> bodyParts;
 	
+	private Body(String type, ArrayList<Bodypart> bodyParts) {
+		this.type = type;
+		this.bodyParts = bodyParts;
+	}
 	
 	public Body(String type) {
 		this.type = type;

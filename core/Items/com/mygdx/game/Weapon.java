@@ -3,8 +3,6 @@ package com.mygdx.game;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;

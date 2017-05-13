@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 
 public class Boss extends Monster {
 	private int wrath;
+	private int level;
 	private static String expression = "//boss[@name]";
 	private static List<String> bossStats;
 	private ArrayList<Integer> pickedDefs = new ArrayList<Integer>();
@@ -30,18 +31,19 @@ public class Boss extends Monster {
 		
 		bossStats = readFromXML();
 		String bodytype = bossStats.get(1);
-		
+		int lvl = Integer.parseInt(bossStats.get(2));
 		int str = Integer.parseInt(bossStats.get(3));
 		int dex = Integer.parseInt(bossStats.get(4));
 		int stam =  Integer.parseInt(bossStats.get(5));
 		String name = bossStats.get(0);	
-		return new Boss(str, dex, stam, bodytype, name);
+		return new Boss(str, dex, stam, bodytype, name, lvl);
 				
 	}
 	
-	private Boss(int str, int dex, int stam, String bodytype, String name) {
+	private Boss(int str, int dex, int stam, String bodytype, String name, int lvl) {
 		super(str, dex, stam, bodytype, name);		
 		this.wrath = Integer.parseInt(bossStats.get(6));
+		this.level = lvl;
 		setHp(getMaxHp());
 	}
 	

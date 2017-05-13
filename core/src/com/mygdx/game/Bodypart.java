@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
-public class Bodypart {
+import java.io.Serializable;
+
+public class Bodypart implements Serializable {
 	private String name;
 	private boolean isCritical;
 	
