@@ -1,19 +1,26 @@
 package com.mygdx.game;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.ai.btree.decorator.Random;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FileTextureData;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -31,6 +38,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -44,8 +52,6 @@ public class MyGdxGame implements Screen {
 	private OrthographicCamera camera;
 	private Rectangle tile;
 	private Matrix map;
-	private int winWidth = 800;
-	private int winHeight = 800;
 	private Location endPos;
 	private Location startPos;
 	private Hero hero;
@@ -60,8 +66,8 @@ public class MyGdxGame implements Screen {
 	private TextArea mobinfo;
 	private TextArea invinfo;
 	private TextArea equipinfo;
-	private final int MAP_WIDTH = 12;
-	private final int MAP_HEIGHT = 14;
+	private int MAP_WIDTH = 12;
+	private int MAP_HEIGHT = 14;
 	private boolean fightInProgress = false;
 	private Table fightTable;
 	private Window mobFwin;
@@ -74,9 +80,6 @@ public class MyGdxGame implements Screen {
 	private Table bodyPartsTable;
 	private Monster activeMob;
 	private TextButton startTheFight;
-	private Window options;
-	private TextField mapWidthTextField;
-	private TextField mapHeightTextField;
 	private Table attackAndDefence;
 	private Table chooseSlot;
 	private AmbushSystem ambSystem;
@@ -86,169 +89,172 @@ public class MyGdxGame implements Screen {
 	private java.util.Random rand;
 	private ArrayList<Location> deadends;
 	private boolean showMap = false;
+	private Texture darkness;
+	private Window menu;
+	private Table pauseMenuTable;
+	private boolean paused = false;
+	private TextButton exitButton;
+	private TextButton saveButton;
+	private Window saves;
+	private Table saveTable;
+	private TextArea saveTo;
+	
+	// here comes the light magic
+	// used shader light making tutorial - 
+	//www.alcove-games.com/opengl-es-2-tutorials/lightmap-shader-fire-effect-glsl/
+
+	
+	public static final float ambientIntensity = .7f;
+	public static final Vector3 ambientColor = new Vector3(0.01f, 0.01f, 0.01f);
+	private ShaderProgram shader;
+	private ShaderProgram lightShader;
+	private ShaderProgram defaultShader;
+	private Texture light;
+	private FrameBuffer fbo;
+	final String pixelShader =  Gdx.files.internal("pixelShader.glsl").readString();
+	final String vertexShader = Gdx.files.internal("vertexShader.glsl").readString();
+	final String defaultPixelShader = Gdx.files.internal("defaultPixelShader.glsl").readString();
+	
+	//used to make the light flicker
+	private boolean lightOscillate = true;
+	public float zAngle;
+	public static final float zSpeed = 15.0f;
+	public static final float PI2 = 3.1415926535897932384626433832795f * 2.0f;
+	
 	
 	public MyGdxGame (final GameLauncher game) {
 		this.game = game;
-		rand = new java.util.Random();
-		
-		mobtextures.add(new Texture("skeleton.png"));
-		mobtextures.add(new Texture("zombie.png"));
-		mobtextures.add(new Texture("orc.png"));
-		mobtextures.add(new Texture("goblin.png"));
-		mobtextures.add(new Texture("vampire.png"));
-		mobtextures.add(new Texture("spider.png"));
-		
-		
-		for(Texture tex : mobtextures) {
-			String filename = ((FileTextureData) tex.getTextureData()).getFileHandle().name();
-			String name = filename.replace(".png", "");
-			mobnames.add(name);
-		}
-		//System.out.println(mobnames.toString());
-
-		textures2.add(new Texture("tile_texture_0.png"));
-		textures2.add(new Texture("wall_texture.png"));
-		textures2.add(new Texture("start.png"));
-		textures2.add(new Texture("exit.png"));
-		textures2.add(new Texture("stick.png"));
-		
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 800);
-		
-		///////////////////////// UI ////////////////////////////////////////
-		
-		skin = new Skin(Gdx.files.internal("uiskin.json"));
-		
-		
-		invinfo = new TextArea("Inventory contents", skin);
-		invinfo.setPrefRows(13);
-		equipinfo = new TextArea("Contents", skin);
-		equipinfo.setPrefRows(13);
-		
-		equipPageNr = 1;
-		invPageNr = 1;
-
-		invwin = new Window("Inventory", skin);
-		invwin.setWidth(50);
-		invwin.setHeight(50);
-		invwin.add(invinfo);
-		invwin.setVisible(false);
-		invwin.row();
-		invPage = new TextArea("", skin);
-		invwin.add(invPage);
-		
-		equipwin = new Window("Equipment", skin);
-		equipwin.setWidth(50);
-		//equipwin.setHeight(50);
-		equipwin.add(equipinfo);
-		equipwin.setVisible(false);
-		equipwin.row();
-		equipPage = new TextArea("",skin);
-		equipwin.add(equipPage);
-		
-		stage = new Stage(new ScreenViewport(camera));
-		Gdx.input.setInputProcessor(stage); // IMPORTANT
-		uitable = new Table();
-		//uitable.setFillParent(true);
-		uitable.align(Align.topRight);
-		uitable.setPosition(Gdx.graphics.getWidth()/2, 0);
-		uitable.setHeight(Gdx.graphics.getHeight());
-		uitable.setWidth(Gdx.graphics.getWidth()/2);
-		
-		
-		uitable.add(mobwin);
-		uitable.row();
-		uitable.add(equipwin);
-		uitable.add(invwin);
-		uitable.getCell(equipwin).prefWidth(160);
-		uitable.getCell(invwin).prefWidth(160);
-		
-		options = new Window("Options", skin);
-		options.setVisible(false);
-		mapHeightTextField = new TextField("Height: ", skin);
-		mapWidthTextField = new TextField("Height: ", skin);
-		options.add(mapHeightTextField);
-		options.add(mapWidthTextField);
-		//uitable.row();
-		//uitable.add(options);
-		
-		fightTable = new Table(skin);
-		fightTable.setVisible(false);
-		mobFwin = new Window("Monster statistics", skin);
-		mobinfo = new TextArea("", skin);
-		mobinfo.setPrefRows(3);
-		mobFwin.add(mobinfo);
-		
-		heroFwin = new Window("Hero statistics", skin);
-		heroinfo = new TextArea("", skin);
-		heroFwin.add(heroinfo).fill().expand();
-		heroFwin.row();
-		
-		fightTable.setBackground("textfield");
-		fightTable.setHeight(Gdx.graphics.getHeight()/2);
-		fightTable.setWidth(Gdx.graphics.getWidth()/2);
-		fightTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
-		fightTable.add(new Image(textures2.get(4))).expandX();
-		
-		fightTable.add(new Image(textures2.get(3))).expandX();
-		fightTable.row();
-		fightTable.add(heroFwin).fill().expand();
-		fightTable.add(mobFwin).fill().expand();
-		
-		attackAndDefence = new Table(skin);
-		logTable = new Table(skin);
-		
-		fightTable.row();
-		fightTable.add(attackAndDefence);
-		fightTable.row();
-		
-		bodyPartsTable = new Table(skin);
-		bodyPartsTable.setVisible(false);
-		bodyPartsTable.setBackground("textfield");
-		bodyPartsTable.setHeight(Gdx.graphics.getHeight()/2);
-		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
-		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
-		
-		stage.addActor(fightTable);
-		stage.addActor(uitable);
-		stage.addActor(bodyPartsTable);
-		stage.addActor(logTable);
-
-		/////////////////////////////////////////////////////////////////////
-		
-		initialize();
-		
-		tile = new Rectangle();
-		tile.width = 64;
-		tile.height = 64;
-		
-		heroSprite = new Rectangle();
-		heroSprite.width = 64;
-		heroSprite.height = 64;
+		load();
+		initialize();	
 	}
+	
+	public MyGdxGame (final GameLauncher game, int width, int height) {
+		this.MAP_WIDTH = width;
+		this.MAP_HEIGHT = height;
+		this.game = game;
+		load();
+		initialize();	
+	}
+	
+	public MyGdxGame (final GameLauncher game, Hero hero, MapGenerator mapgen) {
+		this.game = game;
+		load();
+		initialize(mapgen, hero);	
+	}
+	
 
 	@Override
 	public void render (float delta) {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		checkIfPaused();
 
-		if(!pendingChooseTheSlotAction) {
-			if(!fightInProgress) {
-				movementUpdate();
-				handleInput();
-			} else {
-				handleFightInput();
-				//fight(hero, new Monster());
+		if(!paused) {
+			if(!pendingChooseTheSlotAction) {
+				if(!fightInProgress) {
+					movementUpdate();
+					handleInput();
+				} else {
+					handleFightInput();
+				}
 			}
 		}
+		
+		//camera.position.set(heroSprite.x, heroSprite.y, 0);
+		
+		zAngle += delta * zSpeed;
+		while(zAngle > PI2)
+			zAngle -= PI2;
 
-		game.batch.setProjectionMatrix(camera.combined);
-		game.batch.begin();
-		
 		tile.setX(0);
-		tile.setY(winHeight);
+		tile.setY(Gdx.graphics.getHeight());
 		
-		if(showMap) {
+		if(!showMap) {
+			fbo.begin();
+			game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setShader(defaultShader);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			game.batch.begin();
+			float lightSize = lightOscillate? (237.5f + 12.5f * (float)Math.sin(zAngle) + .2f*MathUtils.random()):250f;
+			game.batch.draw(light, heroSprite.x +32 - lightSize*0.5f, heroSprite.y +32 + 0.5f - lightSize*0.5f, lightSize, lightSize);
+			game.batch.end();
+			fbo.end();
+			
+			
+			game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setShader(shader);
+			game.batch.begin();
+			fbo.getColorBufferTexture().bind(1); //this is important! bind the FBO to the 2nd texture unit
+			light.bind(0); //we force the binding of a texture on first texture unit to avoid artifacts
+						   //this is because our default and ambient shader dont use multi texturing...
+						   //you can basically bind anything, it doesnt matter
+			
+			int heroX = hero.getLoc().getX();
+			int heroY = hero.getLoc().getY();
+			
+			int nearbyXone;
+			int nearbyXtwo;
+			int nearbyYone;
+			int nearbyYtwo;
+			
+			for(int y=heroY-1; y<=heroY+1; y++) {
+				tile.setX(0);
+				tile.setY(tile.y-tile.getHeight());
+				for(int x=heroX-1; x<=heroX+1; x++) {					
+					if(y < map.getWidth() && y >= 0 && x < map.getLength() && x >= 0) {
+						int value = map.getCell(x, y);
+						if(Math.abs(y-heroY) == 1 && (Math.abs(x-heroX) == 1)) {
+							//means corner
+							nearbyXone = x;
+							if(x > heroX) {
+								nearbyXtwo = x-1;
+							} else {
+								nearbyXtwo = x+1;
+							}
+							nearbyYtwo = y;
+							if(y > heroY) {
+								nearbyYone = y-1;
+							} else {
+								nearbyYone = y+1;
+							}
+							if(map.getCell(nearbyXone, nearbyYone) == 1 && map.getCell(nearbyXtwo, nearbyYtwo) == 1) {
+								game.batch.draw(darkness, tile.x, tile.y);
+							} else {
+								game.batch.draw(textures2.get(value), tile.x, tile.y);
+							}
+						} else {
+							game.batch.draw(textures2.get(value), tile.x, tile.y);
+						}
+						
+						if(startPos.getX() == x && startPos.getY() == y) {
+							game.batch.draw(textures2.get(2), tile.x, tile.y);
+						}
+						if(endPos.getX() == x && endPos.getY() == y) {
+							game.batch.draw(textures2.get(3), tile.x, tile.y);
+						}
+						
+						if(hero.getLoc().getX() == x && hero.getLoc().getY() == y) {
+							heroSprite.x = tile.x;
+							heroSprite.y = tile.y;
+							game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
+							camera.position.set(heroSprite.x, heroSprite.y, 0);
+							camera.update();
+						}
+//						if(deadends.contains(new Location(x,y))) {
+//							game.batch.draw(textures2.get(2), tile.x, tile.y);
+//						}
+					} else {
+						game.batch.draw(darkness, tile.x, tile.y);
+					}
+					tile.setX(tile.x + tile.getWidth());
+				}
+			}
+			
+		} else {
+			game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setShader(defaultShader);
+			game.batch.begin();
 			for(int y=0; y<map.getWidth(); y++) {
 				tile.setX(0);
 				tile.setY(tile.y-tile.getHeight());
@@ -267,6 +273,8 @@ public class MyGdxGame implements Screen {
 						heroSprite.x = tile.x;
 						heroSprite.y = tile.y;
 						game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
+						camera.position.set(heroSprite.x, heroSprite.y, 0);
+						camera.update();
 					}
 					if(deadends.contains(new Location(x,y))) {
 						game.batch.draw(textures2.get(2), tile.x, tile.y);
@@ -274,39 +282,36 @@ public class MyGdxGame implements Screen {
 					tile.setX(tile.x + tile.getWidth());
 				}
 			}
-		} else { // work in progress
-			for(int y=0; y<map.getWidth(); y++) {
-				tile.setX(0);
-				tile.setY(tile.y-tile.getHeight());
-				
-				for(int x=0; x<map.getLength(); x++) {
-					int value = map.getCell(x, y);
-					game.batch.draw(textures2.get(value), tile.x, tile.y);
-					tile.setX(tile.x + tile.getWidth());
-				}
-				
-			}
 		}
-
-		
-		
 		game.batch.end();
 		
-		stage.act(Gdx.graphics.getDeltaTime());
+		stage.act(delta);
 		stage.draw();
 	}
 	
 	@Override
 	public void dispose () {
 		game.batch.dispose();
+		skin.dispose();
+		stage.dispose();
+		shader.dispose();
+		defaultShader.dispose();
+		fbo.dispose();
+		
 	}
 	
 	@Override
 	public void resize(int width, int height) {
+		fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
 		camera.viewportHeight = height;
 		camera.viewportWidth = width;
-		camera.update();	
-		stage.getViewport().update(width, height);
+		camera.update();
+
+		stage.getViewport().update(width, height, true);
+
+		shader.begin();
+		shader.setUniformf("resolution", width, height);
+		shader.end();
 	}
 	
 	private void genMob() {
@@ -362,10 +367,9 @@ public class MyGdxGame implements Screen {
 	    	double ambushChance = ambSystem.generateAttackChance();
 	    	System.out.println(ambushChance);
 	    	if(rand.nextDouble() <= ambushChance) {
-	    		startTheFight();
+	    		//startTheFight();
 	    	}
 	    }
-	    camera.update();
 	}
 
 	private void handleInput() {
@@ -500,7 +504,6 @@ public class MyGdxGame implements Screen {
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		startTheFight();
-	    		createLoot();
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
     		if(showMap) {
@@ -510,9 +513,28 @@ public class MyGdxGame implements Screen {
     		}
     		
 	    }
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+	    	if(lightOscillate) {
+	    		lightOscillate = false;
+    		} else {
+    			lightOscillate = true;
+    		}
+	    }
 	    
 	    camera.update();
 	 }
+	
+	private void checkIfPaused() {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+	    	if(paused && menu.isVisible()) {
+	    		paused = false;
+	    		menu.setVisible(false);
+	    	} else if (!saves.isVisible()){
+	    		paused = true;
+	    		menu.setVisible(true);
+	    	}
+	    }
+	}
 	
 	public void startTheFight() {
 		genMob();
@@ -525,12 +547,16 @@ public class MyGdxGame implements Screen {
 		fightTable.setVisible(true);
 	}
 	
-	public void dialogTest() { // will look into it later
-		Dialog dialog = new Dialog("Some Dialog", skin, "dialog") {
+	public void sureAboutClosingDialog() { // will look into it later
+		Dialog dialog = new Dialog("Close the game?", skin, "dialog") {
 			protected void result (Object object) {
-				System.out.println("Chosen: " + object);
+				if(object.equals(true)) {
+					Gdx.app.exit();
+				} else {
+					this.hide();
+				}
 			}
-		}.text("Are you enjoying this demo?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
+		}.text("Are you sure?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
 			.key(Keys.ESCAPE, false).show(stage);
 	}
 
@@ -546,7 +572,7 @@ public class MyGdxGame implements Screen {
 		log.getLabel().setAlignment(Align.topLeft);
 		logTable.add(logPane).expand().bottom().left();
 		logTable.setHeight(Gdx.graphics.getHeight());
-		logTable.setWidth(215);
+		logTable.setWidth(256);
 		logTable.setPosition(0, 0);
 	}
 	
@@ -902,16 +928,259 @@ public class MyGdxGame implements Screen {
 		return null;
 	}
 	
-	private void initialize() {	
-		mapgen = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
-		mapgen.generateMap();
+	private void initialize() {
+		MapGenerator mg = new MapGenerator(MAP_WIDTH,MAP_HEIGHT, true, true);
+		mg.generateMap();
+		initialize(mg, new Hero(10,10,10,mg.getStartPos()));
+		
+	}
+	
+	private void initialize(MapGenerator mapgen, Hero hero) {
+		this.mapgen = mapgen;
+		this.hero = hero;	
 		map = mapgen.getMap();
 		deadends = mapgen.getDeadends();
 		endPos = mapgen.getEndPos();
 		startPos = mapgen.getStartPos();
-		hero = new Hero(10,10,10,startPos);
-		
 		ambSystem = new AmbushSystem(mapgen, hero);
+	}
+	
+	
+	private void saveOption(FileHandle file, String date) {
+		String name = file.name();
+		if(name != "" && date != "") { 
+			Date d = new Date(Long.parseLong(date));
+			TextArea text = new TextArea(name+ " " + d.toGMTString(), skin);
+			text.setDisabled(true);
+			TextButton save = new TextButton("Save", skin);
+			save.setName(file.nameWithoutExtension());
+			save.addListener(new ChangeListener() {
+		        @Override
+		        public void changed (ChangeEvent event, Actor actor) {
+		        	saveGame(actor.getName());
+		        	System.out.println("saving to file " + actor.getName()); 
+		        	saves.setVisible(false);
+		        	menu.setVisible(true);
+		        }
+		    });
+			saveTable.add(text).minWidth(256);
+			saveTable.add(save).row();
+		} else {
+			System.out.println("Came empty string");
+		}
+	}
+	
+	private void saveGame(String saveName) {
+		System.out.println("saving to: " + saveName);
+		SaveSystem.saveGame(this, saveName);
+	}
+	
+	private void load() {
+		rand = new java.util.Random();
+		
+		light = new Texture("light.png");
+		darkness = new Texture("darkness.png");
+		
+		mobtextures.add(new Texture("skeleton.png"));
+		mobtextures.add(new Texture("zombie.png"));
+		mobtextures.add(new Texture("orc.png"));
+		mobtextures.add(new Texture("goblin.png"));
+		mobtextures.add(new Texture("vampire.png"));
+		mobtextures.add(new Texture("spider.png"));
+		
+		
+		for(Texture tex : mobtextures) {
+			String filename = ((FileTextureData) tex.getTextureData()).getFileHandle().name();
+			String name = filename.replace(".png", "");
+			mobnames.add(name);
+		}
+		//System.out.println(mobnames.toString());
+
+		textures2.add(new Texture("tile_texture_0.png"));
+		textures2.add(new Texture("wall_texture.png"));
+		textures2.add(new Texture("start.png"));
+		textures2.add(new Texture("exit.png"));
+		textures2.add(new Texture("stick.png"));
+		
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false);
+		
+		///////////////////////// UI ////////////////////////////////////////		
+		skin = new Skin(Gdx.files.internal("uiskin.json"));		
+		
+		invinfo = new TextArea("Inventory contents", skin);
+		invinfo.setPrefRows(13);
+		equipinfo = new TextArea("Contents", skin);
+		equipinfo.setPrefRows(13);
+		
+		equipPageNr = 1;
+		invPageNr = 1;
+
+		invwin = new Window("Inventory", skin);
+		invwin.setWidth(50);
+		invwin.setHeight(50);
+		invwin.add(invinfo);
+		invwin.setVisible(false);
+		invwin.row();
+		invPage = new TextArea("", skin);
+		invwin.add(invPage);
+		
+		equipwin = new Window("Equipment", skin);
+		equipwin.setWidth(50);
+		//equipwin.setHeight(50);
+		equipwin.add(equipinfo);
+		equipwin.setVisible(false);
+		equipwin.row();
+		equipPage = new TextArea("",skin);
+		equipwin.add(equipPage);
+		
+		stage = new Stage();
+		Gdx.input.setInputProcessor(stage); // IMPORTANT
+		uitable = new Table();
+		//uitable.setFillParent(true);
+		uitable.align(Align.topRight);
+		uitable.setPosition(Gdx.graphics.getWidth()/2, 0);
+		uitable.setHeight(Gdx.graphics.getHeight());
+		uitable.setWidth(Gdx.graphics.getWidth()/2);	
+		
+		uitable.add(mobwin);
+		uitable.row();
+		uitable.add(equipwin);
+		uitable.add(invwin);
+		uitable.getCell(equipwin).prefWidth(160);
+		uitable.getCell(invwin).prefWidth(160);
+		
+		fightTable = new Table(skin);
+		fightTable.setVisible(false);
+		mobFwin = new Window("Monster statistics", skin);
+		mobinfo = new TextArea("", skin);
+		mobinfo.setPrefRows(3);
+		mobFwin.add(mobinfo);
+		
+		heroFwin = new Window("Hero statistics", skin);
+		heroinfo = new TextArea("", skin);
+		heroFwin.add(heroinfo).fill().expand();
+		heroFwin.row();
+		
+		fightTable.setBackground("textfield");
+		fightTable.setHeight(Gdx.graphics.getHeight()/2);
+		fightTable.setWidth(Gdx.graphics.getWidth()/2);
+		fightTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		fightTable.add(new Image(textures2.get(4))).expandX();
+		
+		fightTable.add(new Image(textures2.get(3))).expandX();
+		fightTable.row();
+		fightTable.add(heroFwin).fill().expand();
+		fightTable.add(mobFwin).fill().expand();
+		
+		attackAndDefence = new Table(skin);
+		logTable = new Table(skin);
+		
+		fightTable.row();
+		fightTable.add(attackAndDefence);
+		fightTable.row();
+		
+		bodyPartsTable = new Table(skin);
+		bodyPartsTable.setVisible(false);
+		bodyPartsTable.setBackground("textfield");
+		bodyPartsTable.setHeight(Gdx.graphics.getHeight()/2);
+		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
+		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
+		
+		
+		///////////////////PAUSE MENU//////////////////////
+		menu = new Window("Menu", skin);
+		menu.setVisible(false);
+		pauseMenuTable = new Table();
+		
+		saveButton = new TextButton("Save game", skin);
+		exitButton = new TextButton("Exit game", skin);
+		
+		exitButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	sureAboutClosingDialog();
+	        }
+	    });	
+		
+		saveButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	saveTable.clear();
+	        	FileHandle[] files = Gdx.files.local("../").list();
+	        	for(FileHandle file: files) {
+	        		if(file.extension().equals("ser")) {
+	        			saveOption(file, ""+file.lastModified());
+	        		}
+	        	}
+	        	menu.setVisible(false);
+	        	saves.setVisible(true);
+	        }
+	    });	
+		pauseMenuTable.add(saveButton).row();
+		pauseMenuTable.add(exitButton);
+		menu.add(pauseMenuTable);
+		menu.setPosition(Gdx.graphics.getWidth()/2-menu.getWidth()/2, Gdx.graphics.getHeight()/2-menu.getHeight()/2);
+		
+		saves = new Window("Saving the game", skin);
+		saves.setSize(Gdx.graphics.getWidth()/3, Gdx.graphics.getHeight()/3);
+		saves.setPosition(Gdx.graphics.getWidth()/2-saves.getWidth()/2, Gdx.graphics.getHeight()/2-saves.getHeight()/2);
+		
+		saves.setVisible(false);
+		saveTable = new Table();
+		Table saveToNewFile = new Table();
+		
+		saveTo = new TextArea("",skin);
+		saveTo.setMessageText("type new save name");
+		
+		TextButton saveToButton = new TextButton("Save", skin);
+		
+		saveToButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	String text = saveTo.getText();
+	        	System.out.println(text);
+	        	if(text.matches("^[a-zA-Z0-9]*$")) {
+	        		saveGame(text);
+	        	} else {
+	        		System.out.println("Wrong save name");
+	        	}
+	        	saves.setVisible(false);
+	        	menu.setVisible(true);
+	        }
+	    });	
+		saveToNewFile.add(saveTo, saveToButton);
+		saves.add(saveToNewFile).row();
+		saves.add(saveTable);
+
+		
+		////////////////////////////////////////////////////////
+
+		stage.addActor(fightTable);
+		stage.addActor(uitable);
+		stage.addActor(bodyPartsTable);
+		stage.addActor(logTable);
+		stage.addActor(menu);
+		stage.addActor(saves);
+		
+		/////////////////////////////////////////////////////////////////////
+		
+		tile = new Rectangle();
+		tile.width = 64;
+		tile.height = 64;
+		
+		heroSprite = new Rectangle();
+		heroSprite.width = 64;
+		heroSprite.height = 64;
+		
+		////////////////////////////////SHADERS INIT//////////////////////////
+		defaultShader = new ShaderProgram(vertexShader, defaultPixelShader);		
+		shader = new ShaderProgram(vertexShader, pixelShader);
+		shader.begin();
+		shader.setUniformi("u_lightmap", 1);
+		shader.setUniformf("ambientColor", ambientColor.x, ambientColor.y,
+				ambientColor.z, ambientIntensity);
+		shader.end();
 	}
 	
 	@Override
@@ -937,6 +1206,38 @@ public class MyGdxGame implements Screen {
 	public void hide() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Hero getHero() {
+		return hero;
+	}
+
+	public int getMAP_WIDTH() {
+		return MAP_WIDTH;
+	}
+
+	public int getMAP_HEIGHT() {
+		return MAP_HEIGHT;
+	}
+
+	public ArrayList<Location> getDeadends() {
+		return deadends;
+	}
+
+	public Matrix getMap() {
+		return map;
+	}
+
+	public void setMap(Matrix map) {
+		this.map = map;
+	}
+
+	public MapGenerator getMapgen() {
+		return mapgen;
+	}
+
+	public void setMapgen(MapGenerator mapgen) {
+		this.mapgen = mapgen;
 	}
 
 }

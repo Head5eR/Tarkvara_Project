@@ -39,6 +39,20 @@ public class Hero extends Character {
 	// Schema
 	// List<?> -> ArrayList<GearClass[]> -> GearClass[] -> GearClassObjectReference
 	
+	public Hero(int strength, int dexterity, int stamina, Location loc, int hp, 
+			List<?>[] slots, List<?>[] weaponSlots, List<Item> inventory) {
+		super(strength, dexterity, stamina, "humanoid", "Hero");
+		this.loc = loc;
+		this.slots = slots;
+		this.weaponSlots = weaponSlots;
+		weaponSlot1 = (List<MeleeWeapon[]>) weaponSlots[0];
+		weaponSlot2 = (List<Weapon[]>) weaponSlots[1];
+		this.inventory = inventory;
+		this.hp = hp;
+		calculateStatsFromItems();
+		
+	}
+	
 	public Hero(int strength, int dexterity, int stamina, Location loc) {
 		super(strength, dexterity, stamina, "humanoid", "Hero");
 		this.loc = loc;

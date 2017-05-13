@@ -1,8 +1,10 @@
 package com.mygdx.game;
 
+import java.io.Serializable;
+
 import com.badlogic.gdx.math.MathUtils;
 
-public abstract class Item {
+public abstract class Item implements Serializable {
 	private String name;
 	private String[] rarities = {"Common","Uncommon", "Rare", "Mystic", "Legendary"};
 	private String rarity; // 1-5 (Common, Uncommon, Rare, Mystic, Legendary)
