@@ -26,6 +26,7 @@ public class AmbushSystem {
 		java.util.Random rand = new java.util.Random();
 		Double dist = (double) distance;
 		Double maxdist = (double) maxDistance;
+		System.out.println(distance);
 		if(dist <= maxdist/3) {
 			if(rand.nextFloat() <= 0.6) {
 				return 0;

@@ -23,8 +23,19 @@ public class MapGenerator {
 	final int MOVEDOWN = 8;
 	final int EMPTY = 0;
 	final int WALL = 1;
-	List<Location> startLocs = new ArrayList<Location>();
+	private List<Location> startLocs = new ArrayList<Location>();
 	private ArrayList<Location> deadends;
+	
+	public MapGenerator(int length, int width, Matrix map, ArrayList<Location> deadends, 
+			List<Location> startLocs, Location startPos, Location endPos){
+		this.length = length;
+		this.width = width;
+		this.startPos = startPos;
+		this.endPos = endPos;
+		this.map = map;
+		this.deadends = deadends;
+		this.startLocs = startLocs;
+	}
 	
 	public MapGenerator(int length, int width){
 		this.length = length;
@@ -38,7 +49,10 @@ public class MapGenerator {
 	public MapGenerator(int length, int width, boolean randStart, boolean randEnd){
 		this.length = length;
 		this.width = width;
-		startLocs = Arrays.asList(new Location(0,0), new Location(length-1, 0), new Location(length-1, width-1), new Location(0, width-1));
+		startLocs = Arrays.asList(new Location(0,0), 
+				new Location(length-1, 0), 
+				new Location(length-1, width-1), 
+				new Location(0, width-1));
 		if(randStart) {
 			this.startPos = startLocs.get(MathUtils.random(0, 3));
 		} else {
@@ -69,16 +83,14 @@ public class MapGenerator {
 	public void generateMap() {
 		
 		deadends = new ArrayList<Location>();
-		printer.printMap(map, false);
 		while(move());
 		
 //		if(map.getCell(endPos) != 0) { // there is a rare alghorithm fault, when it never reaches the end position
 //			this.map = new Matrix(length,width, WALL);
 //			generateMap();
 //		}
-		printer.printMap(map, false);
+		//printer.printMap(map, false);
 		//printer.printMapImproved(map);
-		System.out.println(deadends.toString());
 	}
 	
 	public void addStep(Location newLoc) {
@@ -99,20 +111,19 @@ public class MapGenerator {
 	
 	public boolean move() {
 		if(route.size() == 0){ return false;}
-		System.out.println(route.toString());
 		Location currentLoc = route.get(currentStep);
-		System.out.println("my currentLoc is: " + currentLoc);
-		System.out.println("way left: " + (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))));
-		System.out.println("way up: " + (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))));
-		System.out.println("way right: " + (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))));
-		System.out.println("way down: " + (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
+//		System.out.println("my currentLoc is: " + currentLoc);
+//		System.out.println("way left: " + (canMove(MOVELEFT, currentLoc) && checkDiagonals(MOVELEFT, currentLoc.goLeft(1))));
+//		System.out.println("way up: " + (canMove(MOVEUP, currentLoc) && checkDiagonals(MOVEUP, currentLoc.goUp(1))));
+//		System.out.println("way right: " + (canMove(MOVERIGHT, currentLoc) && checkDiagonals(MOVERIGHT, currentLoc.goRight(1))));
+//		System.out.println("way down: " + (canMove(MOVEDOWN, currentLoc) && checkDiagonals(MOVEDOWN, currentLoc.goDown(1))));
 		wayExists = wayExists(currentLoc);
-		System.out.println("way exists? " + wayExists);
+//		System.out.println("way exists? " + wayExists);
 		if(wayExists) {
 			int direction = (int) Math.floor(Math.random() * 4);
 			
 			if(map.getCell(endPos) != 0 && searchForExit(currentLoc) > 0) {
-				System.out.println("I'M NEAR THE EXIT, GOING THERE");
+//				System.out.println("I'M NEAR THE EXIT, GOING THERE");
 				switch(searchForExit(currentLoc)) {
 					case 1: { direction = 0; } break;
 					case 2: { direction = 1; } break;
@@ -304,5 +315,9 @@ public class MapGenerator {
 	
 	public ArrayList<Location> getDeadends() {
 		return deadends;
+	}
+
+	public List<Location> getStartLocs() {
+		return startLocs;
 	}
 }

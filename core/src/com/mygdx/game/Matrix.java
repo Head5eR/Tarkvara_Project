@@ -1,8 +1,9 @@
 package com.mygdx.game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Matrix {
+public class Matrix implements Serializable {
 	private int length;
 	private int width;
 	private ArrayList<ArrayList<Integer>> columns = new ArrayList<ArrayList<Integer>>();
@@ -19,6 +20,12 @@ public class Matrix {
 			}
 		}
 		//System.out.println(columns.toString());
+	}
+	
+	public Matrix(int length, int width, ArrayList<ArrayList<Integer>> columns) {
+		this.length = length;
+		this.width = width;
+		this.columns = columns;
 	}
 	
 	public Matrix(int length, int width) {
