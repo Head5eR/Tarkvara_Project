@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -47,6 +48,14 @@ public class MainMenuScreen implements Screen {
 	private Table customMapSize;
 	private Table loadTable;
 	private Dialog wrongValues;
+	private int frameCounter =0;
+	Image logo1;
+	Image logo2;
+	Image logo3;
+	Image logo4;
+	Image logo;
+	Cell logoCell;
+	ArrayList<Image> frames = new ArrayList<Image>();
 
 	final GameLauncher game;
 	
@@ -61,8 +70,18 @@ public class MainMenuScreen implements Screen {
 		stage = new Stage(new ScreenViewport(camera));
 		Gdx.input.setInputProcessor(stage); // IMPORTANT
 		
-		Image logo = new Image(new Texture("pixel_m.jpeg"));
+		logo = new Image(new Texture("menuLogo.gif"));
+		logo.setName("logo");
+		logo1 = new Image(new Texture("logoFrames/1.png"));
+		logo2 = new Image(new Texture("logoFrames/2.png"));
+		logo3 = new Image(new Texture("logoFrames/3.png"));
+		logo4 = new Image(new Texture("logoFrames/4.png"));
+		frames.add(logo1);
+		frames.add(logo2);
+		frames.add(logo3);
+		frames.add(logo4);
 		
+
 		rootTable = new Table();
 		rootTable.setFillParent(true);
 		
@@ -215,8 +234,10 @@ public class MainMenuScreen implements Screen {
 		rootTable.add(logoTable).expandY().top().row();
 		rootTable.add(menuItems).expand().top().row();
 		logoTable.add(logo);
+		logoCell = logoTable.getCell(logoTable.findActor("logo"));
 		stage.addActor(mapSize);
 		stage.addActor(loadOptions);
+		stage.addActor(new Window("test",skin));
 		
 	}
 	
@@ -258,10 +279,19 @@ public class MainMenuScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
+		if(frameCounter > 15) {
+			frameCounter = 0;
+		}
+		
+		System.out.println(loadOptions.getX() + " " + loadOptions.getY());
+		
+		logoCell.setActor(frames.get(frameCounter/5));
+		
 		camera.update();
 		game.batch.setProjectionMatrix(camera.combined);       
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
+		frameCounter++;
 	}
 	
 

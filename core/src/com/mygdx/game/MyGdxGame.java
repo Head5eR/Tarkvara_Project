@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
@@ -37,9 +38,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
@@ -101,6 +104,7 @@ public class MyGdxGame implements Screen {
 	private HashMap<Location, Monster> staticMonsters;
 	private Boss boss;
 	private ArrayList<Texture> bossTextures = new ArrayList<Texture>();
+	private Window win;
 	
 	// here comes the light magic
 	// used shader light making tutorial - 
@@ -170,8 +174,6 @@ public class MyGdxGame implements Screen {
 			}
 		}
 		
-		//camera.position.set(heroSprite.x, heroSprite.y, 0);
-		
 		zAngle += delta * zSpeed;
 		while(zAngle > PI2)
 			zAngle -= PI2;
@@ -189,9 +191,8 @@ public class MyGdxGame implements Screen {
 			game.batch.draw(light, heroSprite.x +32 - lightSize*0.5f, heroSprite.y +32 + 0.5f - lightSize*0.5f, lightSize, lightSize);
 			game.batch.end();
 			fbo.end();
-			
-			
-			game.batch.setProjectionMatrix(camera.combined);
+					
+			//game.batch.setProjectionMatrix(camera.combined);
 			game.batch.setShader(shader);
 			game.batch.begin();
 			fbo.getColorBufferTexture().bind(1); //this is important! bind the FBO to the 2nd texture unit
@@ -235,7 +236,7 @@ public class MyGdxGame implements Screen {
 							game.batch.draw(textures2.get(3), tile.x, tile.y);
 						}
 						if(mapgen.getBossLoc().getX() == x && mapgen.getBossLoc().getY() == y) {
-							game.batch.draw(bossTextures.get(boss.getLevel()), tile.x, tile.y);
+							game.batch.draw(bossTextures.get(boss.getLevel()-1), tile.x, tile.y);
 						}
 						
 						if(Math.abs(y-heroY) == 1 && (Math.abs(x-heroX) == 1)) {
@@ -322,7 +323,7 @@ public class MyGdxGame implements Screen {
 			}
 		}
 		game.batch.end();
-		
+     
 		stage.act(delta);
 		stage.draw();
 	}
@@ -341,12 +342,9 @@ public class MyGdxGame implements Screen {
 	@Override
 	public void resize(int width, int height) {
 		fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
-		camera.viewportHeight = height;
-		camera.viewportWidth = width;
-		camera.update();
-
+		//camera.viewportHeight = height;
+		//camera.viewportWidth = width;
 		stage.getViewport().update(width, height, true);
-
 		shader.begin();
 		shader.setUniformf("resolution", width, height);
 		shader.end();
@@ -360,7 +358,7 @@ public class MyGdxGame implements Screen {
 		if(Boss.class.isInstance(mob)) {
 			System.out.println("Instance is boss!");
 			Boss b = (Boss) mob;
-			foundindex = b.getLevel();
+			foundindex = b.getLevel()-1;
 			imgcell.setActor(new Image(bossTextures.get(foundindex)));
 		} else {
 			foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
@@ -543,30 +541,12 @@ public class MyGdxGame implements Screen {
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
 	    	initialize();
 	    }
-	   
-	    if (Gdx.input.isKeyPressed(Input.Keys.Z)) {
-	    	//if(camera.zoom < 1.30f) {
-	    		camera.zoom += 0.02;
-	    	//}
-	    }
-	    if (Gdx.input.isKeyPressed(Input.Keys.X)) {
-	    	if(camera.zoom > 0.60) {
-	    		camera.zoom -= 0.02;
-	    	}
-	    }
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-	    	Boss boss = Boss.getBoss(2);
-	    	if(boss == null) {
-	    		System.out.println("no boss");
+	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {    	
+	    	if(logTable.isVisible()) {
+	    		logTable.setVisible(false);
 	    	} else {
-	    		System.out.println(boss);
+	    		logTable.setVisible(true);
 	    	}
-	    	
-//	    	if(logTable.isVisible()) {
-//	    		logTable.setVisible(false);
-//	    	} else {
-//	    		logTable.setVisible(true);
-//	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
 	    	stage.setDebugAll(false);
@@ -1094,7 +1074,6 @@ public class MyGdxGame implements Screen {
 			String name = filename.replace(".png", "");
 			mobnames.add(name);
 		}
-		//System.out.println(mobnames.toString());
 
 		textures2.add(new Texture("tile_texture_0.png"));
 		textures2.add(new Texture("wall_texture.png"));
@@ -1104,6 +1083,9 @@ public class MyGdxGame implements Screen {
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false);
+		//stage = new Stage(new ScreenViewport(camera)); // for some reason shifts everything right 366px
+		stage = new Stage();
+		Gdx.input.setInputProcessor(stage); // IMPORTANT
 		
 		///////////////////////// UI ////////////////////////////////////////		
 		skin = new Skin(Gdx.files.internal("uiskin.json"));		
@@ -1136,12 +1118,10 @@ public class MyGdxGame implements Screen {
 		equipPage = new TextArea("",skin);
 		equipwin.add(equipPage);
 		
-		stage = new Stage();
-		Gdx.input.setInputProcessor(stage); // IMPORTANT
 		uitable = new Table();
-		//uitable.setFillParent(true);
+		uitable.setFillParent(true);
 		uitable.align(Align.topRight);
-		uitable.setPosition(Gdx.graphics.getWidth()/2, 0);
+		uitable.setPosition(0, 10);
 		uitable.setHeight(Gdx.graphics.getHeight());
 		uitable.setWidth(Gdx.graphics.getWidth()/2);	
 		
@@ -1276,13 +1256,15 @@ public class MyGdxGame implements Screen {
 
 		
 		////////////////////////////////////////////////////////
-
+		
 		stage.addActor(fightTable);
 		stage.addActor(uitable);
 		stage.addActor(bodyPartsTable);
 		stage.addActor(logTable);
 		stage.addActor(menu);
 		stage.addActor(saves);
+		win = new Window("test", skin);
+		stage.addActor(win);
 		
 		/////////////////////////////////////////////////////////////////////
 		
@@ -1355,8 +1337,7 @@ public class MyGdxGame implements Screen {
 		for(Location loc : arr) {
 			//MapGenerator.getDistance(loc, mapgen.getStartPos())
 			 monster = Monster.getMonsterWithModifier(ambSystem.monsterLevel(loc));
-			staticMonsters.put(loc, monster);
-			System.out.println(monster.getMod());
+			staticMonsters.put(loc, monster);;
 		}
 		System.out.println("deadends size: " + mapgen.getDeadends().size() + " static: " + staticMonsters.size());
 		System.out.println(staticMonsters);

@@ -63,7 +63,7 @@ public class MapGenerator {
 		
 		if(randEnd) {
 			this.endPos = new Location(MathUtils.random(0, length-1), MathUtils.random(0, width-1));
-			while (getDistance(endPos, startPos) < this.length/2) {
+			while (getDistance(endPos, startPos) < this.length/1.3) {
 				this.endPos = new Location(MathUtils.random(0, length-1), MathUtils.random(0, width-1));
 			}
 		} else {
