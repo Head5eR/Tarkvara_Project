@@ -43,6 +43,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MyGdxGame implements Screen {
 	private final GameLauncher game;
@@ -50,6 +51,7 @@ public class MyGdxGame implements Screen {
 	private ArrayList<Texture> textures2 = new ArrayList<Texture>();
 	private ArrayList<String> mobnames = new ArrayList<String>();
 	private OrthographicCamera camera;
+	private OrthographicCamera UIcamera;
 	private Rectangle tile;
 	private Matrix map;
 	private Location endPos;
@@ -104,7 +106,6 @@ public class MyGdxGame implements Screen {
 	private HashMap<Location, Monster> staticMonsters;
 	private Boss boss;
 	private ArrayList<Texture> bossTextures = new ArrayList<Texture>();
-	private Window win;
 	
 	// here comes the light magic
 	// used shader light making tutorial - 
@@ -178,8 +179,9 @@ public class MyGdxGame implements Screen {
 		while(zAngle > PI2)
 			zAngle -= PI2;
 
-		tile.setX(0);
-		tile.setY(Gdx.graphics.getHeight());
+		tile.setX(camera.viewportWidth /2 -96);
+		tile.setY(camera.viewportHeight /2 +96);
+		System.out.println(tile.getX() + " " + tile.getY());
 		
 		if(!showMap) {
 			fbo.begin();
@@ -192,7 +194,7 @@ public class MyGdxGame implements Screen {
 			game.batch.end();
 			fbo.end();
 					
-			//game.batch.setProjectionMatrix(camera.combined);
+			game.batch.setProjectionMatrix(camera.combined);
 			game.batch.setShader(shader);
 			game.batch.begin();
 			fbo.getColorBufferTexture().bind(1); //this is important! bind the FBO to the 2nd texture unit
@@ -209,7 +211,7 @@ public class MyGdxGame implements Screen {
 			int nearbyYtwo;
 			
 			for(int y=heroY-1; y<=heroY+1; y++) {
-				tile.setX(0);
+				tile.setX(camera.viewportWidth /2 -96);
 				tile.setY(tile.y-tile.getHeight());
 				for(int x=heroX-1; x<=heroX+1; x++) {					
 					if(y < map.getWidth() && y >= 0 && x < map.getLength() && x >= 0) {
@@ -263,7 +265,6 @@ public class MyGdxGame implements Screen {
 							heroSprite.x = tile.x;
 							heroSprite.y = tile.y;
 							game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
-							camera.position.set(heroSprite.x, heroSprite.y, 0);
 							camera.update();
 						}
 //						if(deadends.contains(new Location(x,y))) {
@@ -312,7 +313,6 @@ public class MyGdxGame implements Screen {
 						heroSprite.x = tile.x;
 						heroSprite.y = tile.y;
 						game.batch.draw(textures2.get(4), heroSprite.x, heroSprite.y);
-						camera.position.set(heroSprite.x, heroSprite.y, 0);
 						camera.update();
 					}
 					if(deadends.contains(new Location(x,y))) {
@@ -336,15 +336,19 @@ public class MyGdxGame implements Screen {
 		shader.dispose();
 		defaultShader.dispose();
 		fbo.dispose();
-		
 	}
 	
 	@Override
 	public void resize(int width, int height) {
 		fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
-		//camera.viewportHeight = height;
-		//camera.viewportWidth = width;
+		camera.viewportHeight = height;
+		camera.viewportWidth = width;
+		camera.position.set(width/2f, height/2f, 0);
 		stage.getViewport().update(width, height, true);
+		stage.getViewport().apply();
+		updateTablePositions();
+		UIcamera.update();
+		camera.update();
 		shader.begin();
 		shader.setUniformf("resolution", width, height);
 		shader.end();
@@ -1083,8 +1087,9 @@ public class MyGdxGame implements Screen {
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false);
-		//stage = new Stage(new ScreenViewport(camera)); // for some reason shifts everything right 366px
-		stage = new Stage();
+		UIcamera = new OrthographicCamera();
+		UIcamera.setToOrtho(false);
+		stage = new Stage(new ScreenViewport(UIcamera));
 		Gdx.input.setInputProcessor(stage); // IMPORTANT
 		
 		///////////////////////// UI ////////////////////////////////////////		
@@ -1121,7 +1126,6 @@ public class MyGdxGame implements Screen {
 		uitable = new Table();
 		uitable.setFillParent(true);
 		uitable.align(Align.topRight);
-		uitable.setPosition(0, 10);
 		uitable.setHeight(Gdx.graphics.getHeight());
 		uitable.setWidth(Gdx.graphics.getWidth()/2);	
 		
@@ -1150,7 +1154,6 @@ public class MyGdxGame implements Screen {
 		fightTable.setBackground("textfield");
 		fightTable.setHeight(Gdx.graphics.getHeight()/2);
 		fightTable.setWidth(Gdx.graphics.getWidth()/2);
-		fightTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
 		fightTable.add(new Image(textures2.get(4))).expandX();
 		
 		fightTable.add(new Image(textures2.get(3))).expandX();
@@ -1220,11 +1223,10 @@ public class MyGdxGame implements Screen {
 		pauseMenuTable.add(saveButton).row();
 		pauseMenuTable.add(exitButton);
 		menu.add(pauseMenuTable);
-		menu.setPosition(Gdx.graphics.getWidth()/2-menu.getWidth()/2, Gdx.graphics.getHeight()/2-menu.getHeight()/2);
+		
 		
 		saves = new Window("Saving the game", skin);
 		saves.setSize(Gdx.graphics.getWidth()/3, Gdx.graphics.getHeight()/3);
-		saves.setPosition(Gdx.graphics.getWidth()/2-saves.getWidth()/2, Gdx.graphics.getHeight()/2-saves.getHeight()/2);
 		
 		saves.setVisible(false);
 		saveTable = new Table();
@@ -1253,7 +1255,7 @@ public class MyGdxGame implements Screen {
 		saves.add(saveToNewFile).row();
 		saves.add(saveTable).row();
 		saves.add(GUIelements.getBackButton(skin));
-
+		updateTablePositions();
 		
 		////////////////////////////////////////////////////////
 		
@@ -1263,8 +1265,6 @@ public class MyGdxGame implements Screen {
 		stage.addActor(logTable);
 		stage.addActor(menu);
 		stage.addActor(saves);
-		win = new Window("test", skin);
-		stage.addActor(win);
 		
 		/////////////////////////////////////////////////////////////////////
 		
@@ -1342,6 +1342,15 @@ public class MyGdxGame implements Screen {
 		System.out.println("deadends size: " + mapgen.getDeadends().size() + " static: " + staticMonsters.size());
 		System.out.println(staticMonsters);
 		//System.out.println(staticMonsters);
+	}
+	
+	private void updateTablePositions() {
+		fightTable.setPosition(Gdx.graphics.getWidth()/2 - fightTable.getWidth()/2, 
+				Gdx.graphics.getHeight()/2 - fightTable.getHeight()/2);
+		menu.setPosition(Gdx.graphics.getWidth()/2-menu.getWidth()/2, Gdx.graphics.getHeight()/2-menu.getHeight()/2);
+		saves.setPosition(Gdx.graphics.getWidth()/2-saves.getWidth()/2, Gdx.graphics.getHeight()/2-saves.getHeight()/2);
+		logTable.setHeight(Gdx.graphics.getHeight());
+		logTable.setPosition(0, 0);
 	}
 
 	@Override
