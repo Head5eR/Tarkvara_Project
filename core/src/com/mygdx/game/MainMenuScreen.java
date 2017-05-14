@@ -33,7 +33,6 @@ public class MainMenuScreen implements Screen {
 	private TextButton newGame;
 	private TextButton loadGame;
 	private TextButton exitGame;
-	private TextButton back;
 	private Window mapSize;
 	private Window loadOptions;
 	private TextArea customMapLen;
@@ -73,7 +72,6 @@ public class MainMenuScreen implements Screen {
 		newGame = new TextButton("New Game", skin);
 		loadGame = new TextButton("Load Game", skin);
 		exitGame = new TextButton("Exit", skin);
-		back = new TextButton("Back", skin);
 		
 		mapSize = new Window("Map sizes", skin);
 		mapSize.setVisible(false);
@@ -85,7 +83,8 @@ public class MainMenuScreen implements Screen {
 		loadOptions.setFillParent(true);
 		
 		loadTable = new Table();
-		loadOptions.add(loadTable).expand().fill();
+		loadOptions.add(loadTable).expand().fill().row();
+		loadOptions.add(GUIelements.getBackButton(skin)).prefWidth(250);
 		
 		customMapSize = new Table();
 		
@@ -110,13 +109,6 @@ public class MainMenuScreen implements Screen {
 				new TextureRegionDrawable(new TextureRegion(new Texture("50x50down.png"))));
 		createCustom = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("customup.png"))),
 				new TextureRegionDrawable(new TextureRegion(new Texture("customdown.png"))));
-		
-		back.addListener(new ChangeListener() {
-	        @Override
-	        public void changed (ChangeEvent event, Actor actor) {
-	        		 mapSize.setVisible(false);
-	        }
-	    });
 		
 		tenXten.addListener(new ChangeListener() {
 	        @Override
@@ -177,7 +169,7 @@ public class MainMenuScreen implements Screen {
 		mapSize.add(fiftyXfifty).pad(5f);
 		mapSize.add(createCustom).pad(5f);
 		mapSize.row();
-		mapSize.add(back).fill();
+		mapSize.add(GUIelements.getBackButton(skin)).fill();
 		mapSize.add();
 		mapSize.add();
 		mapSize.add(customSizes);
@@ -207,7 +199,7 @@ public class MainMenuScreen implements Screen {
 		
 		exitGame.pad(5f).addListener(new ChangeListener() {
 			public void changed (ChangeEvent event, Actor actor) {
-				Gdx.app.exit();
+				GUIelements.sureAboutClosingDialog(stage, skin);
 			}
 		});
 
@@ -271,6 +263,7 @@ public class MainMenuScreen implements Screen {
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
 	}
+	
 
 	@Override
 	public void show() {

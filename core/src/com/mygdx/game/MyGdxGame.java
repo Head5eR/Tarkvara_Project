@@ -347,8 +347,8 @@ public class MyGdxGame implements Screen {
 		shader.end();
 	}
 	
-	private void genMob() {
-		activeMob = Monster.getMonsterWithModifier(ambSystem.monsterLevel(hero.getLoc()));
+	private void genMob(Monster mob) {
+		activeMob = mob;
 		int randInt = (int) Math.floor(Math.random()*4);
 		Cell imgcell = fightTable.getCells().get(1);
 		int foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
@@ -398,11 +398,21 @@ public class MyGdxGame implements Screen {
 	    Location newHeroLoc = hero.getLoc();
 	    if(!oldHeroLoc.equals(newHeroLoc)) {
 	    	statistics.put("steps", statistics.get("steps"));
-	    	double ambushChance = ambSystem.generateAttackChance();
-	    	System.out.println("ambush chance: " + ambushChance);
-	    	if(rand.nextDouble() <= ambushChance) {
-	    		System.out.println("fighting is off");
-	    		//startTheFight();
+	    	Monster mob;
+	    	if(staticMonsters.containsKey(newHeroLoc)) {
+	    		System.out.println("attacked");
+	    		mob = staticMonsters.get(newHeroLoc);
+	    		startTheFight(mob);
+	    		staticMonsters.remove(newHeroLoc);
+	    	} else {
+	    		double ambushChance = ambSystem.generateAttackChance();
+	    		System.out.println("ambush chance: " + ambushChance);
+	    		if(rand.nextDouble() <= ambushChance) {
+		    		System.out.println("fighting is off");
+		    		mob = Monster.getMonsterWithModifier(
+		    				ambSystem.monsterLevel(hero.getLoc()));
+		    		startTheFight(mob);
+		    	}	    		
 	    	}
 	    }
 	}
@@ -538,7 +548,7 @@ public class MyGdxGame implements Screen {
 	    	stage.setDebugAll(true);
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
-	    		startTheFight();
+	    		startTheFight(Monster.getMonster());
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
     		if(showMap) {
@@ -571,8 +581,8 @@ public class MyGdxGame implements Screen {
 	    }
 	}
 	
-	public void startTheFight() {
-		genMob();
+	public void startTheFight(Monster mob) {
+		genMob(mob);
 		createActionButtons();
 		createFightLog();
 		hero.calculateStatsFromItems();
@@ -582,7 +592,7 @@ public class MyGdxGame implements Screen {
 		fightTable.setVisible(true);
 	}
 	
-	public void sureAboutClosingDialog() { // will look into it later
+	public void sureAboutClosingDialog() {
 		Dialog dialog = new Dialog("Close the game?", skin, "dialog") {
 			protected void result (Object object) {
 				if(object.equals(true)) {
@@ -1167,7 +1177,7 @@ public class MyGdxGame implements Screen {
 		exitButton.addListener(new ChangeListener() {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
-	        	sureAboutClosingDialog();
+	        	GUIelements.sureAboutClosingDialog(stage, skin);
 	        }
 	    });	
 		
@@ -1219,7 +1229,8 @@ public class MyGdxGame implements Screen {
 	    });	
 		saveToNewFile.add(saveTo, saveToButton);
 		saves.add(saveToNewFile).row();
-		saves.add(saveTable);
+		saves.add(saveTable).row();
+		saves.add(GUIelements.getBackButton(skin));
 
 		
 		////////////////////////////////////////////////////////
@@ -1260,6 +1271,25 @@ public class MyGdxGame implements Screen {
 		statistics.put("dangerous", 0);
 		statistics.put("deadly", 0);
 		statistics.put("boss", 0);
+	}
+	
+	private void showStatistics() {
+		String text = "Steps made: " + statistics.get("steps") +
+				"\n Monsters killed " +
+				"\n Weak: " + statistics.get("weak") +
+				"\n Normal: " + statistics.get("normal") +
+				"\n Strong: " + statistics.get("strong") +
+				"\n Dangerous: " + statistics.get("dangerous") +
+				"\n Deadly: " + statistics.get("deadly") +
+				"\n " +
+				"\n Bosses killed: " + statistics.get("boss");
+		Dialog dialog = new Dialog("Statistics", skin, "dialog") {
+			protected void result (Object object) {
+				if(object.equals(true)) {
+					this.hide();
+				}
+			}
+		}.text(text).button("Ok", true).key(Keys.ENTER, true).show(stage);
 	}
 	
 	private Boss getBoss() {
