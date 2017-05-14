@@ -23,31 +23,36 @@ import org.xml.sax.SAXException;
 public class Boss extends Monster {
 	private int wrath;
 	private int level;
-	private static String expression = "//boss[@name]";
+	private static String expression;
 	private static List<String> bossStats;
 	private ArrayList<Integer> pickedDefs = new ArrayList<Integer>();
 	
-	public static Boss getBoss() {
+	public static Boss getBoss(int level) {
 		
-		bossStats = readFromXML();
-		String bodytype = bossStats.get(1);
-		int lvl = Integer.parseInt(bossStats.get(2));
-		int str = Integer.parseInt(bossStats.get(3));
-		int dex = Integer.parseInt(bossStats.get(4));
-		int stam =  Integer.parseInt(bossStats.get(5));
-		String name = bossStats.get(0);	
-		return new Boss(str, dex, stam, bodytype, name, lvl);
-				
+		bossStats = readFromXML(level);
+		if(bossStats != null) {
+			String bodytype = bossStats.get(1);
+			int lvl = Integer.parseInt(bossStats.get(2));
+			int str = Integer.parseInt(bossStats.get(3));
+			int dex = Integer.parseInt(bossStats.get(4));
+			int stam =  Integer.parseInt(bossStats.get(5));
+			int wrath = Integer.parseInt(bossStats.get(6));
+			String name = bossStats.get(0);	
+			return new Boss(str, dex, stam, wrath, bodytype, name, lvl);
+		} else {
+			System.out.println("ERROR: no bossStats were found!");
+		}
+		return null;
 	}
 	
-	private Boss(int str, int dex, int stam, String bodytype, String name, int lvl) {
-		super(str, dex, stam, bodytype, name);		
-		this.wrath = Integer.parseInt(bossStats.get(6));
+	private Boss(int str, int dex, int stam, int wrath, String bodytype, String name, int lvl) {
+		super(str, dex, stam, wrath, bodytype, name);		
 		this.level = lvl;
 		setHp(getMaxHp());
 	}
 	
-	private static List<String> readFromXML() {
+	private static List<String> readFromXML(int level) {
+		expression = "//boss[level = '" + level +"']";
 		try {
     	 File inputFile = new File("bosses.xml");
 		    
@@ -67,26 +72,25 @@ public class Boss extends Monster {
          
          List<String> bossList = new ArrayList<String>();
          
-         int randomBoss = new Random().nextInt(nodeList.getLength());
+         Node bossNode = nodeList.item(0);
          
-         Node bossNode = nodeList.item(randomBoss);
-         
-            if (bossNode.getNodeType() == Node.ELEMENT_NODE) {
-               Element bossXMLElement = (Element) bossNode;
-               bossList.add(bossXMLElement.getAttribute("name"));
-               
-               NodeList listOfBossAttributes = bossXMLElement.getElementsByTagName("*");
-               
-               for(int i=0; i<listOfBossAttributes.getLength(); i++) {
-					bossList.add(listOfBossAttributes.item(i).getTextContent());					
-				}
-               
-               System.out.println(bossList.toString());
-               return bossList;
-            } 
-            
-			return null;
-            
+         if(nodeList.getLength() != 0) {
+        	 if (bossNode.getNodeType() == Node.ELEMENT_NODE) {
+                 Element bossXMLElement = (Element) bossNode;
+                 bossList.add(bossXMLElement.getAttribute("name"));
+                 
+                 NodeList listOfBossAttributes = bossXMLElement.getElementsByTagName("*");
+                 
+                 for(int i=0; i<listOfBossAttributes.getLength(); i++) {
+  					bossList.add(listOfBossAttributes.item(i).getTextContent());					
+  				}
+                 
+                 System.out.println(bossList.toString());
+                 return bossList;
+              } 
+         } else {
+ 			return null; 
+         }  
 		} catch (ParserConfigurationException e) {
          e.printStackTrace();
       } catch (SAXException e) {
@@ -106,7 +110,7 @@ public class Boss extends Monster {
 	
 	@Override
 	public int getWrath() {
-		return (int) Math.round(getStrength()*getStamina()*getDexterity()*0.001);
+		return wrath;
 	}
 	
 	@Override
@@ -130,8 +134,12 @@ public class Boss extends Monster {
 	@Override
 	public String toString() {
 		//return name + " " + strength + " " + dexterity + " " + stamina + " " + wrath + "\n Modifier: " + mod;
-		return getName() + "Boss lvl " + bossStats.get(2) +
+		return getName() + "Boss lvl " + level +
 				"\n" + "HP: " + getHp() + "/" + getMaxHp() 
 				+ "\n Attack: " + getAttackDamageStr();
+	}
+
+	public int getLevel() {
+		return level;
 	}
 }

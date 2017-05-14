@@ -55,10 +55,17 @@ public class Monster extends Character implements Serializable {
 		
 	}
 	
-	protected Monster(int str, int dex, int stam, String bodytype, String name) {
+	private Monster(int str, int dex, int stam, String bodytype, String name) {
 		super(str, dex, stam, bodytype, name);
 		this.mod = new Modifier();
 		this.wrath = Integer.parseInt(monsterStats.get(5));
+		setHp(getMaxHp());
+	}
+	
+	protected Monster(int str, int dex, int stam, int wrath, String bodytype, String name) {
+		super(str, dex, stam, bodytype, name);
+		this.mod = new Modifier();
+		this.wrath = wrath;
 		setHp(getMaxHp());
 	}
 	

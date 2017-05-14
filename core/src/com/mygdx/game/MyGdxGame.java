@@ -99,6 +99,8 @@ public class MyGdxGame implements Screen {
 	private ImageButton potionButton;
 	private HashMap<String, Integer> statistics;
 	private HashMap<Location, Monster> staticMonsters;
+	private Boss boss;
+	private ArrayList<Texture> bossTextures = new ArrayList<Texture>();
 	
 	// here comes the light magic
 	// used shader light making tutorial - 
@@ -232,6 +234,9 @@ public class MyGdxGame implements Screen {
 						if(endPos.getX() == x && endPos.getY() == y) {
 							game.batch.draw(textures2.get(3), tile.x, tile.y);
 						}
+						if(mapgen.getBossLoc().getX() == x && mapgen.getBossLoc().getY() == y) {
+							game.batch.draw(bossTextures.get(boss.getLevel()), tile.x, tile.y);
+						}
 						
 						if(Math.abs(y-heroY) == 1 && (Math.abs(x-heroX) == 1)) {
 							//means corner
@@ -351,13 +356,22 @@ public class MyGdxGame implements Screen {
 		activeMob = mob;
 		int randInt = (int) Math.floor(Math.random()*4);
 		Cell imgcell = fightTable.getCells().get(1);
-		int foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
-		if (foundindex >= 0) {
-			imgcell.setActor(new Image(mobtextures.get(foundindex)));
+		int foundindex;
+		if(Boss.class.isInstance(mob)) {
+			System.out.println("Instance is boss!");
+			Boss b = (Boss) mob;
+			foundindex = b.getLevel();
+			imgcell.setActor(new Image(bossTextures.get(foundindex)));
 		} else {
-			foundindex = randInt;
-			imgcell.setActor(new Image(textures2.get(foundindex)));
+			foundindex = mobnames.indexOf(activeMob.getName().toLowerCase());
+			if (foundindex >= 0) {
+				imgcell.setActor(new Image(mobtextures.get(foundindex)));
+			} else {
+				foundindex = randInt;
+				imgcell.setActor(new Image(textures2.get(foundindex)));
+			}
 		}
+		
 		mobinfo.setText(activeMob.toString());	
 		//System.out.println(mob.getBody());
 	}
@@ -367,6 +381,10 @@ public class MyGdxGame implements Screen {
 	    	if(fightTable.isVisible()) {
 	    		endFight();
 	    	}
+	    }
+		if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+	    	activeMob.setHp(0);
+	    	updateHeroMonsterInfo();
 	    }
 		
 	}
@@ -398,21 +416,23 @@ public class MyGdxGame implements Screen {
 	    Location newHeroLoc = hero.getLoc();
 	    if(!oldHeroLoc.equals(newHeroLoc)) {
 	    	statistics.put("steps", statistics.get("steps"));
-	    	Monster mob;
+	    	Monster mob = null;
 	    	if(staticMonsters.containsKey(newHeroLoc)) {
 	    		System.out.println("attacked");
 	    		mob = staticMonsters.get(newHeroLoc);
-	    		startTheFight(mob);
 	    		staticMonsters.remove(newHeroLoc);
+	    	} else if(mapgen.getBossLoc().equals(newHeroLoc)) {
+	    		mob = boss;
 	    	} else {
 	    		double ambushChance = ambSystem.generateAttackChance();
 	    		System.out.println("ambush chance: " + ambushChance);
 	    		if(rand.nextDouble() <= ambushChance) {
-		    		System.out.println("fighting is off");
 		    		mob = Monster.getMonsterWithModifier(
 		    				ambSystem.monsterLevel(hero.getLoc()));
-		    		startTheFight(mob);
 		    	}	    		
+	    	}
+	    	if(mob != null) {
+	    		startTheFight(mob);
 	    	}
 	    }
 	}
@@ -535,11 +555,18 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
-	    	if(logTable.isVisible()) {
-	    		logTable.setVisible(false);
+	    	Boss boss = Boss.getBoss(2);
+	    	if(boss == null) {
+	    		System.out.println("no boss");
 	    	} else {
-	    		logTable.setVisible(true);
+	    		System.out.println(boss);
 	    	}
+	    	
+//	    	if(logTable.isVisible()) {
+//	    		logTable.setVisible(false);
+//	    	} else {
+//	    		logTable.setVisible(true);
+//	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
 	    	stage.setDebugAll(false);
@@ -690,8 +717,18 @@ public class MyGdxGame implements Screen {
 		}
 		if(FightSystem.isDead(activeMob)) {
 			mobinfo.appendText("\n DEAD");
-			createLoot();
-			statistics.put(activeMob.getMod().getName(), statistics.get(activeMob.getMod().getName()) +1);
+			if(Boss.class.isInstance(activeMob)) {
+				statistics.put("boss", statistics.get("boss") +1);
+				mapgen.setBossLoc(new Location(-1,-1));
+				endFight();
+				showStatistics();
+			} else {
+				createLoot();
+				System.out.println("killed monster's mod: " + activeMob.getMod().getName());
+				statistics.put(activeMob.getMod().getName(), 
+						statistics.get(activeMob.getMod().getName()) +1);
+			}
+			
 		}
 		
 	}
@@ -995,7 +1032,8 @@ public class MyGdxGame implements Screen {
 	
 	private void initialize(MapGenerator mapgen, Hero hero) {
 		this.mapgen = mapgen;
-		this.hero = hero;	
+		this.hero = hero;
+		boss = getBoss();
 		map = mapgen.getMap();
 		deadends = mapgen.getDeadends();
 		endPos = mapgen.getEndPos();
@@ -1038,6 +1076,10 @@ public class MyGdxGame implements Screen {
 		
 		light = new Texture("light.png");
 		darkness = new Texture("darkness.png");
+		
+		bossTextures.add(new Texture("minotaur.png"));
+		bossTextures.add(new Texture("lich.png"));
+		bossTextures.add(new Texture("knight.png"));
 		
 		mobtextures.add(new Texture("skeleton.png"));
 		mobtextures.add(new Texture("zombie.png"));
@@ -1266,7 +1308,7 @@ public class MyGdxGame implements Screen {
 		statistics = new HashMap<String, Integer>();
 		statistics.put("steps", 0);
 		statistics.put("weak", 0);
-		statistics.put("normal", 0);
+		statistics.put("medium", 0);
 		statistics.put("strong", 0);
 		statistics.put("dangerous", 0);
 		statistics.put("deadly", 0);
@@ -1277,7 +1319,7 @@ public class MyGdxGame implements Screen {
 		String text = "Steps made: " + statistics.get("steps") +
 				"\n Monsters killed " +
 				"\n Weak: " + statistics.get("weak") +
-				"\n Normal: " + statistics.get("normal") +
+				"\n Medium: " + statistics.get("medium") +
 				"\n Strong: " + statistics.get("strong") +
 				"\n Dangerous: " + statistics.get("dangerous") +
 				"\n Deadly: " + statistics.get("deadly") +
@@ -1301,8 +1343,7 @@ public class MyGdxGame implements Screen {
 		} else {
 			level = 3;
 		}
-		// need Boss static factory method which takes level as argument
-		return null;
+		return Boss.getBoss(level);
 	}
 	
 	private void generateStaticMobs() {
