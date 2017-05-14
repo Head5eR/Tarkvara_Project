@@ -236,9 +236,7 @@ public class MainMenuScreen implements Screen {
 		logoTable.add(logo);
 		logoCell = logoTable.getCell(logoTable.findActor("logo"));
 		stage.addActor(mapSize);
-		stage.addActor(loadOptions);
-		stage.addActor(new Window("test",skin));
-		
+		stage.addActor(loadOptions);	
 	}
 	
 	private void loadOption(FileHandle file, String date) {
@@ -282,8 +280,6 @@ public class MainMenuScreen implements Screen {
 		if(frameCounter > 15) {
 			frameCounter = 0;
 		}
-		
-		System.out.println(loadOptions.getX() + " " + loadOptions.getY());
 		
 		logoCell.setActor(frames.get(frameCounter/5));
 		
