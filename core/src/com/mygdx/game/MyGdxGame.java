@@ -60,14 +60,8 @@ public class MyGdxGame implements Screen {
 	private Rectangle heroSprite;
 	private MapGenerator mapgen;
 	private Stage stage;
-	private Table uitable;
 	private Skin skin;
-	private Window mobwin;
-	private Window invwin;
-	private Window equipwin;
 	private TextArea mobinfo;
-	private TextArea invinfo;
-	private TextArea equipinfo;
 	private int MAP_WIDTH = 12;
 	private int MAP_HEIGHT = 14;
 	private boolean fightInProgress = false;
@@ -75,10 +69,9 @@ public class MyGdxGame implements Screen {
 	private Window mobFwin;
 	private Window heroFwin;
 	private TextArea heroinfo;
-	private int equipPageNr;
 	private int invPageNr;
-	private TextArea invPage;
-	private TextArea equipPage;
+	private int maxInventoryPageNr;
+	private int maxItemsPerPage;
 	private Table bodyPartsTable;
 	private Monster activeMob;
 	private TextButton startTheFight;
@@ -106,6 +99,12 @@ public class MyGdxGame implements Screen {
 	private HashMap<Location, Monster> staticMonsters;
 	private Boss boss;
 	private ArrayList<Texture> bossTextures = new ArrayList<Texture>();
+	private Window inventoryOptions;
+	private Table inventoryTable;
+	private Window equipmentOptions;
+	private Table equipmentTable;
+	private Table inventoryPageControlTable;
+	private Label inventoryPageNumber;
 	
 	// here comes the light magic
 	// used shader light making tutorial - 
@@ -119,9 +118,9 @@ public class MyGdxGame implements Screen {
 	private ShaderProgram defaultShader;
 	private Texture light;
 	private FrameBuffer fbo;
-	final String pixelShader =  Gdx.files.internal("pixelShader.glsl").readString();
-	final String vertexShader = Gdx.files.internal("vertexShader.glsl").readString();
-	final String defaultPixelShader = Gdx.files.internal("defaultPixelShader.glsl").readString();
+	private final String pixelShader =  Gdx.files.internal("pixelShader.glsl").readString();
+	private final String vertexShader = Gdx.files.internal("vertexShader.glsl").readString();
+	private final String defaultPixelShader = Gdx.files.internal("defaultPixelShader.glsl").readString();
 	
 	//used to make the light flicker
 	private boolean lightOscillate = true;
@@ -181,7 +180,6 @@ public class MyGdxGame implements Screen {
 
 		tile.setX(camera.viewportWidth /2 -96);
 		tile.setY(camera.viewportHeight /2 +96);
-		System.out.println(tile.getX() + " " + tile.getY());
 		
 		if(!showMap) {
 			fbo.begin();
@@ -347,6 +345,8 @@ public class MyGdxGame implements Screen {
 		stage.getViewport().update(width, height, true);
 		stage.getViewport().apply();
 		updateTablePositions();
+		updateInventoryDisplayInfo();
+		updateInventoryEquipment();
 		UIcamera.update();
 		camera.update();
 		shader.begin();
@@ -375,7 +375,6 @@ public class MyGdxGame implements Screen {
 		}
 		
 		mobinfo.setText(activeMob.toString());	
-		//System.out.println(mob.getBody());
 	}
 	
 	private void handleFightInput() {
@@ -455,92 +454,21 @@ public class MyGdxGame implements Screen {
 	    }
 	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-	    	if(equipwin.isVisible()) {
-	    		equipwin.setVisible(false);
+	    	if(equipmentOptions.isVisible()) {	    		
+	    		equipmentOptions.setVisible(false);
 	    	} else {
-	    		invwin.setVisible(false);
-	    		updateInvEquip();
-	    		equipwin.setVisible(true);
+	    		updateInventoryEquipment();
+	    		equipmentOptions.setVisible(true);
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
-	    	if(invwin.isVisible()) {
-	    		invwin.setVisible(false);
+	    	if(inventoryOptions.isVisible()) {
+	    		inventoryOptions.setVisible(false);
 	    	} else {
-	    		equipwin.setVisible(false);
-	    		updateInvEquip();
-	    		invwin.setVisible(true);
+	    		updateInventoryEquipment();
+	    		inventoryOptions.setVisible(true);
 	    	}
-	    }
-	    
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-	    	if(equipwin.isVisible()) {
-	    		hero.unequip(1 + 5*(equipPageNr-1));
-	    	} else if (invwin.isVisible()) {
-	    		chooseEquipMethod(1 + 5*(invPageNr-1));
-	    	}
-	    	updateInvEquip();
-	    }
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
-	    	if(equipwin.isVisible()) {
-	    		hero.unequip(2 + 5*(equipPageNr-1));
-	    	} else if (invwin.isVisible()) {
-	    		chooseEquipMethod(2 + 5*(invPageNr-1));
-	    	}
-	    	updateInvEquip();
-	    }
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
-	    	if(equipwin.isVisible()) {
-	    		hero.unequip(3 + 5*(equipPageNr-1));
-	    	} else if (invwin.isVisible()) {
-	    		chooseEquipMethod(3 + 5*(invPageNr-1));
-	    	}
-	    	updateInvEquip();
-	    }
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
-	    	if(equipwin.isVisible()) {
-	    		hero.unequip(4 + 5*(equipPageNr-1));
-	    	} else if (invwin.isVisible()) {
-	    		chooseEquipMethod(4 + 5*(invPageNr-1));
-	    	}
-	    	updateInvEquip();
-	    }
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
-	    	if(equipwin.isVisible()) {
-	    		hero.unequip(5 + 5*(equipPageNr-1));
-	    	} else if (invwin.isVisible()) {
-	    		chooseEquipMethod(5 + 5*(invPageNr-1));
-	    	}
-	    	updateInvEquip();
-	    }
-	    
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_0)) {
-	    	if(equipwin.isVisible()) {
-	    		if(hero.getSlotsArraySize() - 5*equipPageNr > 0) {
-	    			equipPageNr++;
-	    			updateInvEquip();
-	    		}
-	    	} else if (invwin.isVisible()) {
-	    		if(hero.getInvSize() - 5*invPageNr > 0) {
-	    			invPageNr++;
-	    			updateInvEquip();
-	    		}
-	    	}
-	    }
-	    
-	    if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)) {
-	    	if(equipwin.isVisible()) {
-	    		if(equipPageNr > 1) {
-	    			equipPageNr--;
-	    			updateInvEquip();
-	    		}
-	    	} else if (invwin.isVisible()) {
-	    		if(invPageNr > 1) {
-	    			invPageNr--;
-	    			updateInvEquip();
-	    		}
-	    	}
-	    }
+	    } 
 	    
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
 	    	initialize();
@@ -645,7 +573,7 @@ public class MyGdxGame implements Screen {
 				System.out.println("okay, it's melee, generating window");
 				createChooseWeaponSlot(invItemNumber);
 			} else if(item.checkIfShield(item)) {
-				System.out.println("oaky, it's shield, equipping in weaponslot2");
+				System.out.println("okay, it's shield, equipping in weaponslot2");
 				hero.equipShield((Shield) item); // equipped only in second weapon slot
 			} else {
 				System.out.println("okay, it's smth else, equipping in suitable slot");
@@ -671,7 +599,7 @@ public class MyGdxGame implements Screen {
 		        public void changed (ChangeEvent event, Actor actor) {
 		        	Item item = hero.getInventoryItemFromNumber(Integer.parseInt(actor.getParent().getName()));
 		        	hero.equipMelee((MeleeWeapon) item, Integer.parseInt(actor.getName()));
-		        	updateInvEquip();
+		    		updateInventoryEquipment();
 		        	chooseSlot.remove();
 		        	pendingChooseTheSlotAction = false;
 		        }
@@ -708,7 +636,6 @@ public class MyGdxGame implements Screen {
 				showStatistics();
 			} else {
 				createLoot();
-				System.out.println("killed monster's mod: " + activeMob.getMod().getName());
 				statistics.put(activeMob.getMod().getName(), 
 						statistics.get(activeMob.getMod().getName()) +1);
 			}
@@ -732,7 +659,7 @@ public class MyGdxGame implements Screen {
 		return true;
 	}
 	
-	public void createActionButtons() {
+	public void createActionButtons() { // needs to be rewritten
 		int numOfAttacks = FightSystem.howManyAttacksToPick(hero);
 		int numOfDefences = FightSystem.howManyDefencesToPick(hero);
 		System.out.println("num of attacks: " + numOfAttacks + " num of defs: " + numOfDefences);
@@ -840,7 +767,6 @@ public class MyGdxGame implements Screen {
 	}
 	
 	public void createLoot() {
-
 		if(mobFwin.findActor("lootbtn") == null) {
 			mobinfo.setText(activeMob.toString() + "\n" + "DEAD");
 			mobFwin.row();
@@ -857,7 +783,7 @@ public class MyGdxGame implements Screen {
 		        	} else {
 		        		System.out.println("smth bad happened during loot generation");
 		        	}
-		        	updateInvEquip();
+		    		updateInventoryEquipment();
 		            endFight();
 		        }
 		    });
@@ -902,16 +828,7 @@ public class MyGdxGame implements Screen {
 		attackAndDefence.row();
 		attackAndDefence.add(startTheFight);
 	}
-	
-	public void updateInvEquip() {
-		equipinfo.setText(hero.getAllEquiped(equipPageNr));
-		invinfo.setText(hero.getInventory(invPageNr));
-		int numOfPages = (int) Math.round(Math.ceil((double) hero.getInvSize() / 5));
-		invPage.setText(invPageNr + "/" + numOfPages); 
-		numOfPages = (int) Math.round(Math.ceil((double) hero.getSlotsArraySize() / 5));
-		equipPage.setText(equipPageNr + "/" + numOfPages); 
-		hero.calculateStatsFromItems();
-	}
+
 	
 	public void fillBodypartsTable(boolean isAttacking, int serialNr) { //serialNr is number which indicated what button exactly triggered this method
 		Body body;
@@ -1050,6 +967,57 @@ public class MyGdxGame implements Screen {
 		}
 	}
 	
+	private void createInventoryOption(String itemName, int itemNum) {
+		TextArea text = new TextArea(itemName, skin);
+		text.setDisabled(true);
+		TextButton equipButton = new TextButton("Equip", skin);
+		equipButton.setName(""+itemNum);
+		equipButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	int itemNum = Integer.parseInt(actor.getName());
+	        	int itemActualNum = (invPageNr-1)*maxItemsPerPage+itemNum;
+	        	chooseEquipMethod(itemActualNum);
+	        	updateInventoryDisplayInfo();
+	    		updateInventoryEquipment();
+	        }
+	    });
+		inventoryTable.add(text).minWidth(256);
+		inventoryTable.add(equipButton).row();
+	}
+	
+	private void createEquipmentOption(String itemName, int itemNum) {
+		TextArea text = new TextArea(itemName, skin);
+		text.setDisabled(true);
+		TextButton unequipButton = new TextButton("Unequip", skin);
+		unequipButton.setName(""+itemNum);
+		unequipButton.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	int itemNum = Integer.parseInt(actor.getName());
+	        	hero.unequip(itemNum);
+	        	updateInventoryDisplayInfo();
+	    		updateInventoryEquipment();
+	        }
+	    });
+		equipmentTable.add(text).minWidth(256);
+		equipmentTable.add(unequipButton).row();
+	}
+	
+	private void updateInventoryEquipment() {
+		updateInventoryPageNumber();
+		ArrayList<String> equippedItems = hero.getEquippedItems();
+		ArrayList<String> inventoryItems = hero.getInventoryItems((invPageNr-1)*maxItemsPerPage, (invPageNr-1)*maxItemsPerPage+maxItemsPerPage-1);
+		equipmentTable.clear();
+		inventoryTable.clear();
+		for(String item : equippedItems) {
+			createEquipmentOption(item, equippedItems.indexOf(item));
+		}
+		for(String item : inventoryItems) {
+			createInventoryOption(item, inventoryItems.indexOf(item));
+		}
+	}
+	
 	private void saveGame(String saveName) {
 		System.out.println("saving to: " + saveName);
 		SaveSystem.saveGame(this, saveName);
@@ -1085,6 +1053,10 @@ public class MyGdxGame implements Screen {
 		textures2.add(new Texture("exit.png"));
 		textures2.add(new Texture("stick.png"));
 		
+		TextureRegionDrawable potionUp = new TextureRegionDrawable(new TextureRegion(new Texture("potionUp.png")));
+		TextureRegionDrawable potionDown = new TextureRegionDrawable(new TextureRegion(new Texture("potionDown.png")));
+		TextureRegionDrawable potionZero = new TextureRegionDrawable(new TextureRegion(new Texture("potionZero.png")));
+		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false);
 		UIcamera = new OrthographicCamera();
@@ -1095,46 +1067,7 @@ public class MyGdxGame implements Screen {
 		///////////////////////// UI ////////////////////////////////////////		
 		skin = new Skin(Gdx.files.internal("uiskin.json"));		
 		
-		invinfo = new TextArea("Inventory contents", skin);
-		invinfo.setPrefRows(13);
-		invinfo.setDisabled(true);
-		equipinfo = new TextArea("Contents", skin);
-		equipinfo.setPrefRows(13);
-		equipinfo.setDisabled(true);
-		
-		equipPageNr = 1;
 		invPageNr = 1;
-
-		invwin = new Window("Inventory", skin);
-		invwin.setWidth(50);
-		invwin.setHeight(50);
-		invwin.add(invinfo);
-		invwin.setVisible(false);
-		invwin.row();
-		invPage = new TextArea("", skin);
-		invwin.add(invPage);
-		
-		equipwin = new Window("Equipment", skin);
-		equipwin.setWidth(50);
-		//equipwin.setHeight(50);
-		equipwin.add(equipinfo);
-		equipwin.setVisible(false);
-		equipwin.row();
-		equipPage = new TextArea("",skin);
-		equipwin.add(equipPage);
-		
-		uitable = new Table();
-		uitable.setFillParent(true);
-		uitable.align(Align.topRight);
-		uitable.setHeight(Gdx.graphics.getHeight());
-		uitable.setWidth(Gdx.graphics.getWidth()/2);	
-		
-		uitable.add(mobwin);
-		uitable.row();
-		uitable.add(equipwin);
-		uitable.add(invwin);
-		uitable.getCell(equipwin).prefWidth(160);
-		uitable.getCell(invwin).prefWidth(160);
 		
 		fightTable = new Table(skin);
 		fightTable.setVisible(false);
@@ -1168,9 +1101,6 @@ public class MyGdxGame implements Screen {
 		fightTable.add(attackAndDefence);
 		Table potionTable = new Table();
 		potionAmount = new Label("", skin);
-		TextureRegionDrawable potionUp = new TextureRegionDrawable(new TextureRegion(new Texture("potionUp.png")));
-		TextureRegionDrawable potionDown = new TextureRegionDrawable(new TextureRegion(new Texture("potionDown.png")));
-		TextureRegionDrawable potionZero = new TextureRegionDrawable(new TextureRegion(new Texture("potionZero.png")));
 		potionButton = new ImageButton(potionUp, potionDown, potionZero);
 		potionButton.addListener(new ChangeListener() {
 	        @Override
@@ -1190,7 +1120,41 @@ public class MyGdxGame implements Screen {
 		bodyPartsTable.setWidth(Gdx.graphics.getWidth()/2);
 		bodyPartsTable.setPosition(Gdx.graphics.getWidth()/4, Gdx.graphics.getHeight()/4);
 		
+		inventoryOptions = new Window("Inventory", skin);
+		inventoryOptions.setVisible(false);
+		inventoryTable = new Table();
+		inventoryOptions.add(inventoryTable).row();
+		inventoryPageControlTable = new Table();
+		TextButton nextPage = new TextButton("Next", skin);
+		nextPage.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	if(invPageNr < maxInventoryPageNr) {
+			    	invPageNr++;
+			    	updateInventoryEquipment();
+		    	}
+	        }
+	    });	
 		
+		TextButton previousPage = new TextButton("Previous", skin);
+		previousPage.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	if(invPageNr>1) {
+			    	invPageNr--;
+			    	updateInventoryEquipment();
+		    	}
+	        }
+	    });	
+		inventoryPageNumber = new Label("" + invPageNr, skin);
+		inventoryPageControlTable.add(previousPage, inventoryPageNumber, nextPage);
+		inventoryOptions.add(inventoryPageControlTable);
+		
+		equipmentOptions = new Window("Equipment", skin);
+		equipmentOptions.setVisible(false);
+		equipmentTable = new Table();
+		equipmentOptions.add(equipmentTable);
+				
 		///////////////////PAUSE MENU//////////////////////
 		menu = new Window("Menu", skin);
 		menu.setVisible(false);
@@ -1260,11 +1224,12 @@ public class MyGdxGame implements Screen {
 		////////////////////////////////////////////////////////
 		
 		stage.addActor(fightTable);
-		stage.addActor(uitable);
 		stage.addActor(bodyPartsTable);
 		stage.addActor(logTable);
 		stage.addActor(menu);
 		stage.addActor(saves);
+		stage.addActor(equipmentOptions);
+		stage.addActor(inventoryOptions);
 		
 		/////////////////////////////////////////////////////////////////////
 		
@@ -1339,9 +1304,6 @@ public class MyGdxGame implements Screen {
 			 monster = Monster.getMonsterWithModifier(ambSystem.monsterLevel(loc));
 			staticMonsters.put(loc, monster);;
 		}
-		System.out.println("deadends size: " + mapgen.getDeadends().size() + " static: " + staticMonsters.size());
-		System.out.println(staticMonsters);
-		//System.out.println(staticMonsters);
 	}
 	
 	private void updateTablePositions() {
@@ -1351,6 +1313,25 @@ public class MyGdxGame implements Screen {
 		saves.setPosition(Gdx.graphics.getWidth()/2-saves.getWidth()/2, Gdx.graphics.getHeight()/2-saves.getHeight()/2);
 		logTable.setHeight(Gdx.graphics.getHeight());
 		logTable.setPosition(0, 0);
+		inventoryOptions.setPosition(0, Gdx.graphics.getHeight()/2-inventoryOptions.getHeight()/2);
+		inventoryOptions.setWidth(Gdx.graphics.getWidth()/2);
+		equipmentOptions.setPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2-equipmentOptions.getHeight()/2);
+		equipmentOptions.setWidth(Gdx.graphics.getWidth()/2);
+		inventoryOptions.setHeight(Gdx.graphics.getHeight()/2);
+		equipmentOptions.setHeight(Gdx.graphics.getHeight()/2);
+	}
+	
+	private void updateInventoryDisplayInfo() {
+		maxItemsPerPage = (int) (inventoryOptions.getHeight()-40) /31; 
+		maxInventoryPageNr = (int) Math.ceil((float) hero.getInvSize()/maxItemsPerPage);
+		if(invPageNr > maxInventoryPageNr) {
+			invPageNr = maxInventoryPageNr;
+		}
+		updateInventoryPageNumber();
+	}
+	
+	private void updateInventoryPageNumber() {
+		inventoryPageNumber.setText(invPageNr + "/" + maxInventoryPageNr);
 	}
 
 	@Override

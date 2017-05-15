@@ -49,7 +49,6 @@ public class Monster extends Character implements Serializable {
 		int dex = Integer.parseInt(monsterStats.get(3));
 		int stam =  Integer.parseInt(monsterStats.get(4));
 		String name = monsterStats.get(0);	
-		System.out.println("modifier num: " + modNumber);
 		return new Monster(str, dex, stam, bodytype, name, modNumber);
 		
 		
