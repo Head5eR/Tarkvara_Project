@@ -25,7 +25,6 @@ public class AmbushSystem {
 	public int monsterLevel(Location givenLoc) {
 		java.util.Random rand = new java.util.Random();
 		Double dist = (double) MapGenerator.getDistance(givenLoc, mapG.getStartPos());
-		System.out.println("distance from start to give loc: " + dist);
 		Double maxdist = (double) maxDistance;
 		
 		if(dist <= maxdist/3) {

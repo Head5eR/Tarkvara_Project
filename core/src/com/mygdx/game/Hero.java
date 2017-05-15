@@ -140,6 +140,38 @@ public class Hero extends Character {
 		}
 		return out;
 	}
+
+	public ArrayList<String> getEquippedItems() {
+		ArrayList<String> items = new ArrayList<String>();
+		String itemName = "";
+		for(List<?> slot : slots) {
+			String slotItem;
+			if(((Item[]) slot.get(0))[0] != null) {
+				slotItem = ((Item[]) slot.get(0))[0].toString();
+			} else {
+				slotItem = "empty";
+			}
+			itemName = slot.get(0).getClass().getSimpleName().replace("[]", "") 
+					+ ": " + slotItem;
+			items.add(itemName);
+		}
+		return items;
+	}
+	
+	public ArrayList<String> getInventoryItems(int startingItem, int lastItem) {
+		ArrayList<String> items = new ArrayList<String>();
+		int last;
+		if(lastItem > inventory.size()) {
+			last = inventory.size();
+		} else {
+			last = lastItem;
+		}
+		
+		for(int i=startingItem; i<last; i++) {
+			items.add(inventory.get(i).toString());
+		}
+		return items;
+	}
 	
 	public void unequipSlot(List<?> slot) {
 		if(!slot.isEmpty()) {
@@ -175,19 +207,17 @@ public class Hero extends Character {
 	}
 	
 	public Item getInventoryItemFromNumber(int itemNumber) {
-		int num = itemNumber-1;
-		if(num < inventory.size()) {
-			return inventory.get(num);
+		if(itemNumber < inventory.size()) {
+			return inventory.get(itemNumber);
 		} 
 		return null;
 	}
 	
 	public Item getEquipmentItemFromNumber(int itemNumber) {
-		int num = itemNumber-1;
 		List<?> slot;
 		
-		if(num < slots.length) {
-			slot = slots[num];
+		if(itemNumber < slots.length) {
+			slot = slots[itemNumber];
 		} else {
 			slot = null;
 		}
@@ -257,11 +287,10 @@ public class Hero extends Character {
 	}
 	
 	public void unequip(int itemNumber) {
-		int num = itemNumber-1;
 		List<?> slot;
 		
-		if(num < slots.length) {
-			slot = slots[num];
+		if(itemNumber < slots.length) {
+			slot = slots[itemNumber];
 		} else {
 			slot = null;
 		}
@@ -278,9 +307,8 @@ public class Hero extends Character {
 	}
 	
 	public void equipFromInv(int itemNumber) { //is used only for armor items :D look MyGdxGame.chooseEquipMethod() for clarifications
-		int num = itemNumber-1;
 		if(inventory.size() >= itemNumber) { // if larger than inventory size then requested item doesn't exist
-			Item item = (inventory.get(num));
+			Item item = (inventory.get(itemNumber));
 			ArrayList<?> foundSlot;
 			
 			if(item.isEquipable()) {
@@ -291,12 +319,12 @@ public class Hero extends Character {
 						Item[] innerSlot = (Item[]) foundSlot.get(0); // won't it throw an Exception if array is empty??? i'm not sure
 
 						if(innerSlot[0] == null) { // if doesn't have item then just add it to the slot
-							innerSlot[0] = inventory.get(num);
-							inventory.remove(num);
+							innerSlot[0] = inventory.get(itemNumber);
+							inventory.remove(itemNumber);
 						} else {
 							Item slotItem = innerSlot[0];
-							innerSlot[0] =  inventory.get(num);
-							inventory.remove(num);
+							innerSlot[0] =  inventory.get(itemNumber);
+							inventory.remove(itemNumber);
 							inventory.add(slotItem); // if there is an item in slot, then put it in inventory
 							
 						}
@@ -398,7 +426,7 @@ public class Hero extends Character {
 	}
 
 	public void restoreHp() {
-		if(potionAmount > 0) {
+		if(potionAmount > 0 &&  getHp() < getMaxHp()) {
 			potionAmount -= 1;
 			setHp(getHp() + (int) Math.round(0.3 * getMaxHp()));
 			if(getHp() > getMaxHp()) {
