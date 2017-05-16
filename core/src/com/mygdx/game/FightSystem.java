@@ -95,7 +95,7 @@ public class FightSystem {
 					MyGdxGame.addToLog(target.getName() + " DODGED THE ATTACK!");
 				} else {
 					int dealtDamage = attacker.getAttackDamage();
-					if(randomizer.nextFloat() <= attacker.getWrath()/1000) {
+					if(randomizer.nextFloat() <= attacker.getWrath()/10) {
 						MyGdxGame.addToLog("CRITICAL STRIKE!");
 						dealtDamage += dealtDamage*0.3;
 					}

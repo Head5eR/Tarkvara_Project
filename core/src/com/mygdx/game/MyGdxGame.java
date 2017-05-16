@@ -652,12 +652,13 @@ public class MyGdxGame implements Screen {
 	}
 	
 	private void updateHeroStatistics() {
+		hero.calculateStatsFromItems();
 		String str = "HP: " + hero.getHp() +
-				"\n POTIONS: " + hero.getPotionAmount() +
-				"\n STRENGTH: " + hero.getHeroStrength() + 
-				"\n DEXTERITY: " + hero.getHeroDexterity() + 
-				"\n STAMINA: " + hero.getHeroStamina() +
-				"\n WRATH: " + hero.getHeroWrath();
+				" (potions left: " + hero.getPotionAmount() + ")" +
+				"\n STRENGTH: " + hero.getStrength() + 
+				"\n DEXTERITY: " + hero.getDexterity() + 
+				"\n STAMINA: " + hero.getStamina() +
+				"\n WRATH: " + hero.getWrath();
 		
 		heroStatistics.setText(str);
 	}
@@ -1175,7 +1176,6 @@ public class MyGdxGame implements Screen {
 		inventoryOptions.add(inventoryPageControlTable);
 		
 		equipmentOptions = new Window("Equipment", skin);
-		equipmentOptions.setDebug(true);
 		equipmentOptions.setVisible(false);
 		Table heroStatisticsTable = new Table();
 		heroStatistics = new TextArea("",skin);
@@ -1256,11 +1256,11 @@ public class MyGdxGame implements Screen {
 	        	System.out.println(text);
 	        	if(text.matches("^[a-zA-Z0-9]*$")) {
 	        		saveGame(text);
+	        		saves.setVisible(false);
+		        	menu.setVisible(true);
 	        	} else {
 	        		System.out.println("Wrong save name");
 	        	}
-	        	saves.setVisible(false);
-	        	menu.setVisible(true);
 	        }
 	    });	
 		saveToNewFile.add(saveTo, saveToButton);
