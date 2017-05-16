@@ -423,7 +423,6 @@ public class MyGdxGame implements Screen {
 	    	if(staticMonsters.containsKey(newHeroLoc)) {
 	    		System.out.println("attacked");
 	    		mob = staticMonsters.get(newHeroLoc);
-	    		staticMonsters.remove(newHeroLoc);
 	    	} else if(mapgen.getBossLoc().equals(newHeroLoc)) {
 	    		mob = boss;
 	    	} else if (mapgen.getEndPos().equals(newHeroLoc)) {
@@ -654,6 +653,7 @@ public class MyGdxGame implements Screen {
 	
 	private void updateHeroStatistics() {
 		String str = "HP: " + hero.getHp() +
+				"\n POTIONS: " + hero.getPotionAmount() +
 				"\n STRENGTH: " + hero.getHeroStrength() + 
 				"\n DEXTERITY: " + hero.getHeroDexterity() + 
 				"\n STAMINA: " + hero.getHeroStamina() +
@@ -797,7 +797,12 @@ public class MyGdxGame implements Screen {
 		        	if(item != null) {
 		        		addToLog(item.getName() + " acquired!");
 		        		hero.inventory.add(item);
-		        		hero.setPotionAmount(hero.getPotionAmount() + LootSystem.dropPotion());
+		        		if(staticMonsters.containsKey(hero.getLoc())) {
+		        			staticMonsters.remove(hero.getLoc());
+		        			hero.setPotionAmount(hero.getPotionAmount() + 1);
+		        		} else {
+			        		hero.setPotionAmount(hero.getPotionAmount() + LootSystem.dropPotion());
+		        		}
 		        	} else {
 		        		System.out.println("smth bad happened during loot generation");
 		        	}
