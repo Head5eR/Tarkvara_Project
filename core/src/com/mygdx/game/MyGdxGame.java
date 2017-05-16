@@ -484,10 +484,10 @@ public class MyGdxGame implements Screen {
 	    	}
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-	    	stage.setDebugAll(false);
+	    	//stage.setDebugAll(false);
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
-	    	stage.setDebugAll(true);
+	    	//stage.setDebugAll(true);
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 	    		startTheFight(Monster.getMonster());
@@ -1096,7 +1096,6 @@ public class MyGdxGame implements Screen {
 		
 		fightTable = new Table(skin);
 		fightTable.setVisible(false);
-		fightTable.debug();
 		mobFwin = new Window("Monster statistics", skin);
 		mobinfo = new TextArea("", skin);
 		mobinfo.setDisabled(true);
@@ -1221,7 +1220,7 @@ public class MyGdxGame implements Screen {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
 	        	saveTable.clear();
-	        	FileHandle[] files = Gdx.files.local("../").list();
+	        	FileHandle[] files = Gdx.files.local("/").list();
 	        	for(FileHandle file: files) {
 	        		if(file.extension().equals("ser")) {
 	        			saveOption(file, ""+file.lastModified());

@@ -41,7 +41,7 @@ public abstract class SaveSystem {
 		if(name.length() > 0 && name.matches("^[a-zA-Z0-9]*$")) {
 			try {
 		         FileOutputStream fileOut =
-		         new FileOutputStream("../" + name+ ".ser");
+		         new FileOutputStream(name+ ".ser");
 		         ObjectOutputStream out = new ObjectOutputStream(fileOut);
 		         out.writeObject(data);
 		         out.close();
