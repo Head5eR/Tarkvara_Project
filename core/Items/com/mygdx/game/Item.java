@@ -8,26 +8,26 @@ public abstract class Item implements Serializable {
 	private String name;
 	private String[] rarities = {"Common","Uncommon", "Rare", "Mystic", "Legendary"};
 	private String rarity; // 1-5 (Common, Uncommon, Rare, Mystic, Legendary)
-	private boolean equipable;
+	private boolean equippable;
 	
 	public Item() {
 		this.rarity = rarities[MathUtils.random(4)];
 	}
 	
-	public Item(String name, boolean equipable) {
+	public Item(String name, boolean equippable) {
 		this.name = name;
 		this.rarity = rarities[MathUtils.random(4)];
-		this.equipable = equipable;
+		this.equippable = equippable;
 	}
 	
-	public Item(String name, int rarity, boolean equipable) {
+	public Item(String name, int rarity, boolean equippable) {
 		super();
 		this.name = name;
 		this.rarity = rarities[rarity];
-		this.equipable = equipable;
+		this.equippable = equippable;
 	}
 	public boolean isEquipable() {
-		return equipable;
+		return equippable;
 	}
 	
 	public boolean checkIfWeapon(Item item) {
