@@ -17,8 +17,8 @@ public class Bodyarmor extends Armor {
 	  return new Bodyarmor(strength, dexterity, stamina, wrath, type, level, name, armor);
 	 }
 	 
-	 private Bodyarmor(int str, int dex, int stam, int wrath, String type, String level, String name, int armor) {
-	  super(str, dex, stam, wrath, type, level, name, armor);
-	  
+	 private Bodyarmor(int str, int dex, int stam, int wrath, String type, 
+			 String level, String name, int armor) {
+		 super(str, dex, stam, wrath, type, level, name, armor);
 	 }
 }

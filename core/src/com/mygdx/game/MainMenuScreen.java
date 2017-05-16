@@ -81,7 +81,6 @@ public class MainMenuScreen implements Screen {
 		frames.add(logo3);
 		frames.add(logo4);
 		
-
 		rootTable = new Table();
 		rootTable.setFillParent(true);
 		
@@ -109,9 +108,9 @@ public class MainMenuScreen implements Screen {
 		
 		Table customSizes = new Table();
 		customMapLen = new TextArea("", skin);
-		customMapLen.setMessageText("length");
+		customMapLen.setMessageText("length >10");
 		customMapWidth = new TextArea("", skin);
-		customMapWidth.setMessageText("width");
+		customMapWidth.setMessageText("width >10");
 		
 		TextFieldFilter filter = new TextFieldFilter.DigitsOnlyFilter();
 		customMapLen.setTextFieldFilter(filter);
@@ -161,8 +160,12 @@ public class MainMenuScreen implements Screen {
 	        	if(mapLen != "" && mapWidth != "" && mapLen.matches("[0-9]+") && mapWidth.matches("[0-9]+") && mapWidth.length() < 4 && mapLen.length() < 4) {
 	        		int length = Integer.parseInt(mapLen);
 	        		int width = Integer.parseInt(mapWidth);
-	        		 game.setScreen(new MyGdxGame(game, length, width));
-					 dispose();
+	        		if(length > 10 && width > 10) {
+	        			game.setScreen(new MyGdxGame(game, length, width));
+						 dispose();
+	        		} else {
+	        			wrongValues.show(stage);
+	        		}
 	        	} else {
 	        		wrongValues.show(stage);
 	        	}

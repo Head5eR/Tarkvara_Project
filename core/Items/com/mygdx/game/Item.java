@@ -15,7 +15,6 @@ public abstract class Item implements Serializable {
 	}
 	
 	public Item(String name, boolean equipable) {
-		super();
 		this.name = name;
 		this.rarity = rarities[MathUtils.random(4)];
 		this.equipable = equipable;

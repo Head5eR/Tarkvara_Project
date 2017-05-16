@@ -105,6 +105,7 @@ public class MyGdxGame implements Screen {
 	private Table equipmentTable;
 	private Table inventoryPageControlTable;
 	private Label inventoryPageNumber;
+	private TextArea heroStatistics;
 	
 	// here comes the light magic
 	// used shader light making tutorial - 
@@ -394,6 +395,7 @@ public class MyGdxGame implements Screen {
 		logTable.setVisible(false);
 		fightInProgress = false;
 		fightTable.setVisible(false);
+		saveButton.setVisible(true);
 		mobFwin.removeActor(mobFwin.findActor("lootbtn"));
 		attackAndDefence.clear();
 	}
@@ -424,6 +426,8 @@ public class MyGdxGame implements Screen {
 	    		staticMonsters.remove(newHeroLoc);
 	    	} else if(mapgen.getBossLoc().equals(newHeroLoc)) {
 	    		mob = boss;
+	    	} else if (mapgen.getEndPos().equals(newHeroLoc)) {
+				showStatistics();
 	    	} else {
 	    		double ambushChance = ambSystem.generateAttackChance();
 	    		System.out.println("ambush chance: " + ambushChance);
@@ -490,6 +494,7 @@ public class MyGdxGame implements Screen {
 	    		startTheFight(Monster.getMonster());
 	    }
 	    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+	    	camera.position.set(Gdx.graphics.getWidth()/2f, Gdx.graphics.getHeight()/2f, 0);
     		if(showMap) {
     			showMap = false;
     		} else {
@@ -522,6 +527,9 @@ public class MyGdxGame implements Screen {
 	
 	public void startTheFight(Monster mob) {
 		genMob(mob);
+		equipmentOptions.setVisible(false);
+		inventoryOptions.setVisible(false);
+		saveButton.setVisible(false);
 		createActionButtons();
 		createFightLog();
 		hero.calculateStatsFromItems();
@@ -626,6 +634,7 @@ public class MyGdxGame implements Screen {
 		}
 		if(FightSystem.isDead(hero)) {
 			heroinfo.appendText("\n DEAD");
+			showStatistics();
 		}
 		if(FightSystem.isDead(activeMob)) {
 			mobinfo.appendText("\n DEAD");
@@ -633,7 +642,6 @@ public class MyGdxGame implements Screen {
 				statistics.put("boss", statistics.get("boss") +1);
 				mapgen.setBossLoc(new Location(-1,-1));
 				endFight();
-				showStatistics();
 			} else {
 				createLoot();
 				statistics.put(activeMob.getMod().getName(), 
@@ -642,6 +650,16 @@ public class MyGdxGame implements Screen {
 			
 		}
 		
+	}
+	
+	private void updateHeroStatistics() {
+		String str = "HP: " + hero.getHp() +
+				"\n STRENGTH: " + hero.getHeroStrength() + 
+				"\n DEXTERITY: " + hero.getHeroDexterity() + 
+				"\n STAMINA: " + hero.getHeroStamina() +
+				"\n WRATH: " + hero.getHeroWrath();
+		
+		heroStatistics.setText(str);
 	}
 	
 	public boolean attackAndDefenceIsComplete() {
@@ -819,8 +837,8 @@ public class MyGdxGame implements Screen {
 	        		hero.setPickedDefs(getAllActionsOfType("defenceAction"));
 	        		FightSystem.fight(hero, activeMob);
 	        		updateHeroMonsterInfo();
-	        		attackAndDefence.clear();
-	        		createActionButtons();
+	        		//attackAndDefence.clear();
+	        		//createActionButtons();
 	        	}
 	            
 	        }
@@ -1006,6 +1024,7 @@ public class MyGdxGame implements Screen {
 	
 	private void updateInventoryEquipment() {
 		updateInventoryPageNumber();
+		updateHeroStatistics();
 		ArrayList<String> equippedItems = hero.getEquippedItems();
 		ArrayList<String> inventoryItems = hero.getInventoryItems((invPageNr-1)*maxItemsPerPage, (invPageNr-1)*maxItemsPerPage+maxItemsPerPage-1);
 		equipmentTable.clear();
@@ -1151,7 +1170,13 @@ public class MyGdxGame implements Screen {
 		inventoryOptions.add(inventoryPageControlTable);
 		
 		equipmentOptions = new Window("Equipment", skin);
+		equipmentOptions.setDebug(true);
 		equipmentOptions.setVisible(false);
+		Table heroStatisticsTable = new Table();
+		heroStatistics = new TextArea("",skin);
+
+		heroStatisticsTable.add(heroStatistics).fill().expand();
+		equipmentOptions.add(heroStatisticsTable).fill().expand().row();
 		equipmentTable = new Table();
 		equipmentOptions.add(equipmentTable);
 				
@@ -1161,12 +1186,29 @@ public class MyGdxGame implements Screen {
 		pauseMenuTable = new Table();
 		
 		saveButton = new TextButton("Save game", skin);
+		TextButton toMainMenu = new TextButton("Exit to menu",skin);
 		exitButton = new TextButton("Exit game", skin);
 		
 		exitButton.addListener(new ChangeListener() {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
 	        	GUIelements.sureAboutClosingDialog(stage, skin);
+	        }
+	    });	
+		
+		toMainMenu.addListener(new ChangeListener() {
+	        @Override
+	        public void changed (ChangeEvent event, Actor actor) {
+	        	Dialog dialog = new Dialog("Return to main menu?", skin, "dialog") {
+	    			protected void result (Object object) {
+	    				if(object.equals(true)) {
+	    					game.setScreen(new MainMenuScreen(game));
+	    				} else {
+	    					this.hide();
+	    				}
+	    			}
+	    		}.text("Are you sure?").button("Yes", true).button("No", false).key(Keys.ENTER, true)
+	    			.key(Keys.ESCAPE, false).show(stage);
 	        }
 	    });	
 		
@@ -1185,6 +1227,7 @@ public class MyGdxGame implements Screen {
 	        }
 	    });	
 		pauseMenuTable.add(saveButton).row();
+		pauseMenuTable.add(toMainMenu).row();
 		pauseMenuTable.add(exitButton);
 		menu.add(pauseMenuTable);
 		
@@ -1276,6 +1319,14 @@ public class MyGdxGame implements Screen {
 			protected void result (Object object) {
 				if(object.equals(true)) {
 					this.hide();
+					if((hero.getLoc()).equals(mapgen.getEndPos())) {
+						dispose();
+						game.setScreen(new MyGdxGame(game, getMAP_WIDTH()+5, getMAP_HEIGHT()+5));
+					} else if (FightSystem.isDead(hero)) {
+						dispose();
+						game.setScreen(new MainMenuScreen(game));
+					}
+					
 				}
 			}
 		}.text(text).button("Ok", true).key(Keys.ENTER, true).show(stage);
@@ -1319,6 +1370,7 @@ public class MyGdxGame implements Screen {
 		equipmentOptions.setWidth(Gdx.graphics.getWidth()/2);
 		inventoryOptions.setHeight(Gdx.graphics.getHeight()/2);
 		equipmentOptions.setHeight(Gdx.graphics.getHeight()/2);
+		heroStatistics.setHeight(equipmentOptions.getHeight()/8);
 	}
 	
 	private void updateInventoryDisplayInfo() {
