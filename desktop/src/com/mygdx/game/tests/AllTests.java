@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ testMapSize.class, testMatrixCreation.class })
+@SuiteClasses({ testMapGenerator.class, testMatrixCreation.class, testFightSystem.class, testMonster.class })
 public class AllTests {
 
 }

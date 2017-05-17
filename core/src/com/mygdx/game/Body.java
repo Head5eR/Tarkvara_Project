@@ -105,4 +105,8 @@ public class Body implements Serializable {
 	public ArrayList<Bodypart> getBodyParts() {
 		return bodyParts;
 	}
+
+	public String getType() {
+		return type;
+	}
 }
