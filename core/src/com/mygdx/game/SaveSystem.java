@@ -46,7 +46,7 @@ public abstract class SaveSystem {
 		         out.writeObject(data);
 		         out.close();
 		         fileOut.close();
-		         System.out.println("Serialized data is saved in" + name + ".ser");
+		         System.out.println("Serialized data is saved in " + name + ".ser");
 		         return true;
 		      }catch(IOException i) {
 		         i.printStackTrace();

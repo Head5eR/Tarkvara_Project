@@ -1220,7 +1220,7 @@ public class MyGdxGame implements Screen {
 	        @Override
 	        public void changed (ChangeEvent event, Actor actor) {
 	        	saveTable.clear();
-	        	FileHandle[] files = Gdx.files.local("/").list();
+	        	FileHandle[] files = Gdx.files.local("").list();
 	        	for(FileHandle file: files) {
 	        		if(file.extension().equals("ser")) {
 	        			saveOption(file, ""+file.lastModified());

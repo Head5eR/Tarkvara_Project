@@ -208,7 +208,7 @@ public class MainMenuScreen implements Screen {
 				loadTable.clear();
 				loadOptions.setVisible(true);
 				// read all save files
-				FileHandle[] files = Gdx.files.local("/").list();
+				FileHandle[] files = Gdx.files.local("").list();
 				for(FileHandle file: files) {
 					if(file.extension().equals("ser")) {
 						loadOption(file, ""+file.lastModified());
